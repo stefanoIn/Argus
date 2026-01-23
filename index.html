@@ -225,6 +225,22 @@
                     </p>
                 </div>
 
+                <!-- Visualization 2: NDVI Rural vs Urban -->
+                <div class="story-viz">
+                    <div class="story-viz-container">
+                        <h3 class="viz-title">Rural vs Urban Vegetation: NDVI Map of Genoa</h3>
+                        <div id="viz-genoa-ndvi" class="visualization">
+                            <p class="placeholder-text">Loading Genoa NDVI data from satellite imagery...</p>
+                        </div>
+                        <p class="viz-caption">
+                            <strong>Figure 2:</strong> Normalized Difference Vegetation Index (NDVI) map of Genoa derived from 
+                            multispectral satellite imagery. Higher NDVI values (brighter greens) indicate denser vegetation, 
+                            while lower values show sparsely vegetated or built-up urban areas. The map uses the normalized NDVI 
+                            scale from -1 to 1 to highlight differences between rural and urban zones.
+                        </p>
+                    </div>
+                </div>
+
                 <div class="story-text">
                     <h3 class="subsection-title">Energy Consumption</h3>
                     <p class="story-paragraph">
@@ -749,6 +765,7 @@
     
     <!-- Individual visualization modules -->
     <script src="js/viz-genoa-uhi.js"></script>
+    <script src="js/viz-genoa-ndvi.js"></script>
     <!-- Main initialization (must be last) -->
     <script src="js/visualizations.js"></script>
     <script src="js/main.js"></script>

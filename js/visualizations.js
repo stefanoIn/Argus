@@ -22,4 +22,5 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeVisualizations() {
     // Initialize each visualization for storytelling format
     initializeGenoaUHIViz();
+    initializeGenoaNDVIViz();
 }

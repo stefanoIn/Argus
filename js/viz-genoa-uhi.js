@@ -169,63 +169,83 @@ function initializeGenoaUHIViz() {
             displayCanvas.width = rasterWidth;
             displayCanvas.height = rasterHeight;
             const displayCtx = displayCanvas.getContext('2d');
+            
+            // Enable image smoothing for better quality (set before processing)
+            displayCtx.imageSmoothingEnabled = true;
+            displayCtx.imageSmoothingQuality = 'high';
+            
             const imageData = displayCtx.createImageData(rasterWidth, rasterHeight);
             
             // Fill image data with color-mapped values using proper downsampling
             // Average values in each sample block for better quality
-            for (let displayY = 0; displayY < rasterHeight; displayY++) {
-                for (let displayX = 0; displayX < rasterWidth; displayX++) {
-                    // Calculate source pixel range for this display pixel
-                    const srcXStart = displayX * sampleFactor;
-                    const srcYStart = displayY * sampleFactor;
-                    const srcXEnd = Math.min(srcXStart + sampleFactor, width);
-                    const srcYEnd = Math.min(srcYStart + sampleFactor, height);
-                    
-                    // Average values in the sample block
-                    let sum = 0;
-                    let count = 0;
-                    
-                    for (let srcY = srcYStart; srcY < srcYEnd; srcY++) {
-                        for (let srcX = srcXStart; srcX < srcXEnd; srcX++) {
-                            const idx = srcY * width + srcX;
-                            if (idx >= 0 && idx < data.length) {
-                                const value = data[idx];
-                                if (!isNaN(value) && value !== null && value !== undefined && isFinite(value)) {
-                                    sum += value;
-                                    count++;
+            // Process in chunks to avoid blocking the main thread and allow footer to render
+            let currentY = 0;
+            const chunkSize = 10; // Process 10 rows at a time
+            
+            function processChunk() {
+                const endY = Math.min(currentY + chunkSize, rasterHeight);
+                
+                for (let displayY = currentY; displayY < endY; displayY++) {
+                    for (let displayX = 0; displayX < rasterWidth; displayX++) {
+                        // Calculate source pixel range for this display pixel
+                        const srcXStart = displayX * sampleFactor;
+                        const srcYStart = displayY * sampleFactor;
+                        const srcXEnd = Math.min(srcXStart + sampleFactor, width);
+                        const srcYEnd = Math.min(srcYStart + sampleFactor, height);
+                        
+                        // Average values in the sample block
+                        let sum = 0;
+                        let count = 0;
+                        
+                        for (let srcY = srcYStart; srcY < srcYEnd; srcY++) {
+                            for (let srcX = srcXStart; srcX < srcXEnd; srcX++) {
+                                const idx = srcY * width + srcX;
+                                if (idx >= 0 && idx < data.length) {
+                                    const value = data[idx];
+                                    if (!isNaN(value) && value !== null && value !== undefined && isFinite(value)) {
+                                        sum += value;
+                                        count++;
+                                    }
                                 }
                             }
                         }
+                        
+                        // Get color for averaged value (clamped to percentile range)
+                        let color = { r: 0, g: 0, b: 0, opacity: 0 };
+                        if (count > 0) {
+                            const avgValue = sum / count;
+                            // Clamp value to percentile range for color mapping
+                            const clampedValue = Math.max(p1Val, Math.min(p99Val, avgValue));
+                            color = d3.rgb(colorScale(clampedValue));
+                        }
+                        
+                        // Set pixel in image data
+                        const displayIdx = (displayY * rasterWidth + displayX) * 4;
+                        imageData.data[displayIdx] = color.r;
+                        imageData.data[displayIdx + 1] = color.g;
+                        imageData.data[displayIdx + 2] = color.b;
+                        imageData.data[displayIdx + 3] = count > 0 ? 255 : 0; // Transparent if no valid data
                     }
-                    
-                    // Get color for averaged value (clamped to percentile range)
-                    let color = { r: 0, g: 0, b: 0, opacity: 0 };
-                    if (count > 0) {
-                        const avgValue = sum / count;
-                        // Clamp value to percentile range for color mapping
-                        const clampedValue = Math.max(p1Val, Math.min(p99Val, avgValue));
-                        color = d3.rgb(colorScale(clampedValue));
-                    }
-                    
-                    // Set pixel in image data
-                    const displayIdx = (displayY * rasterWidth + displayX) * 4;
-                    imageData.data[displayIdx] = color.r;
-                    imageData.data[displayIdx + 1] = color.g;
-                    imageData.data[displayIdx + 2] = color.b;
-                    imageData.data[displayIdx + 3] = count > 0 ? 255 : 0; // Transparent if no valid data
+                }
+                
+                currentY = endY;
+                
+                // If there's more to process, schedule next chunk
+                if (currentY < rasterHeight) {
+                    // Use requestAnimationFrame to allow browser to render between chunks
+                    requestAnimationFrame(processChunk);
+                } else {
+                    // All processing complete, put the image data into the canvas
+                    displayCtx.putImageData(imageData, 0, 0);
+                    continueVisualization();
                 }
             }
             
-            // Put the image data into the canvas
-            displayCtx.putImageData(imageData, 0, 0);
-            
-            // Enable image smoothing for better quality
-            displayCtx.imageSmoothingEnabled = true;
-            displayCtx.imageSmoothingQuality = 'high';
-            
-            // Add image to SVG with better rendering
-            const imageUrl = displayCanvas.toDataURL('image/png');
-            const imageElement = svg.append('image')
+            // Start processing
+            function continueVisualization() {
+                // Add image to SVG with better rendering
+                const imageUrl = displayCanvas.toDataURL('image/png');
+                const imageElement = svg.append('image')
                 .attr('href', imageUrl)
                 .attr('width', displayWidth)
                 .attr('height', displayHeight)
@@ -236,9 +256,9 @@ function initializeGenoaUHIViz() {
                 .attr('role', 'button')
                 .attr('aria-label', 'Click to enlarge Genoa Urban Heat Island visualization')
                 .attr('tabindex', '0');
-            
-            // Add click-to-enlarge functionality (Andy Kirk's principle: Clear interactions)
-            imageElement
+                
+                // Add click-to-enlarge functionality (Andy Kirk's principle: Clear interactions)
+                imageElement
                 .on('click', function() {
                     openEnlargedView({
                         data, width, height, minVal, maxVal, p1Val, p99Val, bbox,
@@ -256,9 +276,9 @@ function initializeGenoaUHIViz() {
                         });
                     }
                 });
-            
-            // Add visual indicator for clickability (Kirk's principle: Visual affordance)
-            const clickHint = svg.append('g')
+                
+                // Add visual indicator for clickability (Kirk's principle: Visual affordance)
+                const clickHint = svg.append('g')
                 .attr('class', 'click-hint')
                 .attr('opacity', 0)
                 .attr('pointer-events', 'none');
@@ -291,104 +311,118 @@ function initializeGenoaUHIViz() {
                 .on('mouseleave', function() {
                     clickHint.transition().duration(200).attr('opacity', 0);
                 });
-            
-            // Add color legend with improved apparatus (Kirk's principle of Elegance)
-            const legendWidth = 300;
-            const legendHeight = 25;
-            const legend = svg.append('g')
-                .attr('transform', `translate(${(svgWidth - legendWidth) / 2}, ${svgHeight + 40})`);
-            
-            // Create gradient for legend matching the color scale
-            const defs = svg.append('defs');
-            const gradient = defs.append('linearGradient')
-                .attr('id', 'heat-gradient')
-                .attr('x1', '0%')
-                .attr('x2', '100%');
-            
-            // Use more stops for smoother gradient matching the color scale (using percentile range)
-            const numStops = 30;
-            for (let i = 0; i <= numStops; i++) {
-                const t = i / numStops;
-                const value = p1Val + (p99Val - p1Val) * t;
-                const color = colorScale(value);
-                gradient.append('stop')
-                    .attr('offset', `${t * 100}%`)
-                    .attr('stop-color', color);
-            }
-            
-            // Draw legend rectangle
-            legend.append('rect')
-                .attr('width', legendWidth)
-                .attr('height', legendHeight)
-                .attr('fill', 'url(#heat-gradient)')
-                .attr('stroke', '#4a5568')
-                .attr('stroke-width', 1);
-            
-            // Add tick marks and labels at key intervals (using percentile range)
-            const numTicks = 5; // P1, P99, and 3 intermediate values
-            const tickValues = [];
-            for (let i = 0; i < numTicks; i++) {
-                const value = p1Val + (p99Val - p1Val) * (i / (numTicks - 1));
-                tickValues.push(value);
-            }
-            
-            // Add tick marks
-            tickValues.forEach((value, i) => {
-                const xPos = (i / (numTicks - 1)) * legendWidth;
                 
-                // Draw tick line
-                legend.append('line')
-                    .attr('x1', xPos)
-                    .attr('x2', xPos)
-                    .attr('y1', legendHeight)
-                    .attr('y2', legendHeight + 4)
+                // Add color legend with improved apparatus (Kirk's principle of Elegance)
+                const legendWidth = 300;
+                const legendHeight = 25;
+                const legend = svg.append('g')
+                    .attr('transform', `translate(${(svgWidth - legendWidth) / 2}, ${svgHeight + 40})`);
+                
+                // Create gradient for legend matching the color scale
+                const defs = svg.append('defs');
+                const gradient = defs.append('linearGradient')
+                    .attr('id', 'heat-gradient')
+                    .attr('x1', '0%')
+                    .attr('x2', '100%');
+                
+                // Use more stops for smoother gradient matching the color scale (using percentile range)
+                const numStops = 30;
+                for (let i = 0; i <= numStops; i++) {
+                    const t = i / numStops;
+                    const value = p1Val + (p99Val - p1Val) * t;
+                    const color = colorScale(value);
+                    gradient.append('stop')
+                        .attr('offset', `${t * 100}%`)
+                        .attr('stop-color', color);
+                }
+                
+                // Draw legend rectangle
+                legend.append('rect')
+                    .attr('width', legendWidth)
+                    .attr('height', legendHeight)
+                    .attr('fill', 'url(#heat-gradient)')
                     .attr('stroke', '#4a5568')
                     .attr('stroke-width', 1);
                 
-                // Add tick label
+                // Add tick marks and labels at key intervals (using percentile range)
+                const numTicks = 5; // P1, P99, and 3 intermediate values
+                const tickValues = [];
+                for (let i = 0; i < numTicks; i++) {
+                    const value = p1Val + (p99Val - p1Val) * (i / (numTicks - 1));
+                    tickValues.push(value);
+                }
+                
+                // Add tick marks
+                tickValues.forEach((value, i) => {
+                    const xPos = (i / (numTicks - 1)) * legendWidth;
+                    
+                    // Draw tick line
+                    legend.append('line')
+                        .attr('x1', xPos)
+                        .attr('x2', xPos)
+                        .attr('y1', legendHeight)
+                        .attr('y2', legendHeight + 4)
+                        .attr('stroke', '#4a5568')
+                        .attr('stroke-width', 1);
+                    
+                    // Add tick label
+                    legend.append('text')
+                        .attr('x', xPos)
+                        .attr('y', legendHeight + 18)
+                        .attr('text-anchor', 'middle')
+                        .style('font-size', '11px')
+                        .style('fill', '#2d3748')
+                        .style('font-family', 'system-ui, sans-serif')
+                        .text(`${value.toFixed(1)}°C`);
+                });
+                
+                // Add legend title with percentile information
                 legend.append('text')
-                    .attr('x', xPos)
-                    .attr('y', legendHeight + 18)
+                    .attr('x', legendWidth / 2)
+                    .attr('y', -8)
+                    .attr('text-anchor', 'middle')
+                    .style('font-size', '13px')
+                    .style('fill', '#2d3748')
+                    .style('font-weight', '500')
+                    .style('font-family', 'system-ui, sans-serif')
+                    .text('Land Surface Temperature (°C)');
+                
+                // Add percentile range note (Kirk's principle: explicit uncertainty communication)
+                legend.append('text')
+                    .attr('x', legendWidth / 2)
+                    .attr('y', legendHeight + 35)
                     .attr('text-anchor', 'middle')
                     .style('font-size', '11px')
-                    .style('fill', '#2d3748')
+                    .style('fill', '#718096')
                     .style('font-family', 'system-ui, sans-serif')
-                    .text(`${value.toFixed(1)}°C`);
-            });
+                    .style('font-style', 'italic');
+                
+                // Add actual min/max values for transparency
+                legend.append('text')
+                    .attr('x', legendWidth / 2)
+                    .attr('y', legendHeight + 40)
+                    .attr('text-anchor', 'middle')
+                    .style('font-size', '10px')
+                    .style('fill', '#a0aec0')
+                    .style('font-family', 'system-ui, sans-serif')
+                    .text(`Full range: ${minVal.toFixed(1)}°C - ${maxVal.toFixed(1)}°C`);
+                
+                // Remove loading message
+                loadingMsg.remove();
+            }
             
-            // Add legend title with percentile information
-            legend.append('text')
-                .attr('x', legendWidth / 2)
-                .attr('y', -8)
-                .attr('text-anchor', 'middle')
-                .style('font-size', '13px')
-                .style('fill', '#2d3748')
-                .style('font-weight', '500')
-                .style('font-family', 'system-ui, sans-serif')
-                .text('Land Surface Temperature (°C)');
-            
-            // Add percentile range note (Kirk's principle: explicit uncertainty communication)
-            legend.append('text')
-                .attr('x', legendWidth / 2)
-                .attr('y', legendHeight + 35)
-                .attr('text-anchor', 'middle')
-                .style('font-size', '11px')
-                .style('fill', '#718096')
-                .style('font-family', 'system-ui, sans-serif')
-                .style('font-style', 'italic');
-            
-            // Add actual min/max values for transparency
-            legend.append('text')
-                .attr('x', legendWidth / 2)
-                .attr('y', legendHeight + 40)
-                .attr('text-anchor', 'middle')
-                .style('font-size', '10px')
-                .style('fill', '#a0aec0')
-                .style('font-family', 'system-ui, sans-serif')
-                .text(`Full range: ${minVal.toFixed(1)}°C - ${maxVal.toFixed(1)}°C`);
-            
-            // Remove loading message
-            loadingMsg.remove();
+            // Start the chunked processing after allowing browser to render footer first
+            // Use requestIdleCallback if available, otherwise use setTimeout to allow initial render
+            if (typeof requestIdleCallback !== 'undefined') {
+                requestIdleCallback(() => {
+                    requestAnimationFrame(processChunk);
+                }, { timeout: 100 });
+            } else {
+                // Small delay to allow footer to render first
+                setTimeout(() => {
+                    requestAnimationFrame(processChunk);
+                }, 0);
+            }
         })
         .catch(error => {
             console.error('Error loading Genoa UHI TIFF:', error);
