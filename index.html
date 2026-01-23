@@ -81,6 +81,17 @@
         </nav>
     </header>
 
+    <!-- Left Sidebar Navigation -->
+    <nav class="sidebar-nav" id="sidebar-nav">
+        <ul class="sidebar-nav-list">
+            <li><a href="#introduction" class="sidebar-nav-link" data-section="introduction">Introduction</a></li>
+            <li><a href="#causes" class="sidebar-nav-link" data-section="causes">Why They Happen</a></li>
+            <li><a href="#impacts" class="sidebar-nav-link" data-section="impacts">What They Cause</a></li>
+            <li><a href="#solutions" class="sidebar-nav-link" data-section="solutions">What Can Be Done</a></li>
+            <li><a href="#methodology" class="sidebar-nav-link" data-section="methodology">Methodology</a></li>
+        </ul>
+    </nav>
+
     <!-- Hero / Introduction -->
     <section id="introduction" class="story-hero">
         <div class="story-container">
@@ -127,11 +138,49 @@
                             <p class="placeholder-text">Loading Genoa UHI data from satellite imagery...</p>
                         </div>
                         <p class="viz-caption">
-                            <strong>Figure 1:</strong> Land Surface Temperature (LST) map of Genoa derived from satellite 
-                            thermal infrared data. The visualization shows the urban heat island effect using the Inferno 
-                            color scale (perceptually uniform, colorblind-friendly). Warmer areas (yellow/orange) represent 
-                            urban centers and cooler areas (dark purple/black) represent rural and vegetated regions. 
-                            The temperature range uses 1-99 percentiles to minimize outlier effects.
+                            <strong>Figure 1:</strong> Land Surface Temperature (LST) map of Genoa from satellite thermal data. 
+                            Uses Inferno color scale (colorblind-friendly). Warmer areas (yellow/orange) are urban centers; 
+                            cooler areas (purple/black) are rural/vegetated. Temperature range uses 1-99 percentiles.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Land Cover & Heat Visualization: LST + WorldCover -->
+                <div class="story-viz">
+                    <div class="story-viz-container">
+                        <h3 class="viz-title">Land Cover & Heat: Genoa</h3>
+                        
+                        <!-- Semantic Slider -->
+                        <div class="semantic-slider-container">
+                            <label for="semantic-slider" class="slider-label">Semantic view:</label>
+                            <div class="slider-wrapper">
+                                <input 
+                                    type="range" 
+                                    id="semantic-slider" 
+                                    class="semantic-slider"
+                                    min="0" 
+                                    max="2" 
+                                    value="0" 
+                                    step="1"
+                                    aria-label="Semantic visualization step"
+                                />
+                                <div class="slider-labels">
+                                    <span class="slider-label-item" data-step="0">Land cover</span>
+                                    <span class="slider-label-item" data-step="1">Vegetation</span>
+                                    <span class="slider-label-item" data-step="2">Urban</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="viz-genoa-uhi-scrolly" class="visualization">
+                            <p class="placeholder-text">Loading Genoa land-cover and temperature data...</p>
+                        </div>
+
+
+                        <p class="viz-caption">
+                            <strong>Figure 1b:</strong> Genoa's LST with semantic masking. Step 0: land cover context. 
+                            Step 1: temperatures for vegetated areas. Step 2: temperatures for built-up areas. 
+                            Temperature data is constant; only the mask changes.
                         </p>
                     </div>
                 </div>
@@ -233,10 +282,10 @@
                             <p class="placeholder-text">Loading Genoa NDVI data from satellite imagery...</p>
                         </div>
                         <p class="viz-caption">
-                            <strong>Figure 2:</strong> Normalized Difference Vegetation Index (NDVI) map of Genoa derived from 
-                            multispectral satellite imagery. Higher NDVI values (brighter greens) indicate denser vegetation, 
-                            while lower values show sparsely vegetated or built-up urban areas. The map uses the normalized NDVI 
-                            scale from -1 to 1 to highlight differences between rural and urban zones.
+                            <strong>Figure 2:</strong> Normalized Difference Vegetation Index (NDVI) map of Genoa derived from
+                            multispectral satellite imagery. NDVI values are defined in the range -1 to 1. NDVI values below 0
+                            (water or non-vegetated surfaces) are rendered with a neutral mask, while NDVI values from 0 to 1
+                            use a sequential green scale to represent vegetation density.
                         </p>
                     </div>
                 </div>
@@ -353,338 +402,115 @@
                     <div class="methodology-subsection">
                         <h3 class="subsection-title">Data Sources</h3>
                         <p>
-                            Our analysis is based on satellite thermal imagery data from publicly available Earth 
-                            observation datasets. All data sources are properly cited and documented for transparency 
-                            and reproducibility.
+                            Analysis uses publicly available satellite thermal imagery from Earth observation datasets.
                         </p>
-                        <p><strong>Primary Data Sources:</strong></p>
+                        <p><strong>Primary Sources:</strong></p>
                         <ul class="data-sources-list">
                             <li>
-                                <strong>Landsat 8-9 Thermal Infrared Sensor (TIRS)</strong> - Earth observation satellite imagery
-                                <ul style="margin-top: 0.5rem; margin-left: 1.5rem; list-style-type: disc;">
-                                    <li>Source: <a href="https://earthexplorer.usgs.gov/" target="_blank" rel="noopener noreferrer">USGS EarthExplorer</a> or <a href="https://earthexplorer.usgs.gov/" target="_blank" rel="noopener noreferrer">Google Earth Engine</a></li>
-                                    <li>Format: GeoTIFF (Thermal Bands 10-11)</li>
-                                    <li>Temporal Coverage: [fill this]</li>
-                                    <li>Spatial Resolution: [fill this]</li>
-                                    <li>Access: Public via USGS EarthExplorer (registration required)</li>
-                                    <li>Documentation: <a href="https://www.usgs.gov/landsat-missions/landsat-collection-2-level-2-science-products" target="_blank" rel="noopener noreferrer">Landsat Collection 2 Level-2 Science Products</a></li>
-                                </ul>
+                                <strong>Landsat 8-9 TIRS</strong> - Thermal infrared imagery via 
+                                <a href="https://earthexplorer.usgs.gov/" target="_blank" rel="noopener noreferrer">USGS EarthExplorer</a> 
+                                or <a href="https://earthexplorer.usgs.gov/" target="_blank" rel="noopener noreferrer">Google Earth Engine</a>
                             </li>
                             <li>
-                                <strong>Sentinel-2</strong> - Multispectral satellite imagery (for NDVI/vegetation analysis)
-                                <ul style="margin-top: 0.5rem; margin-left: 1.5rem; list-style-type: disc;">
-                                    <li>Source: <a href="https://scihub.copernicus.eu/" target="_blank" rel="noopener noreferrer">Copernicus Open Access Hub</a> or <a href="https://earthexplorer.usgs.gov/" target="_blank" rel="noopener noreferrer">Google Earth Engine</a></li>
-                                    <li>Format: GeoTIFF (10m spatial resolution)</li>
-                                    <li>Temporal Coverage: [fill this]</li>
-                                    <li>Usage: Vegetation index calculation to correlate with heat island intensity</li>
-                                    <li>Access: Public via Copernicus Open Access Hub (registration required)</li>
-                                </ul>
+                                <strong>Sentinel-2</strong> - Multispectral imagery (10m resolution) for NDVI/vegetation analysis via 
+                                <a href="https://scihub.copernicus.eu/" target="_blank" rel="noopener noreferrer">Copernicus Open Access Hub</a>
                             </li>
                         </ul>
                         <p>
-                            <strong>Data Citations:</strong> All data sources are properly cited in academic format:
-                        </p>
-                        <ul class="data-sources-list">
-                            <li>Landsat 8-9: USGS. ([fill this]). Landsat Collection 2 Level-2 Science Products. U.S. Geological Survey.</li>
-                            <li>Sentinel-2: European Space Agency. ([fill this]). Sentinel-2 MSI: MultiSpectral Instrument, Level-2A.</li>
-                        </ul>
-                        <p>
-                            <strong>Data Location:</strong> All processed data files used by the visualizations are located 
-                            in the <code>data/processed/</code> directory. Raw data files (if stored) are in the 
-                            <code>data/raw/</code> directory. For complete data source documentation, including access links 
-                            and usage details, see the README.md file in the GitHub repository.
+                            Processed data files are in <code>data/processed/</code>. Raw data (if stored) is in <code>data/raw/</code>.
                         </p>
                     </div>
 
                     <div class="methodology-subsection">
-                        <h3 class="subsection-title">Data Cleaning and Imputation</h3>
+                        <h3 class="subsection-title">Data Processing</h3>
                         <p>
-                            The raw satellite data underwent several preprocessing steps to ensure quality and reliability:
+                            Raw data was preprocessed to ensure quality:
                         </p>
                         <ul>
-                            <li>
-                                <strong>Missing Data Handling:</strong> Missing values due to cloud cover, sensor errors, 
-                                or data gaps were identified and handled. For time series data, missing values were 
-                                interpolated using [fill this] interpolation methods. Spatial gaps were filled using 
-                                [fill this] interpolation techniques.
-                            </li>
-                            <li>
-                                <strong>Outlier Detection:</strong> Statistical outliers were identified using 
-                                interquartile range (IQR) methods and domain knowledge. Extreme temperature values 
-                                outside physically plausible ranges (below -50°C or above 60°C for surface 
-                                temperatures) were flagged for review and excluded if confirmed as sensor errors.
-                            </li>
-                            <li>
-                                <strong>Data Validation:</strong> Data quality checks included: (1) Range validation 
-                                for temperature values, (2) Temporal consistency checks, (3) Spatial coherence validation, 
-                                (4) Cross-validation with ground-based measurements where available.
-                            </li>
-                            <li>
-                                <strong>Coordinate Transformation:</strong> All spatial data were transformed to a 
-                                consistent coordinate reference system ([fill this]) for analysis.
-                            </li>
-                            <li>
-                                <strong>Normalization:</strong> Temperature values were normalized where necessary to 
-                                account for different measurement conditions (time of day, season, sensor calibration) 
-                                using [fill this] normalization methods.
-                            </li>
+                            <li><strong>Missing Data:</strong> Cloud cover and sensor gaps handled via interpolation</li>
+                            <li><strong>Outliers:</strong> Extreme values outside plausible ranges (-50°C to 60°C) flagged and excluded</li>
+                            <li><strong>Validation:</strong> Range checks, temporal consistency, and spatial coherence validation</li>
+                            <li><strong>Coordinate System:</strong> All data transformed to consistent CRS for analysis</li>
                         </ul>
                         <p>
-                            <strong>Assumptions Made:</strong> When data was missing or uncertain, we assumed: 
-                            (1) Spatial continuity of temperature gradients, (2) Temporal stability for short-term 
-                            gaps, (3) Sensor accuracy within manufacturer specifications.
-                        </p>
-                        <p>
-                            All preprocessing steps are documented in the Python preprocessing scripts located in the 
-                            repository. The cleaned dataset is available in the <code>data/processed/</code> directory 
-                            for transparency and verification.
+                            Preprocessing scripts and cleaned data are available in the repository.
                         </p>
                     </div>
 
                     <div class="methodology-subsection">
-                        <h3 class="subsection-title">Data Processing and Analysis</h3>
+                        <h3 class="subsection-title">Analysis Pipeline</h3>
                         <p>
-                            The data processing pipeline consists of the following stages, transforming raw satellite 
-                            imagery into visual encodings:
+                            Processing stages transform raw imagery into visualizations:
                         </p>
                         <ol class="pipeline-list">
-                            <li>
-                                <strong>Data Ingestion:</strong> Loading raw satellite imagery files (GeoTIFF format) 
-                                using Python libraries including <code>rasterio</code> and <code>xarray</code>. 
-                                Files are read from the <code>data/raw/</code> directory.
-                            </li>
-                            <li>
-                                <strong>Preprocessing:</strong> Cleaning, filtering, and transforming data as described 
-                                in the "Data Cleaning and Imputation" section above. This includes handling missing data, 
-                                detecting outliers, validating data quality, and transforming coordinates.
-                            </li>
-                            <li>
-                                <strong>Feature Extraction:</strong> Calculating temperature metrics and spatial statistics:
-                                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
-                                    <li>Mean, median, and standard deviation of temperatures</li>
-                                    <li>Urban Heat Island Intensity (UHI = Urban Temp - Rural Temp)</li>
-                                    <li>Spatial autocorrelation metrics</li>
-                                    <li>Land surface temperature (LST) from thermal bands</li>
-                                    <li>Normalized Difference Vegetation Index (NDVI) where applicable</li>
-                                </ul>
-                            </li>
-                            <li>
-                                <strong>Aggregation:</strong> Summarizing data by time period (daily, monthly, seasonal), 
-                                region (urban vs. rural, city districts), and land use type. Aggregations include 
-                                mean temperatures, temperature ranges, and heat island intensities.
-                            </li>
-                            <li>
-                                <strong>Visualization:</strong> Encoding processed data into interactive visualizations 
-                                using D3.js. Visual encodings include:
-                                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
-                                    <li>Color scales for temperature mapping (continuous and categorical)</li>
-                                    <li>Spatial positions for geographic visualizations</li>
-                                    <li>Bar/line charts for temporal comparisons</li>
-                                    <li>Scatter plots for correlation analysis</li>
-                                    <li>Heat maps for spatial distribution</li>
-                                </ul>
-                            </li>
+                            <li><strong>Ingestion:</strong> Load GeoTIFF files using Python (<code>rasterio</code>, <code>xarray</code>)</li>
+                            <li><strong>Preprocessing:</strong> Clean, validate, and transform data (see above)</li>
+                            <li><strong>Feature Extraction:</strong> Calculate LST, UHI intensity, NDVI, and spatial statistics</li>
+                            <li><strong>Aggregation:</strong> Summarize by time period, region, and land use type</li>
+                            <li><strong>Visualization:</strong> Encode data using D3.js with color scales, spatial positions, and interactive elements</li>
                         </ol>
                         <p>
-                            The complete pipeline is documented in Python preprocessing scripts and JavaScript visualization 
-                            code with clear explanations of each transformation step to ensure reproducibility. All scripts 
-                            are located in the repository and can be executed following the instructions in the README.md.
+                            Complete pipeline documented in repository scripts.
                         </p>
                     </div>
 
                     <div class="methodology-subsection">
-                        <h3 class="subsection-title">Limitations and Methodological Constraints</h3>
+                        <h3 class="subsection-title">Limitations</h3>
                         <p>
-                            Several limitations and constraints should be considered when interpreting the results. 
-                            These limitations affect the accuracy, generalizability, and reliability of the findings:
+                            Key constraints to consider when interpreting results:
                         </p>
                         <ul>
-                            <li>
-                                <strong>Data Coverage Gaps:</strong> Satellite data may have spatial or temporal gaps 
-                                due to cloud cover, sensor limitations, orbit patterns, or data processing failures. 
-                                Missing data coverage may bias results if gaps are not randomly distributed. 
-                                Approximately [fill this]% data coverage was achieved after cloud masking and quality filtering.
-                            </li>
-                            <li>
-                                <strong>Spatial Resolution Limitations:</strong> The spatial resolution of satellite 
-                                imagery ([fill this]) may limit the ability to detect 
-                                fine-scale temperature variations within urban environments. Sub-pixel mixing may 
-                                affect temperature measurements at boundaries between land cover types.
-                            </li>
-                            <li>
-                                <strong>Temporal Bias:</strong> Data collection times may not represent all times of 
-                                day or seasons equally. Most satellite thermal imagery is collected at specific times 
-                                (Landsat at ~10:30 AM local time). This temporal bias may not capture peak heat 
-                                island effects, which often occur in late afternoon or evening. Seasonal coverage spans 
-                                [fill this] with varying completeness across seasons.
-                            </li>
-                            <li>
-                                <strong>Measurement Uncertainty:</strong> Thermal sensors have inherent measurement 
-                                errors ([fill this] for Landsat thermal bands). These errors propagate through the analysis 
-                                pipeline. Atmospheric correction introduces additional uncertainty of approximately [fill this].
-                            </li>
-                            <li>
-                                <strong>Land Use Classification Accuracy:</strong> Urban/rural classifications may not 
-                                capture all relevant environmental factors (e.g., vegetation density, building height, 
-                                material types). Classification was performed using [fill this] methods 
-                                with approximately [fill this]% accuracy, which may introduce systematic biases.
-                            </li>
-                            <li>
-                                <strong>Scale Dependency:</strong> Results may vary depending on the spatial and temporal 
-                                scales of analysis. Aggregation to larger scales may mask local variations, while 
-                                fine-scale analysis may be limited by data resolution.
-                            </li>
-                            <li>
-                                <strong>Biases in Data Collection:</strong> Systematic biases may exist due to sensor 
-                                calibration issues, atmospheric conditions, or processing algorithms. These biases may 
-                                affect absolute temperature values more than relative comparisons.
-                            </li>
+                            <li><strong>Coverage Gaps:</strong> Cloud cover and sensor limitations create spatial/temporal gaps</li>
+                            <li><strong>Resolution:</strong> Satellite resolution limits detection of fine-scale temperature variations</li>
+                            <li><strong>Temporal Bias:</strong> Data collected at specific times (e.g., Landsat ~10:30 AM) may miss peak heat island effects</li>
+                            <li><strong>Measurement Uncertainty:</strong> Sensor errors and atmospheric correction introduce uncertainty</li>
+                            <li><strong>Classification Accuracy:</strong> Land use classifications may not capture all environmental factors</li>
+                            <li><strong>Scale Dependency:</strong> Results vary with spatial/temporal analysis scale</li>
                         </ul>
                     </div>
 
                     <div class="methodology-subsection">
-                        <h3 class="subsection-title">Explicit Uncertainty Communication</h3>
+                        <h3 class="subsection-title">Uncertainty Communication</h3>
                         <p>
-                            To ensure transparency and help users interpret the visualizations correctly, uncertainty 
-                            is explicitly communicated throughout the website:
+                            Uncertainty is communicated through:
                         </p>
                         <ul>
-                            <li>
-                                <strong>Missing Data Indicators:</strong> Areas with missing or unreliable data are 
-                                clearly marked in visualizations with gray shading and "No Data" labels where applicable.
-                            </li>
-                            <li>
-                                <strong>Error Bars and Confidence Intervals:</strong> Where applicable, visualizations 
-                                include error bars, confidence intervals, or uncertainty bands to show measurement 
-                                uncertainty, particularly in comparative analyses.
-                            </li>
-                            <li>
-                                <strong>Data Quality Indicators:</strong> Visualizations include metadata indicating 
-                                data quality, coverage percentage, and reliability scores where available.
-                            </li>
-                            <li>
-                                <strong>Methodological Transparency:</strong> All processing steps, assumptions, and 
-                                limitations are documented in this Methodology section and in the code comments.
-                            </li>
-                            <li>
-                                <strong>Temporal and Spatial Coverage:</strong> The date range, geographic extent, and 
-                                data completeness are clearly stated for each visualization.
-                            </li>
+                            <li>Missing data indicators (gray shading, "No Data" labels)</li>
+                            <li>Error bars and confidence intervals where applicable</li>
+                            <li>Data quality metadata and coverage information</li>
+                            <li>Documented processing steps and assumptions</li>
                         </ul>
                         <p>
-                            <strong>Interpreting Results:</strong> Users should be aware that:
+                            <strong>Note:</strong> Relative comparisons (urban vs. rural) are more reliable than absolute temperature values. 
+                            Spatial patterns are more reliable than precise point measurements.
                         </p>
-                        <ul>
-                            <li>Temperature values have an uncertainty of approximately [fill this] due to sensor accuracy</li>
-                            <li>Relative comparisons (urban vs. rural) are more reliable than absolute temperature values</li>
-                            <li>Results should be interpreted within the context of the documented limitations</li>
-                            <li>Spatial patterns are more reliable than precise point measurements</li>
-                        </ul>
                     </div>
 
                     <div class="methodology-subsection">
                         <h3 class="subsection-title">Interaction Design</h3>
                         <p>
-                            The website employs thoughtful interaction design to enable users to explore the data 
-                            and discover insights:
+                            Interactive features enable data exploration:
                         </p>
                         <ul>
-                            <li>
-                                <strong>Filters:</strong> Interactive filters allow users to filter data by:
-                                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
-                                    <li>Time period (date range selection, seasonal filters)</li>
-                                    <li>Geographic region (urban vs. rural, specific cities or districts)</li>
-                                    <li>Temperature range (minimum/maximum temperature sliders)</li>
-                                    <li>Land use type (vegetation, built-up, water, etc.)</li>
-                                </ul>
-                            </li>
-                            <li>
-                                <strong>Tooltips:</strong> Hovering over data points, regions, or chart elements displays 
-                                detailed information including:
-                                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
-                                    <li>Exact temperature values with units (°C)</li>
-                                    <li>Location coordinates or region names</li>
-                                    <li>Date and time of measurement</li>
-                                    <li>Data quality indicators</li>
-                                    <li>Statistical summaries (mean, median, range)</li>
-                                </ul>
-                            </li>
-                            <li>
-                                <strong>Highlighting:</strong> Clicking or hovering on elements highlights related data 
-                                across multiple visualizations, enabling cross-chart filtering and comparison.
-                            </li>
-                            <li>
-                                <strong>Annotations:</strong> Key insights, notable patterns, and important context are 
-                                highlighted with annotations, callouts, or explanatory text integrated into the narrative.
-                            </li>
-                            <li>
-                                <strong>Zoom and Pan:</strong> Geographic visualizations support zooming and panning for 
-                                detailed exploration of specific regions.
-                            </li>
-                            <li>
-                                <strong>Responsive Design:</strong> All interactions are touch-friendly and optimized for 
-                                mobile devices, with alternative interaction methods for small screens where needed.
-                            </li>
+                            <li><strong>Tooltips:</strong> Hover to see temperature values, locations, and metadata</li>
+                            <li><strong>Zoom & Pan:</strong> Explore geographic visualizations in detail</li>
+                            <li><strong>Semantic Slider:</strong> Toggle between land cover, vegetation, and urban heat views</li>
+                            <li><strong>Responsive:</strong> Touch-friendly design optimized for mobile devices</li>
                         </ul>
-                        <p>
-                            These interaction patterns follow established data visualization best practices and enable 
-                            both casual exploration and detailed analysis of the urban heat island data.
-                        </p>
                     </div>
 
                     <div class="methodology-subsection">
-                        <h3 class="subsection-title">Performance Considerations</h3>
+                        <h3 class="subsection-title">Performance</h3>
                         <p>
-                            The website is designed with performance in mind to ensure smooth interactions and fast 
-                            loading times:
+                            Optimizations for fast loading and smooth interactions:
                         </p>
                         <ul>
-                            <li>
-                                <strong>Data Size Optimization:</strong> Data files are optimized for web delivery:
-                                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
-                                    <li>Processed data is pre-aggregated to reduce file sizes</li>
-                                    <li>Large datasets are sampled or downsampled for initial rendering</li>
-                                    <li>Data is loaded asynchronously and progressively</li>
-                                    <li>Only necessary data is loaded based on user interactions</li>
-                                    <li>Processed data files total approximately [fill this] for optimal web delivery</li>
-                                </ul>
-                            </li>
-                            <li>
-                                <strong>Efficient Rendering:</strong> D3.js visualizations use efficient rendering techniques:
-                                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
-                                    <li>Canvas rendering for large datasets (thousands of points)</li>
-                                    <li>SVG rendering for interactive elements with fewer data points</li>
-                                    <li>Virtualization for long lists or tables</li>
-                                    <li>Debouncing for filter interactions to avoid excessive re-renders</li>
-                                </ul>
-                            </li>
-                            <li>
-                                <strong>DOM Optimization:</strong> The DOM is kept lightweight:
-                                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
-                                    <li>Minimal HTML structure with semantic elements</li>
-                                    <li>Efficient CSS selectors and minimal reflows</li>
-                                    <li>Lazy loading of visualizations below the fold</li>
-                                    <li>Cleanup of event listeners and unused elements</li>
-                                </ul>
-                            </li>
-                            <li>
-                                <strong>Mobile Optimization:</strong> Performance is optimized for mobile devices:
-                                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
-                                    <li>Reduced data resolution for mobile visualizations</li>
-                                    <li>Simplified interactions for touch devices</li>
-                                    <li>Optimized asset sizes (images, fonts)</li>
-                                    <li>Progressive enhancement for older devices</li>
-                                </ul>
-                            </li>
-                            <li>
-                                <strong>Lazy Loading:</strong> Visualizations are initialized only when they become 
-                                visible in the viewport using the Intersection Observer API, reducing initial page load time.
-                            </li>
+                            <li>Pre-aggregated data files, downsampling for initial rendering</li>
+                            <li>Asynchronous data loading with chunked processing</li>
+                            <li>Canvas rendering for large datasets, SVG for interactive elements</li>
+                            <li>Lazy loading of visualizations using Intersection Observer API</li>
+                            <li>Mobile-optimized with reduced resolution and touch-friendly interactions</li>
                         </ul>
-                        <p>
-                            These optimizations ensure the website remains responsive and usable even with large datasets 
-                            and on lower-end devices.
-                        </p>
                     </div>
                 </div>
             </div>
@@ -765,6 +591,7 @@
     
     <!-- Individual visualization modules -->
     <script src="js/viz-genoa-uhi.js"></script>
+    <script src="js/viz-genoa-uhi-scrolly.js"></script>
     <script src="js/viz-genoa-ndvi.js"></script>
     <!-- Main initialization (must be last) -->
     <script src="js/visualizations.js"></script>

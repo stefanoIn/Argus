@@ -10,10 +10,40 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeNavigation();
     initializeSmoothScrolling();
     initializeAccessibility();
-    initializeSpaceAnimations();
-    createSatelliteOrbits();
+    
+    // Optional functions - only call if they exist
+    if (typeof initializeSpaceAnimations === 'function') {
+        initializeSpaceAnimations();
+    }
+    if (typeof createSatelliteOrbits === 'function') {
+        createSatelliteOrbits();
+    }
+    
     initializeScrollAnimations();
     initializeMobileMenu();
+    
+    // Initialize scroll-based header and sidebar
+    // Use a small delay to ensure all DOM is ready
+    setTimeout(function() {
+        try {
+            initializeHeaderScroll();
+            initializeSidebarNav();
+        } catch (error) {
+            console.error('Error initializing scroll features:', error);
+        }
+    }, 100);
+    
+    // Also try after window load as backup
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            try {
+                initializeHeaderScroll();
+                initializeSidebarNav();
+            } catch (error) {
+                console.error('Error re-initializing scroll features:', error);
+            }
+        }, 200);
+    });
 });
 
 /**
@@ -229,6 +259,152 @@ function applyTheme(theme) {
         document.head.appendChild(themeColorMeta);
     }
     themeColorMeta.setAttribute('content', theme === 'dark' ? '#0f1419' : '#ffffff');
+}
+
+/**
+ * Initialize header hide/show on scroll
+ */
+function initializeHeaderScroll() {
+    const header = document.querySelector('.header');
+    const sidebarNav = document.getElementById('sidebar-nav');
+    let lastScrollTop = window.scrollY || window.pageYOffset || 0;
+    const scrollThreshold = 100;
+    
+    if (!header) {
+        console.error('Header element not found!');
+        return;
+    }
+    
+    console.log('Header scroll handler initialized');
+    
+    function handleScroll() {
+        const scrollTop = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+        
+        // Debug: log first few scroll events
+        if (scrollTop !== lastScrollTop) {
+            console.log('Scroll detected:', scrollTop, 'Last:', lastScrollTop);
+        }
+        
+        // Hide/show header based on scroll direction
+        if (scrollTop > lastScrollTop && scrollTop > 50) {
+            // Scrolling down - hide header
+            console.log('Hiding header');
+            header.style.transform = 'translateY(-100%)';
+            header.style.display = 'block'; // Ensure it's still in DOM
+            header.classList.add('hidden');
+        } else if (scrollTop < lastScrollTop || scrollTop <= 50) {
+            // Scrolling up or at top - show header
+            console.log('Showing header');
+            header.style.transform = 'translateY(0)';
+            header.style.display = 'block';
+            header.classList.remove('hidden');
+        }
+        
+        // Show/hide sidebar
+        if (sidebarNav) {
+            if (scrollTop > scrollThreshold) {
+                sidebarNav.style.opacity = '1';
+                sidebarNav.style.visibility = 'visible';
+                sidebarNav.style.pointerEvents = 'auto';
+                sidebarNav.classList.add('visible');
+            } else {
+                sidebarNav.style.opacity = '0';
+                sidebarNav.style.visibility = 'hidden';
+                sidebarNav.style.pointerEvents = 'none';
+                sidebarNav.classList.remove('visible');
+            }
+        }
+        
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+    }
+    
+    // Scroll handler - call directly for immediate response
+    function onScroll() {
+        handleScroll();
+    }
+    
+    // Add scroll listener
+    window.addEventListener('scroll', onScroll, { passive: true });
+    
+    // Force initial check multiple times to ensure it works
+    setTimeout(handleScroll, 100);
+    setTimeout(handleScroll, 300);
+    setTimeout(handleScroll, 600);
+    
+    // Check on load
+    if (document.readyState === 'complete') {
+        handleScroll();
+    } else {
+        window.addEventListener('load', function() {
+            setTimeout(handleScroll, 200);
+        });
+    }
+    
+    // Expose for manual testing in console
+    window.testHeaderScroll = function() {
+        console.log('=== Testing Header Scroll ===');
+        console.log('Current scroll position:', window.scrollY || window.pageYOffset);
+        console.log('Last scroll top:', lastScrollTop);
+        console.log('Header element:', header);
+        console.log('Header classes:', header.className);
+        handleScroll();
+        console.log('After handleScroll - Header transform:', header.style.transform);
+    };
+}
+
+/**
+ * Initialize sidebar navigation
+ */
+function initializeSidebarNav() {
+    const sidebarLinks = document.querySelectorAll('.sidebar-nav-link');
+    const sections = document.querySelectorAll('section[id]');
+    
+    if (sidebarLinks.length === 0) return;
+    
+    // Update active state on scroll
+    function updateActiveSection() {
+        const scrollPos = window.pageYOffset + 150; // Offset for better UX
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+            const sectionId = section.getAttribute('id');
+            
+            if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                sidebarLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('data-section') === sectionId) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }
+    
+    // Smooth scroll for sidebar links
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('data-section');
+            const targetSection = document.getElementById(targetId);
+            
+            if (targetSection) {
+                const headerHeight = document.querySelector('.header')?.offsetHeight || 0;
+                const targetPosition = targetSection.offsetTop - headerHeight;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    // Update active section on scroll
+    window.addEventListener('scroll', updateActiveSection, { passive: true });
+    
+    // Initial update
+    updateActiveSection();
 }
 
 /**

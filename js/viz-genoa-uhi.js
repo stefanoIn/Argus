@@ -1,7 +1,8 @@
 /**
  * viz-genoa-uhi.js
- * Genoa UHI Visualization from TIFF
+ * Genoa LST visualization from TIFF
  * Loads and displays the processed TIFF file showing Urban Heat Island in Genoa
+ * Uses chunked processing for better performance
  */
 function initializeGenoaUHIViz() {
     const container = d3.select('#viz-genoa-uhi');
@@ -11,21 +12,31 @@ function initializeGenoaUHIViz() {
     // Clear any existing content
     container.selectAll('*').remove();
     
+    // Ensure container has relative positioning for absolute tooltip (set early)
+    container.style('position', 'relative')
+        .style('overflow', 'hidden');
+    
     // Check if GeoTIFF is available
     if (typeof GeoTIFF === 'undefined') {
         container.html('<p style="color: #e53e3e; padding: 20px;">GeoTIFF library not loaded. Please check the script includes.</p>');
         return;
     }
     
-    // Create loading message
+    // Create loading message - properly centered
     const loadingMsg = container.append('div')
         .style('text-align', 'center')
-        .style('padding', '40px')
-        .style('color', '#4a5568');
+        .style('padding', '60px 20px')
+        .style('color', '#4a5568')
+        .style('min-height', '400px')
+        .style('display', 'flex')
+        .style('flex-direction', 'column')
+        .style('align-items', 'center')
+        .style('justify-content', 'center');
     
     loadingMsg.append('p')
-        .text('Loading Genoa UHI data...')
-        .style('font-size', '16px');
+        .text('Loading Genoa UHI data from satellite imagery...')
+        .style('font-size', '16px')
+        .style('margin', '0');
     
     // Try to load the TIFF file
     const tiffPath = 'data/processed/LST_10m_XGB_2025-07-09_Genoa.tif';
@@ -65,9 +76,6 @@ function initializeGenoaUHIViz() {
                     throw new Error('Raster data is not iterable or has no length property');
                 }
                 
-                // Keep as TypedArray for efficiency - we'll access it directly
-                // No need to convert to regular array
-                
                 // Calculate min/max and percentiles efficiently
                 let minVal = Infinity;
                 let maxVal = -Infinity;
@@ -102,14 +110,12 @@ function initializeGenoaUHIViz() {
         })
         .then(({ data, width, height, minVal, maxVal, p1Val, p99Val, bbox }) => {
             
-            //svg display
-            const margin = { top: 20, right: 20, bottom: 80, left: 20 };
+            //svg display - minimal margins, map should fill the div
+            const margin = { top: 0, right: 0, bottom: 120, left: 0 };
 
-            // Compute display width 
-            const displayWidth = Math.min(
-              900,
-              container.node().getBoundingClientRect().width
-            );
+            // Compute display width - use full container width (accounting for minimal margins)
+            const containerWidth = container.node().getBoundingClientRect().width;
+            const displayWidth = containerWidth > 0 ? containerWidth : Math.min(1600, window.innerWidth - 100);
             
             // Compute sample factor 
             const sampleFactor = Math.max(
@@ -135,31 +141,15 @@ function initializeGenoaUHIViz() {
                 .attr('height', svgHeight + margin.top + margin.bottom)
                 .attr('viewBox', `0 0 ${svgWidth + margin.left + margin.right} ${svgHeight + margin.top + margin.bottom}`)
                 .attr('preserveAspectRatio', 'xMidYMid meet')
-                .append('g')
+                .style('overflow', 'hidden')
+                .style('width', '100%')
+                .style('height', 'auto')
+                .style('display', 'block');
+            
+            const svgGroup = svg.append('g')
                 .attr('transform', `translate(${margin.left},${margin.top})`);
             
-            // Color scale compliant with Andy Kirk's data visualization principles:
-            // - Using Inferno: a perceptually uniform sequential color scale
-            // - Colorblind-friendly and provides excellent perceptual contrast
-            // - Goes from black (cool) through purple, red, orange to yellow (hot)
-            // - Recommended for scientific visualizations and heat maps
-            // Inferno color scheme: black -> purple -> red -> orange -> yellow
-            const infernoColors = [
-                '#000004', // black (cool)
-                '#1b0c42', // dark purple
-                '#4b0c6b', // purple
-                '#781c6d', // magenta
-                '#a52c60', // red-purple
-                '#cf4446', // red
-                '#ed6925', // orange-red
-                '#fb9a06', // orange
-                '#f7d13d', // yellow-orange
-                '#fcffa4'  // light yellow (hot)
-            ];
-            
-            
-            // Use 1st-99th percentile for color scale to avoid outlier skewing
-            // This provides better visual contrast while maintaining data integrity
+            // INFERNO colormap: perceptually uniform, colorblind-friendly
             const colorScale = d3.scaleSequential(d3.interpolateInferno)
                 .domain([p1Val, p99Val])
                 .clamp(true); // Clamp values outside the domain
@@ -180,7 +170,7 @@ function initializeGenoaUHIViz() {
             // Average values in each sample block for better quality
             // Process in chunks to avoid blocking the main thread and allow footer to render
             let currentY = 0;
-            const chunkSize = 10; // Process 10 rows at a time
+            const chunkSize = 20; // Increased from 10 to 20 for faster processing
             
             function processChunk() {
                 const endY = Math.min(currentY + chunkSize, rasterHeight);
@@ -231,9 +221,13 @@ function initializeGenoaUHIViz() {
                 currentY = endY;
                 
                 // If there's more to process, schedule next chunk
+                // Use requestIdleCallback when available for better performance, otherwise use setTimeout
                 if (currentY < rasterHeight) {
-                    // Use requestAnimationFrame to allow browser to render between chunks
-                    requestAnimationFrame(processChunk);
+                    if (window.requestIdleCallback) {
+                        requestIdleCallback(processChunk, { timeout: 100 });
+                    } else {
+                        setTimeout(processChunk, 0);
+                    }
                 } else {
                     // All processing complete, put the image data into the canvas
                     displayCtx.putImageData(imageData, 0, 0);
@@ -245,81 +239,266 @@ function initializeGenoaUHIViz() {
             function continueVisualization() {
                 // Add image to SVG with better rendering
                 const imageUrl = displayCanvas.toDataURL('image/png');
-                const imageElement = svg.append('image')
-                .attr('href', imageUrl)
-                .attr('width', displayWidth)
-                .attr('height', displayHeight)
-                .attr('x', 0)
-                .attr('y', 0)
-                .style('image-rendering', 'auto') // Let browser handle smoothing
-                .style('cursor', 'pointer')
-                .attr('role', 'button')
-                .attr('aria-label', 'Click to enlarge Genoa Urban Heat Island visualization')
-                .attr('tabindex', '0');
                 
-                // Add click-to-enlarge functionality (Andy Kirk's principle: Clear interactions)
-                imageElement
-                .on('click', function() {
-                    openEnlargedView({
-                        data, width, height, minVal, maxVal, p1Val, p99Val, bbox,
-                        imageUrl, displayWidth, displayHeight, rasterWidth, rasterHeight,
-                        sampleFactor, colorScale
+                // Create a group for zoom/pan
+                const imageGroup = svgGroup.append('g');
+                
+                const imageElement = imageGroup.append('image')
+                    .attr('href', imageUrl)
+                    .attr('width', displayWidth)
+                    .attr('height', displayHeight)
+                    .attr('x', 0)
+                    .attr('y', 0)
+                    .style('image-rendering', 'auto')
+                    .style('cursor', 'grab');
+                
+                // Create tooltip for hover values - fixed position in top-right (container already has position: relative)
+                const tooltip = container.append('div')
+                    .attr('class', 'uhi-tooltip')
+                    .style('position', 'absolute')
+                    .style('pointer-events', 'none')
+                    .style('background', 'var(--bg-overlay)')
+                    .style('color', 'var(--text-primary)')
+                    .style('padding', '12px 16px')
+                    .style('border-radius', '8px')
+                    .style('font-size', '14px')
+                    .style('font-family', 'system-ui, sans-serif')
+                    .style('opacity', 0)
+                    .style('transition', 'opacity 0.2s')
+                    .style('z-index', '10')
+                    .style('box-shadow', 'var(--shadow-lg)')
+                    .style('border', '1px solid var(--border-medium)')
+                    .style('min-width', '140px')
+                    .style('text-align', 'center')
+                    .style('right', '20px')
+                    .style('top', '20px')
+                    .style('max-width', 'calc(100% - 40px)');
+                
+                // Zoom state: locked by default (scroll zoom disabled)
+                let zoomLocked = true;
+                
+                // Add zoom behavior - scroll zoom controlled by lock, with boundary constraints
+                const zoomBehavior = d3.zoom()
+                    .scaleExtent([0.5, 5])
+                    .filter(function(event) {
+                        // Only allow wheel zoom when unlocked
+                        if (event.type === 'wheel') {
+                            return !zoomLocked;
+                        }
+                        return true;
+                    })
+                    .on('zoom', function(event) {
+                        const { transform } = event;
+                        // Constrain panning to keep content within SVG bounds
+                        const k = transform.k;
+                        const maxX = 0;
+                        const maxY = 0;
+                        const minX = -(displayWidth * k - displayWidth);
+                        const minY = -(displayHeight * k - displayHeight);
+                        
+                        const x = Math.max(minX, Math.min(maxX, transform.x));
+                        const y = Math.max(minY, Math.min(maxY, transform.y));
+                        
+                        // Apply constrained transform
+                        imageGroup.attr('transform', `translate(${x},${y}) scale(${k})`);
                     });
-                })
-                .on('keydown', function(e) {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        openEnlargedView({
-                            data, width, height, minVal, maxVal, p1Val, p99Val, bbox,
-                            imageUrl, displayWidth, displayHeight, rasterWidth, rasterHeight,
-                            sampleFactor, colorScale
-                        });
+                
+                svgGroup.call(zoomBehavior);
+                
+                // Add zoom toggle button - absolute position inside visualization div (bottom-right)
+                const zoomButton = container.append('div')
+                    .attr('class', 'zoom-toggle-button')
+                    .style('position', 'absolute')
+                    .style('bottom', '20px')
+                    .style('right', '20px')
+                    .style('width', '48px')
+                    .style('height', '48px')
+                    .style('background', 'var(--bg-overlay)')
+                    .style('border', '1px solid var(--border-medium)')
+                    .style('border-radius', '8px')
+                    .style('cursor', 'pointer')
+                    .style('display', 'flex')
+                    .style('align-items', 'center')
+                    .style('justify-content', 'center')
+                    .style('box-shadow', 'var(--shadow-md)')
+                    .style('z-index', '100')
+                    .style('transition', 'all 0.2s')
+                    .on('click', function(event) {
+                        event.stopPropagation();
+                        zoomLocked = !zoomLocked;
+                        updateZoomIcon();
+                    })
+                    .on('mouseenter', function() {
+                        d3.select(this).style('background', 'var(--bg-card)')
+                            .style('box-shadow', 'var(--shadow-lg)');
+                    })
+                    .on('mouseleave', function() {
+                        d3.select(this).style('background', 'var(--bg-overlay)')
+                            .style('box-shadow', 'var(--shadow-md)');
+                    });
+                
+                // Create SVG for lens icon
+                const lensSvg = zoomButton.append('svg')
+                    .attr('width', '24')
+                    .attr('height', '24')
+                    .style('pointer-events', 'none');
+                
+                function updateZoomIcon() {
+                    lensSvg.selectAll('*').remove();
+                    
+                    if (zoomLocked) {
+                        // Locked state - lens with slash (zoom disabled)
+                        // Magnifying glass circle
+                        lensSvg.append('circle')
+                            .attr('cx', '10')
+                            .attr('cy', '10')
+                            .attr('r', '6')
+                            .attr('fill', 'none')
+                            .attr('stroke', '#718096')
+                            .attr('stroke-width', '2');
+                        // Handle
+                        lensSvg.append('line')
+                            .attr('x1', '14')
+                            .attr('y1', '14')
+                            .attr('x2', '18')
+                            .attr('y2', '18')
+                            .attr('stroke', '#718096')
+                            .attr('stroke-width', '2')
+                            .attr('stroke-linecap', 'round');
+                        // Slash (disabled indicator)
+                        lensSvg.append('line')
+                            .attr('x1', '4')
+                            .attr('y1', '4')
+                            .attr('x2', '20')
+                            .attr('y2', '20')
+                            .attr('stroke', '#e53e3e')
+                            .attr('stroke-width', '2')
+                            .attr('stroke-linecap', 'round');
+                    } else {
+                        // Unlocked state - active lens (zoom enabled)
+                        // Magnifying glass circle
+                        lensSvg.append('circle')
+                            .attr('cx', '10')
+                            .attr('cy', '10')
+                            .attr('r', '6')
+                            .attr('fill', 'none')
+                            .attr('stroke', '#48bb78')
+                            .attr('stroke-width', '2.5');
+                        // Handle
+                        lensSvg.append('line')
+                            .attr('x1', '14')
+                            .attr('y1', '14')
+                            .attr('x2', '18')
+                            .attr('y2', '18')
+                            .attr('stroke', '#48bb78')
+                            .attr('stroke-width', '2.5')
+                            .attr('stroke-linecap', 'round');
+                    }
+                }
+                
+                updateZoomIcon();
+                
+                // Add panning on drag
+                svgGroup
+                    .on('mousedown', function(event) {
+                        if (event.button === 0) {
+                            svgGroup.style('cursor', 'grabbing');
+                        }
+                    })
+                    .on('mouseup', function(event) {
+                        if (event.button === 0) {
+                            svgGroup.style('cursor', 'grab');
+                        }
+                    })
+                    .on('mouseleave', function() {
+                        svgGroup.style('cursor', 'grab');
+                    });
+                
+                // Add wheel zoom (when unlocked)
+                svgGroup.on('wheel', function(event) {
+                    if (!zoomLocked) {
+                        event.preventDefault();
+                        const delta = -event.deltaY * 0.001;
+                        const currentTransform = d3.zoomTransform(svgGroup.node());
+                        const scale = currentTransform.k * (1 + delta);
+                        const [x, y] = d3.pointer(event, svgGroup.node());
+                        zoomBehavior.scaleTo(svgGroup, scale, [x, y]);
                     }
                 });
                 
-                // Add visual indicator for clickability (Kirk's principle: Visual affordance)
-                const clickHint = svg.append('g')
-                .attr('class', 'click-hint')
-                .attr('opacity', 0)
-                .attr('pointer-events', 'none');
-            
-            clickHint.append('rect')
-                .attr('x', displayWidth - 100)
-                .attr('y', 10)
-                .attr('width', 90)
-                .attr('height', 30)
-                .attr('rx', 4)
-                .attr('fill', 'rgba(0, 0, 0, 0.7)')
-                .attr('stroke', '#fff')
-                .attr('stroke-width', 1);
-            
-            clickHint.append('text')
-                .attr('x', displayWidth - 55)
-                .attr('y', 28)
-                .attr('text-anchor', 'middle')
-                .style('font-size', '12px')
-                .style('fill', '#fff')
-                .style('font-family', 'system-ui, sans-serif')
-                .style('font-weight', '500')
-                .text('Click to enlarge');
-            
-            // Show hint on hover
-            imageElement
-                .on('mouseenter', function() {
-                    clickHint.transition().duration(200).attr('opacity', 1);
-                })
-                .on('mouseleave', function() {
-                    clickHint.transition().duration(200).attr('opacity', 0);
+                // Add hover tooltip with temperature values
+                svgGroup.on('mousemove', function(event) {
+                    const [x, y] = d3.pointer(event, svgGroup.node());
+                    const transform = d3.zoomTransform(svgGroup.node());
+                    
+                    // Convert screen coordinates to image coordinates
+                    const imageX = (x - transform.x) / transform.k;
+                    const imageY = (y - transform.y) / transform.k;
+                    
+                    // Check if within image bounds
+                    if (imageX >= 0 && imageX < displayWidth && imageY >= 0 && imageY < displayHeight) {
+                        // Convert to raster coordinates
+                        const rasterX = Math.floor((imageX / displayWidth) * rasterWidth);
+                        const rasterY = Math.floor((imageY / displayHeight) * rasterHeight);
+                        
+                        if (rasterX >= 0 && rasterX < rasterWidth && rasterY >= 0 && rasterY < rasterHeight) {
+                            // Get temperature value from original data
+                            const srcXStart = rasterX * sampleFactor;
+                            const srcYStart = rasterY * sampleFactor;
+                            const srcXEnd = Math.min(srcXStart + sampleFactor, width);
+                            const srcYEnd = Math.min(srcYStart + sampleFactor, height);
+                            
+                            let sum = 0;
+                            let count = 0;
+                            
+                            for (let srcY = srcYStart; srcY < srcYEnd; srcY++) {
+                                for (let srcX = srcXStart; srcX < srcXEnd; srcX++) {
+                                    const idx = srcY * width + srcX;
+                                    if (idx >= 0 && idx < data.length) {
+                                        const value = data[idx];
+                                        if (!isNaN(value) && value !== null && value !== undefined && isFinite(value)) {
+                                            sum += value;
+                                            count++;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            if (count > 0) {
+                                const avgValue = sum / count;
+                                const clampedValue = Math.max(p1Val, Math.min(p99Val, avgValue));
+                                
+                                // Update tooltip - fixed position in top-right corner (using right/top CSS)
+                                tooltip
+                                    .html(`
+                                        <div style="font-weight: 600; margin-bottom: 6px; font-size: 12px; opacity: 0.9;">Temperature</div>
+                                        <div style="font-size: 24px; font-weight: 700; color: ${colorScale(clampedValue)}; line-height: 1.2;">
+                                            ${avgValue.toFixed(1)}°C
+                                        </div>
+                                    `)
+                                    .style('opacity', 1);
+                                
+                                return;
+                            }
+                        }
+                    }
+                    
+                    // Hide tooltip if outside bounds
+                    tooltip.style('opacity', 0);
                 });
                 
-                // Add color legend with improved apparatus (Kirk's principle of Elegance)
+                svgGroup.on('mouseleave', function() {
+                    tooltip.style('opacity', 0);
+                });
+                
+                // Add color legend with improved apparatus 
                 const legendWidth = 300;
                 const legendHeight = 25;
-                const legend = svg.append('g')
+                const legend = svgGroup.append('g')
                     .attr('transform', `translate(${(svgWidth - legendWidth) / 2}, ${svgHeight + 40})`);
                 
                 // Create gradient for legend matching the color scale
-                const defs = svg.append('defs');
+                const defs = svgGroup.append('defs');
                 const gradient = defs.append('linearGradient')
                     .attr('id', 'heat-gradient')
                     .attr('x1', '0%')
@@ -341,8 +520,9 @@ function initializeGenoaUHIViz() {
                     .attr('width', legendWidth)
                     .attr('height', legendHeight)
                     .attr('fill', 'url(#heat-gradient)')
-                    .attr('stroke', '#4a5568')
-                    .attr('stroke-width', 1);
+                    .attr('stroke', 'var(--border-medium)')
+                    .attr('stroke-width', 1)
+                    .attr('class', 'legend-rect');
                 
                 // Add tick marks and labels at key intervals (using percentile range)
                 const numTicks = 5; // P1, P99, and 3 intermediate values
@@ -371,7 +551,8 @@ function initializeGenoaUHIViz() {
                         .attr('y', legendHeight + 18)
                         .attr('text-anchor', 'middle')
                         .style('font-size', '11px')
-                        .style('fill', '#2d3748')
+                        .style('fill', 'var(--text-secondary)')
+                        .attr('class', 'legend-label')
                         .style('font-family', 'system-ui, sans-serif')
                         .text(`${value.toFixed(1)}°C`);
                 });
@@ -382,28 +563,20 @@ function initializeGenoaUHIViz() {
                     .attr('y', -8)
                     .attr('text-anchor', 'middle')
                     .style('font-size', '13px')
-                    .style('fill', '#2d3748')
+                    .style('fill', 'var(--text-primary)')
+                    .attr('class', 'legend-title')
                     .style('font-weight', '500')
                     .style('font-family', 'system-ui, sans-serif')
                     .text('Land Surface Temperature (°C)');
-                
-                // Add percentile range note (Kirk's principle: explicit uncertainty communication)
-                legend.append('text')
-                    .attr('x', legendWidth / 2)
-                    .attr('y', legendHeight + 35)
-                    .attr('text-anchor', 'middle')
-                    .style('font-size', '11px')
-                    .style('fill', '#718096')
-                    .style('font-family', 'system-ui, sans-serif')
-                    .style('font-style', 'italic');
-                
+
                 // Add actual min/max values for transparency
                 legend.append('text')
                     .attr('x', legendWidth / 2)
-                    .attr('y', legendHeight + 40)
+                    .attr('y', legendHeight + 45)
                     .attr('text-anchor', 'middle')
                     .style('font-size', '10px')
-                    .style('fill', '#a0aec0')
+                    .style('fill', 'var(--text-tertiary)')
+                    .attr('class', 'legend-subtitle')
                     .style('font-family', 'system-ui, sans-serif')
                     .text(`Full range: ${minVal.toFixed(1)}°C - ${maxVal.toFixed(1)}°C`);
                 
