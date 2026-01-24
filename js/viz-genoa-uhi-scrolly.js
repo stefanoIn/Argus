@@ -706,19 +706,25 @@ function initializeGenoaUhiScrolly() {
             .range([0, plotHeight])
             .padding(0.3);
         
-        // Add X axis with better spacing
+        // Add X axis without tick labels
         const xAxis = d3.axisBottom(xScale)
             .ticks(4)
-            .tickFormat(d => `${d}°C`);
+            .tickFormat(() => ''); // Remove individual labels
         
         chartG.append('g')
             .attr('transform', `translate(0,${plotHeight})`)
             .call(xAxis)
-            .style('color', 'var(--text-secondary)')
-            .style('font-size', '9px')
-            .selectAll('text')
+            .style('color', 'var(--text-secondary)');
+        
+        // Add single axis label "LST (°C)"
+        chartG.append('text')
+            .attr('x', plotWidth / 2)
+            .attr('y', plotHeight + 25)
+            .attr('text-anchor', 'middle')
             .style('fill', 'var(--text-secondary)')
-            .attr('transform', 'translate(0,3)'); // Add small vertical offset
+            .style('font-size', '11px')
+            .style('font-weight', '500')
+            .text('LST (°C)');
         
         chartG.selectAll('.domain, .tick line')
             .style('stroke', 'var(--border-medium)');

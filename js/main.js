@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeNavigation() {
     const navLinks = document.querySelectorAll('.nav-menu a');
     const currentPath = window.location.pathname;
+    const sections = document.querySelectorAll('section[id]');
     
     // Add active state to current page link
     navLinks.forEach(link => {
@@ -68,6 +69,33 @@ function initializeNavigation() {
             }
         });
     });
+    
+    // Update active state based on scroll position
+    function updateActiveNavLink() {
+        const scrollPos = window.pageYOffset + 150; // Offset for better UX
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+            const sectionId = section.getAttribute('id');
+            
+            if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    const href = link.getAttribute('href');
+                    if (href === `#${sectionId}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }
+    
+    // Listen to scroll events
+    window.addEventListener('scroll', updateActiveNavLink, { passive: true });
+    
+    // Initial update
+    updateActiveNavLink();
 }
 
 /**

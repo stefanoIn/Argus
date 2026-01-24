@@ -158,7 +158,7 @@ function renderSankey(container, nodes, links, totalAreaKm2, totalFlowPixels) {
     const availableHeight = Math.max(baseHeight, containerHeight - 100); // Leave space for margins
     
     // Use smaller margins since legend is removed
-    const margin = { top: 40, right: 40, bottom: 20, left: 40 };
+    const margin = { top: 40, right: 40, bottom: 0, left: 40 };
     const width = contentWidth - margin.left - margin.right;
     const height = availableHeight - margin.top - margin.bottom;
     

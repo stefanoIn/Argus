@@ -486,8 +486,8 @@ code {
 
 .story-hero {
     background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-    padding: var(--spacing-4xl) var(--spacing-xl) var(--spacing-3xl);
-    margin-bottom: var(--spacing-3xl);
+    padding: var(--spacing-3xl) var(--spacing-xl) var(--spacing-2xl); /* Reduced padding */
+    margin-bottom: var(--spacing-2xl); /* Reduced bottom margin */
     text-align: center;
     transition: background var(--transition-normal);
 }
@@ -496,12 +496,13 @@ code {
     max-width: var(--max-width-content);
     margin: 0 auto;
     padding: 0 var(--spacing-xl);
+    padding-top: calc(80px + var(--spacing-3xl)); /* Account for fixed header + extra breathing room */
 }
 
 .story-title {
     font-size: var(--font-size-hero);
     font-weight: 800;
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl); /* Balanced spacing */
     color: var(--text-primary);
     line-height: 1.1;
     letter-spacing: -0.04em;
@@ -523,7 +524,7 @@ code {
 }
 
 .story-chapter {
-    padding: var(--spacing-4xl) 0;
+    padding: var(--spacing-2xl) 0; /* Reduced from 4xl (96px) to 2xl (48px) */
     margin-bottom: 0;
 }
 
