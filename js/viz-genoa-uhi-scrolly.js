@@ -1,11 +1,11 @@
 /**
  * viz-genoa-uhi-scrolly.js
- * 3-step semantic visualization: WorldCover context → Vegetation heat → Urban heat
+ * Side-by-side comparison: Land Cover Context | Vegetation Heat | Urban Heat
  * 
- * Conceptual approach:
- * - Step 0: WorldCover semantic map (muted/desaturated) for spatial context
- * - Step 1: LST tiles masked by vegetation (WorldCover classes 1, 2)
- * - Step 2: LST tiles masked by built-up (WorldCover class 3)
+ * Shows three views simultaneously for direct comparison:
+ * - Left: WorldCover semantic map (muted/desaturated) for spatial context
+ * - Middle: LST masked by vegetation (WorldCover classes 1, 2)
+ * - Right: LST masked by built-up (WorldCover class 3)
  * 
  * Masking happens at render time using Canvas compositing.
  * WorldCover classes: 1=vegetation, 2=low_veg, 3=built, 4=bare, 5=water
@@ -20,7 +20,7 @@ function initializeGenoaUhiScrolly() {
     // Set container positioning FIRST to prevent layout shifts
     // Use a fixed min-height that matches the tile-map's expected height
     container.style('position', 'relative')
-        .style('min-height', '600px')
+        .style('min-height', '500px')
         .style('width', '100%')
         .style('display', 'block');
 
@@ -163,20 +163,46 @@ function initializeGenoaUhiScrolly() {
             const minVal = validLstValues[0];
             const maxVal = validLstValues[validLstValues.length - 1];
 
-            // Create main canvas container
-            const map = container.append('div')
-                .attr('class', 'tile-map')
-                .style('--map-aspect', displayWidth / displayHeight)
+            // Create dashboard-style layout wrapper
+            const dashboardWrapper = container.append('div')
+                .attr('class', 'landcover-dashboard-wrapper')
+                .style('display', 'flex')
+                .style('gap', '20px')
                 .style('width', '100%')
-                .style('max-width', '100%');
-
-            // Create WorldCover background canvas (for transparent overlay in steps 1 and 2)
-            const wcBackgroundCanvas = createStepCanvas('wc-background', 'WorldCover background', rasterWidth, rasterHeight, displayWidth, displayHeight);
+                .style('max-width', '100%')
+                .style('flex-wrap', 'wrap');
             
-            // Create three canvas layers for the three semantic steps
-            const step0Canvas = createStepCanvas('step-0', 'WorldCover context', rasterWidth, rasterHeight, displayWidth, displayHeight);
-            const step1Canvas = createStepCanvas('step-1', 'Vegetation heat', rasterWidth, rasterHeight, displayWidth, displayHeight);
-            const step2Canvas = createStepCanvas('step-2', 'Urban heat', rasterWidth, rasterHeight, displayWidth, displayHeight);
+            // Create map container (main visualization area)
+            const mapContainer = dashboardWrapper.append('div')
+                .attr('class', 'layered-map-container')
+                .style('position', 'relative')
+                .style('flex', '1 1 70%')
+                .style('min-width', '500px')
+                .style('aspect-ratio', `${displayWidth} / ${displayHeight}`)
+                .style('max-width', '100%')
+                .style('background', '#f0f0f0') // Light grey background to prevent white holes
+                .style('border-radius', '8px')
+                .style('overflow', 'hidden')
+                .style('box-shadow', '0 2px 8px rgba(0,0,0,0.1)');
+            
+            // Create dashboard panel (legend and controls)
+            const dashboardPanel = dashboardWrapper.append('div')
+                .attr('class', 'landcover-dashboard-panel')
+                .style('flex', '0 0 280px')
+                .style('min-width', '250px')
+                .style('max-width', '100%')
+                .style('display', 'flex')
+                .style('flex-direction', 'column')
+                .style('gap', '20px');
+
+            // Create canvas layers (all in same container, stacked)
+            const step0Canvas = createStepCanvasForMap(mapContainer, 'step-0', 'WorldCover context', rasterWidth, rasterHeight, displayWidth, displayHeight);
+            const step1Canvas = createStepCanvasForMap(mapContainer, 'step-1', 'Vegetation heat', rasterWidth, rasterHeight, displayWidth, displayHeight);
+            const step2Canvas = createStepCanvasForMap(mapContainer, 'step-2', 'Urban heat', rasterWidth, rasterHeight, displayWidth, displayHeight);
+            
+            // Create WorldCover background for step 1 and 2
+            const wcBackground1 = createStepCanvasForMap(mapContainer, 'wc-background-1', 'WorldCover background', rasterWidth, rasterHeight, displayWidth, displayHeight);
+            const wcBackground2 = createStepCanvasForMap(mapContainer, 'wc-background-2', 'WorldCover background', rasterWidth, rasterHeight, displayWidth, displayHeight);
 
             // Statistics for temperature averages
             const stats = {
@@ -239,22 +265,38 @@ function initializeGenoaUhiScrolly() {
                         const displayIdx = (displayY * rasterWidth + displayX) * 4;
 
                         // WorldCover background (transparent, for steps 1 and 2)
-                        if (dominantWcClass > 0 && dominantWcClass <= 5) {
+                        // Exclude water (class 5) - leave transparent
+                        if (dominantWcClass > 0 && dominantWcClass <= 4) {
                             const wcColor = wcColors[dominantWcClass];
-                            wcBackgroundCanvas.imageData.data[displayIdx] = wcColor.r;
-                            wcBackgroundCanvas.imageData.data[displayIdx + 1] = wcColor.g;
-                            wcBackgroundCanvas.imageData.data[displayIdx + 2] = wcColor.b;
-                            wcBackgroundCanvas.imageData.data[displayIdx + 3] = Math.floor(wcColor.a * 0.4); // 40% opacity
+                            wcBackground1.imageData.data[displayIdx] = wcColor.r;
+                            wcBackground1.imageData.data[displayIdx + 1] = wcColor.g;
+                            wcBackground1.imageData.data[displayIdx + 2] = wcColor.b;
+                            wcBackground1.imageData.data[displayIdx + 3] = Math.floor(wcColor.a * 0.4); // 40% opacity
+                            
+                            wcBackground2.imageData.data[displayIdx] = wcColor.r;
+                            wcBackground2.imageData.data[displayIdx + 1] = wcColor.g;
+                            wcBackground2.imageData.data[displayIdx + 2] = wcColor.b;
+                            wcBackground2.imageData.data[displayIdx + 3] = Math.floor(wcColor.a * 0.4); // 40% opacity
                         }
+                        // Water (class 5) and invalid pixels remain transparent
 
                         // Step 0: WorldCover context (muted/desaturated)
-                        if (dominantWcClass > 0 && dominantWcClass <= 5) {
+                        // Exclude water (class 5) - leave transparent/background
+                        // Fill with background color first to prevent white holes
+                        const bgR = 240, bgG = 240, bgB = 240; // Light grey background
+                        step0Canvas.imageData.data[displayIdx] = bgR;
+                        step0Canvas.imageData.data[displayIdx + 1] = bgG;
+                        step0Canvas.imageData.data[displayIdx + 2] = bgB;
+                        step0Canvas.imageData.data[displayIdx + 3] = 255;
+                        
+                        if (dominantWcClass > 0 && dominantWcClass <= 4) {
                             const wcColor = wcColors[dominantWcClass];
                             step0Canvas.imageData.data[displayIdx] = wcColor.r;
                             step0Canvas.imageData.data[displayIdx + 1] = wcColor.g;
                             step0Canvas.imageData.data[displayIdx + 2] = wcColor.b;
                             step0Canvas.imageData.data[displayIdx + 3] = wcColor.a;
                         }
+                        // Water (class 5) and invalid pixels show background color (not white)
 
                         // Step 1: LST masked by vegetation (WorldCover classes 1, 2)
                         if (avgLst !== null && (dominantWcClass === 1 || dominantWcClass === 2)) {
@@ -300,13 +342,11 @@ function initializeGenoaUhiScrolly() {
                     }
                 } else {
                     // All processing complete, draw to canvases
-                    // Scale canvas context to match display size
-                    wcBackgroundCanvas.ctx.putImageData(wcBackgroundCanvas.imageData, 0, 0);
                     step0Canvas.ctx.putImageData(step0Canvas.imageData, 0, 0);
+                    wcBackground1.ctx.putImageData(wcBackground1.imageData, 0, 0);
                     step1Canvas.ctx.putImageData(step1Canvas.imageData, 0, 0);
+                    wcBackground2.ctx.putImageData(wcBackground2.imageData, 0, 0);
                     step2Canvas.ctx.putImageData(step2Canvas.imageData, 0, 0);
-                    
-                    // Canvas elements are already styled to fill container via CSS
 
                     // Calculate statistics
                     const vegAvg = stats.vegCount ? stats.vegSum / stats.vegCount : NaN;
@@ -317,7 +357,9 @@ function initializeGenoaUhiScrolly() {
                     // Small delay to ensure DOM is ready, then initialize
                     setTimeout(() => {
                         finalizeSetup({ 
-                            wcBackgroundCanvas, 
+                            mapContainer,
+                            wcBackground1,
+                            wcBackground2,
                             step0Canvas, 
                             step1Canvas, 
                             step2Canvas,
@@ -325,6 +367,7 @@ function initializeGenoaUhiScrolly() {
                             builtAvg,
                             p1Val,
                             p99Val,
+                            dashboardPanel,
                             minVal,
                             maxVal,
                             heatScale
@@ -333,9 +376,9 @@ function initializeGenoaUhiScrolly() {
                 }
             }
 
-            function createStepCanvas(stepId, label, canvasWidth, canvasHeight, displayW, displayH) {
-                const canvas = map.append('canvas')
-                    .attr('class', `tile-layer semantic-step`)
+            function createStepCanvasForMap(mapContainer, stepId, label, canvasWidth, canvasHeight, displayW, displayH) {
+                const canvas = mapContainer.append('canvas')
+                    .attr('class', `layer-canvas`)
                     .attr('data-step', stepId)
                     .attr('width', canvasWidth)
                     .attr('height', canvasHeight)
@@ -344,9 +387,11 @@ function initializeGenoaUhiScrolly() {
                     .style('left', '0')
                     .style('width', '100%')
                     .style('height', '100%')
-                    .style('max-width', '100%')
-                    .style('max-height', '100%')
-                    .style('object-fit', 'contain')
+                    .style('display', 'block')
+                    .style('border-radius', '8px')
+                    .style('opacity', 0)
+                    .style('transition', 'opacity 0.3s ease-in-out')
+                    .style('pointer-events', 'none')
                     .node();
 
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -381,139 +426,277 @@ function initializeGenoaUhiScrolly() {
             `);
         });
 
-    function finalizeSetup({ wcBackgroundCanvas, step0Canvas, step1Canvas, step2Canvas, vegAvg, builtAvg, p1Val, p99Val, minVal, maxVal, heatScale }) {
-        let activeStep = -1; // Initialize to -1 so first call always executes
-
-        // Create tooltip for average temperature in top-right corner
-        const tooltip = container.append('div')
-            .attr('class', 'semantic-tooltip')
-            .style('position', 'absolute')
-            .style('pointer-events', 'none')
-            .style('background', 'var(--bg-overlay)')
-            .style('color', 'var(--text-primary)')
-            .style('padding', '12px 16px')
-            .style('border-radius', '8px')
-            .style('font-size', '14px')
-            .style('font-family', 'system-ui, sans-serif')
-            .style('opacity', 0)
-            .style('transition', 'opacity 0.2s')
-            .style('z-index', '100')
-            .style('box-shadow', 'var(--shadow-lg)')
-            .style('border', '1px solid var(--border-medium)')
-            .style('min-width', '160px')
-            .style('text-align', 'center')
-            .style('right', '20px')
-            .style('top', '20px')
-            .style('max-width', 'calc(100% - 40px)');
-
-        function updateSliderLabels(stepIndex) {
-            const labels = document.querySelectorAll('.slider-label-item');
-            labels.forEach((label, index) => {
-                if (index === stepIndex) {
-                    label.classList.add('active');
-                } else {
-                    label.classList.remove('active');
-                }
-            });
-        }
-
-        function updateTooltip(stepIndex) {
-            tooltip.selectAll('*').remove();
-            
-            if (stepIndex === 0) {
-                // Step 0: Land cover - no temperature average
-                tooltip.style('opacity', 0);
-            } else if (stepIndex === 1) {
-                // Step 1: Vegetation
-                if (Number.isFinite(vegAvg)) {
-                    tooltip
-                        .html(`
-                            <div style="font-weight: 600; margin-bottom: 6px; font-size: 12px; opacity: 0.9;">Average Temperature</div>
-                            <div style="font-size: 20px; font-weight: 700; color: #48bb78; line-height: 1.2;">
-                                ${vegAvg.toFixed(1)}°C
-                            </div>
-                            <div style="font-size: 11px; opacity: 0.85; margin-top: 6px;">
-                                Vegetation (trees + low veg)
-                            </div>
-                        `)
-                        .style('opacity', 1);
-                } else {
-                    tooltip.style('opacity', 0);
-                }
-            } else if (stepIndex === 2) {
-                // Step 2: Built-up
-                if (Number.isFinite(builtAvg)) {
-                    tooltip
-                        .html(`
-                            <div style="font-weight: 600; margin-bottom: 6px; font-size: 12px; opacity: 0.9;">Average Temperature</div>
-                            <div style="font-size: 20px; font-weight: 700; color: #e53e3e; line-height: 1.2;">
-                                ${builtAvg.toFixed(1)}°C
-                            </div>
-                            <div style="font-size: 11px; opacity: 0.85; margin-top: 6px;">
-                                Built-up / urban
-                            </div>
-                        `)
-                        .style('opacity', 1);
-                } else {
-                    tooltip.style('opacity', 0);
-                }
-            }
-        }
-
-        function setActiveStep(stepIndex) {
-            // Always update, even if same step (fixes initial load issue)
-            activeStep = stepIndex;
-
-            // Hide all step canvases
-            wcBackgroundCanvas.canvas.classList.remove('is-visible');
-            step0Canvas.canvas.classList.remove('is-visible');
-            step1Canvas.canvas.classList.remove('is-visible');
-            step2Canvas.canvas.classList.remove('is-visible');
-
-            // Show active step with WorldCover background for steps 1 and 2
-            if (stepIndex === 0) {
-                step0Canvas.canvas.classList.add('is-visible');
-            } else if (stepIndex === 1) {
-                wcBackgroundCanvas.canvas.classList.add('is-visible');
-                step1Canvas.canvas.classList.add('is-visible');
-            } else if (stepIndex === 2) {
-                wcBackgroundCanvas.canvas.classList.add('is-visible');
-                step2Canvas.canvas.classList.add('is-visible');
-            }
-
-            // Update slider value
-            const slider = document.getElementById('semantic-slider');
-            if (slider) slider.value = stepIndex;
-
-            // Update slider labels
-            updateSliderLabels(stepIndex);
-            
-            // Update tooltip with average temperature
-            updateTooltip(stepIndex);
-        }
-
-        // Initialize: show step 0 (land cover)
-        // Ensure step 0 is visible on initial load
-        setActiveStep(0);
+    function finalizeSetup({ mapContainer, wcBackground1, wcBackground2, step0Canvas, step1Canvas, step2Canvas, vegAvg, builtAvg, p1Val, p99Val, minVal, maxVal, heatScale, dashboardPanel }) {
+        // Set z-index for proper layering
+        step0Canvas.canvas.style.zIndex = '1';
+        wcBackground1.canvas.style.zIndex = '2';
+        step1Canvas.canvas.style.zIndex = '3';
+        wcBackground2.canvas.style.zIndex = '4';
+        step2Canvas.canvas.style.zIndex = '5';
         
-        // Force a reflow to ensure the canvas is displayed
-        step0Canvas.canvas.offsetHeight;
-
-        // Set up slider
-        const slider = document.getElementById('semantic-slider');
-        if (slider) {
-            slider.addEventListener('input', (e) => {
-                const step = parseInt(e.target.value);
-                setActiveStep(step);
-            });
-        }
-
-        // Set up label clicks
-        const labels = document.querySelectorAll('.slider-label-item');
-        labels.forEach((label, index) => {
-            label.addEventListener('click', () => {
-                setActiveStep(index);
-            });
+        // Create legend section in dashboard panel
+        const legendSection = dashboardPanel.append('div')
+            .attr('class', 'dashboard-legend-section')
+            .style('background', 'var(--bg-card)')
+            .style('border', '1px solid var(--border-light)')
+            .style('border-radius', '8px')
+            .style('padding', '16px')
+            .style('box-shadow', '0 1px 3px rgba(0,0,0,0.1)');
+        
+        // Legend title
+        legendSection.append('div')
+            .style('font-size', '13px')
+            .style('font-weight', '600')
+            .style('color', 'var(--text-primary)')
+            .style('margin-bottom', '12px')
+            .style('text-transform', 'uppercase')
+            .style('letter-spacing', '0.5px')
+            .text('Land Cover Classes');
+        
+        // Land cover class definitions (excluding water)
+        const landCoverClasses = [
+            { id: 1, name: 'Vegetation (Trees)', color: 'rgb(100, 150, 100)' },
+            { id: 2, name: 'Vegetation (Low)', color: 'rgb(140, 180, 140)' },
+            { id: 3, name: 'Built-up', color: 'rgb(180, 120, 100)' },
+            { id: 4, name: 'Bare Ground', color: 'rgb(200, 190, 170)' }
+        ];
+        
+        const legendItemsContainer = legendSection.append('div')
+            .style('display', 'grid')
+            .style('grid-template-columns', 'repeat(2, 1fr)')
+            .style('gap', '12px');
+        
+        landCoverClasses.forEach(cls => {
+            const legendItem = legendItemsContainer.append('div')
+                .style('display', 'flex')
+                .style('align-items', 'center')
+                .style('gap', '8px')
+                .style('font-size', '11px')
+                .style('color', 'var(--text-primary)')
+                .style('padding', '4px 0');
+            
+            legendItem.append('div')
+                .style('width', '20px')
+                .style('height', '20px')
+                .style('background', cls.color)
+                .style('border-radius', '3px')
+                .style('border', '1px solid var(--border-medium)')
+                .style('flex-shrink', '0')
+                .style('box-shadow', '0 1px 2px rgba(0,0,0,0.1)');
+            
+            legendItem.append('span')
+                .style('font-weight', '500')
+                .style('line-height', '1.2')
+                .text(cls.name);
         });
+        
+        // Create controls section in dashboard panel
+        const controlsSection = dashboardPanel.append('div')
+            .attr('class', 'dashboard-controls-section')
+            .style('background', 'var(--bg-card)')
+            .style('border', '1px solid var(--border-light)')
+            .style('border-radius', '8px')
+            .style('padding', '16px')
+            .style('box-shadow', '0 1px 3px rgba(0,0,0,0.1)');
+        
+        // Controls title
+        controlsSection.append('div')
+            .style('font-size', '13px')
+            .style('font-weight', '600')
+            .style('color', 'var(--text-primary)')
+            .style('margin-bottom', '12px')
+            .style('text-transform', 'uppercase')
+            .style('letter-spacing', '0.5px')
+            .text('Layer Controls');
+        
+        // Layer controls container
+        const layerControlsContainer = controlsSection.append('div')
+            .style('display', 'flex')
+            .style('flex-direction', 'column')
+            .style('gap', '10px');
+        
+        // Layer 0: Land Cover Context
+        const layer0Control = layerControlsContainer.append('label')
+            .style('display', 'flex')
+            .style('align-items', 'center')
+            .style('gap', '10px')
+            .style('cursor', 'pointer')
+            .style('font-size', '12px')
+            .style('color', 'var(--text-primary)')
+            .style('padding', '8px')
+            .style('border-radius', '6px')
+            .style('transition', 'background 0.2s ease')
+            .on('mouseenter', function() {
+                d3.select(this).style('background', 'var(--bg-secondary)');
+            })
+            .on('mouseleave', function() {
+                d3.select(this).style('background', 'transparent');
+            });
+        
+        const layer0Checkbox = layer0Control.append('input')
+            .attr('type', 'checkbox')
+            .attr('checked', true)
+            .style('cursor', 'pointer')
+            .style('width', '16px')
+            .style('height', '16px')
+            .style('accent-color', 'var(--primary-color)')
+            .on('change', function() {
+                step0Canvas.canvas.style.opacity = this.checked ? '1' : '0';
+            });
+        
+        layer0Control.append('span')
+            .style('font-weight', '500')
+            .text('Land Cover Context');
+        
+        // Layer 1: Vegetation Heat
+        const layer1Control = layerControlsContainer.append('label')
+            .style('display', 'flex')
+            .style('align-items', 'center')
+            .style('gap', '10px')
+            .style('cursor', 'pointer')
+            .style('font-size', '12px')
+            .style('color', 'var(--text-primary)')
+            .style('padding', '8px')
+            .style('border-radius', '6px')
+            .style('transition', 'background 0.2s ease')
+            .on('mouseenter', function() {
+                d3.select(this).style('background', 'var(--bg-secondary)');
+            })
+            .on('mouseleave', function() {
+                d3.select(this).style('background', 'transparent');
+            });
+        
+        const layer1Checkbox = layer1Control.append('input')
+            .attr('type', 'checkbox')
+            .attr('checked', false)
+            .style('cursor', 'pointer')
+            .style('width', '16px')
+            .style('height', '16px')
+            .style('accent-color', 'var(--primary-color)');
+        
+        layer1Control.append('span')
+            .style('font-weight', '500')
+            .text('Vegetation Heat');
+        
+        // Layer 2: Urban Heat
+        const layer2Control = layerControlsContainer.append('label')
+            .style('display', 'flex')
+            .style('align-items', 'center')
+            .style('gap', '10px')
+            .style('cursor', 'pointer')
+            .style('font-size', '12px')
+            .style('color', 'var(--text-primary)')
+            .style('padding', '8px')
+            .style('border-radius', '6px')
+            .style('transition', 'background 0.2s ease')
+            .on('mouseenter', function() {
+                d3.select(this).style('background', 'var(--bg-secondary)');
+            })
+            .on('mouseleave', function() {
+                d3.select(this).style('background', 'transparent');
+            });
+        
+        const layer2Checkbox = layer2Control.append('input')
+            .attr('type', 'checkbox')
+            .attr('checked', false)
+            .style('cursor', 'pointer')
+            .style('width', '16px')
+            .style('height', '16px')
+            .style('accent-color', 'var(--primary-color)');
+        
+        layer2Control.append('span')
+            .style('font-weight', '500')
+            .text('Urban Heat');
+        
+        // Create statistics section in dashboard panel
+        const statsSection = dashboardPanel.append('div')
+            .attr('class', 'dashboard-stats-section')
+            .style('background', 'var(--bg-card)')
+            .style('border', '1px solid var(--border-light)')
+            .style('border-radius', '8px')
+            .style('padding', '16px')
+            .style('box-shadow', '0 1px 3px rgba(0,0,0,0.1)');
+        
+        // Stats title
+        statsSection.append('div')
+            .style('font-size', '13px')
+            .style('font-weight', '600')
+            .style('color', 'var(--text-primary)')
+            .style('margin-bottom', '12px')
+            .style('text-transform', 'uppercase')
+            .style('letter-spacing', '0.5px')
+            .text('Temperature Statistics');
+        
+        // Statistics display that updates based on visible layers
+        const statsDisplay = statsSection.append('div')
+            .attr('class', 'stats-display')
+            .style('min-height', '60px')
+            .style('display', 'flex')
+            .style('align-items', 'center')
+            .style('justify-content', 'center')
+            .style('font-size', '14px')
+            .style('color', 'var(--text-secondary)');
+        
+        function updateStatsDisplay() {
+            const layer1Visible = layer1Checkbox.property('checked');
+            const layer2Visible = layer2Checkbox.property('checked');
+            
+            if (layer1Visible && Number.isFinite(vegAvg)) {
+                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                const textColor = isDarkMode ? '#9ca3af' : '#000000';
+                
+                statsDisplay
+                    .style('display', 'flex')
+                    .style('flex-direction', 'column')
+                    .style('align-items', 'center')
+                    .html(`
+                        <div style="font-size: 11px; opacity: 0.7; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Vegetation Average</div>
+                        <div style="font-size: 24px; font-weight: 700; color: ${textColor};">
+                            ${vegAvg.toFixed(1)}°C
+                        </div>
+                    `);
+            } else if (layer2Visible && Number.isFinite(builtAvg)) {
+                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                const isLowTemp = builtAvg < (p1Val + (p99Val - p1Val) * 0.3);
+                const textColor = (isDarkMode && isLowTemp) ? '#9ca3af' : '#e53e3e';
+                
+                statsDisplay
+                    .style('display', 'flex')
+                    .style('flex-direction', 'column')
+                    .style('align-items', 'center')
+                    .html(`
+                        <div style="font-size: 11px; opacity: 0.7; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Urban Average</div>
+                        <div style="font-size: 24px; font-weight: 700; color: ${textColor};">
+                            ${builtAvg.toFixed(1)}°C
+                        </div>
+                    `);
+            } else {
+                statsDisplay
+                    .style('display', 'flex')
+                    .html('<div style="font-size: 12px; opacity: 0.5; text-align: center;">Enable a layer to view statistics</div>');
+            }
+        }
+        
+        // Add event handlers for layer toggles
+        layer1Checkbox.on('change', function() {
+            const isVisible = this.checked;
+            wcBackground1.canvas.style.opacity = isVisible ? '0.4' : '0';
+            step1Canvas.canvas.style.opacity = isVisible ? '1' : '0';
+            updateStatsDisplay();
+        });
+        
+        layer2Checkbox.on('change', function() {
+            const isVisible = this.checked;
+            wcBackground2.canvas.style.opacity = isVisible ? '0.4' : '0';
+            step2Canvas.canvas.style.opacity = isVisible ? '1' : '0';
+            updateStatsDisplay();
+        });
+        
+        // Initialize stats display
+        updateStatsDisplay();
+        
+        
+        // Initialize: show layer 0 (land cover context)
+        step0Canvas.canvas.style.opacity = '1';
     }
 }

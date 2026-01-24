@@ -145,45 +145,6 @@
                     </div>
                 </div>
 
-                <!-- Land Cover & Heat Visualization: LST + WorldCover -->
-                <div class="story-viz">
-                    <div class="story-viz-container">
-                        <h3 class="viz-title">Land Cover & Heat: Genoa</h3>
-                        
-                        <!-- Semantic Slider -->
-                        <div class="semantic-slider-container">
-                            <label for="semantic-slider" class="slider-label">Semantic view:</label>
-                            <div class="slider-wrapper">
-                                <input 
-                                    type="range" 
-                                    id="semantic-slider" 
-                                    class="semantic-slider"
-                                    min="0" 
-                                    max="2" 
-                                    value="0" 
-                                    step="1"
-                                    aria-label="Semantic visualization step"
-                                />
-                                <div class="slider-labels">
-                                    <span class="slider-label-item" data-step="0">Land cover</span>
-                                    <span class="slider-label-item" data-step="1">Vegetation</span>
-                                    <span class="slider-label-item" data-step="2">Urban</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="viz-genoa-uhi-scrolly" class="visualization">
-                            <p class="placeholder-text">Loading Genoa land-cover and temperature data...</p>
-                        </div>
-
-
-                        <p class="viz-caption">
-                            <strong>Figure 1b:</strong> Genoa's LST with semantic masking. Step 0: land cover context. 
-                            Step 1: temperatures for vegetated areas. Step 2: temperatures for built-up areas. 
-                            Temperature data is constant; only the mask changes.
-                        </p>
-                    </div>
-                </div>
 
                 <div class="story-text">
                     <p class="story-paragraph">
@@ -210,6 +171,47 @@
                         factors working together, each contributing to the overall warming effect. 
                         Understanding these causes is crucial to addressing the problem.
                     </p>
+                </div>
+
+                <!-- Land Cover & Heat Visualization: Side-by-Side Comparison -->
+                <div class="story-viz">
+                    <div class="story-viz-container">
+                        <h3 class="viz-title">Land Cover & Heat: Direct Comparison</h3>
+                        <div id="viz-genoa-uhi-scrolly" class="visualization">
+                            <p class="placeholder-text">Loading Genoa land-cover and temperature data...</p>
+                        </div>
+                        <p class="viz-caption">
+                            <strong>Figure 2a:</strong> Side-by-side comparison of Genoa's land cover and temperature patterns. 
+                            Left: Land cover classification (WorldCover) showing spatial context. Middle: Temperature for vegetated 
+                            areas only. Right: Temperature for built-up/urban areas only. The same temperature data is used; 
+                            only the mask changes. This visualization clearly shows that built-up areas are significantly hotter 
+                            than vegetated areas, demonstrating why urban materials are a primary driver of Urban Heat Islands.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Sankey Diagram: Land Cover → Temperature -->
+                <div class="story-viz">
+                    <div class="story-viz-container">
+                        <h3 class="viz-title">Land Cover → Heat Relationships</h3>
+                        <div id="viz-sankey-landcover" class="visualization">
+                            <p class="placeholder-text">Loading land cover and temperature data...</p>
+                        </div>
+                        <p class="viz-caption">
+                            <strong>Figure 2:</strong> Sankey diagram showing the relationship between land cover types 
+                            and temperature classes in Genoa. <strong>Flow width represents the number of pixels (area) 
+                            associated with each land cover–temperature class combination.</strong> This visualization 
+                            answers: "Which surfaces contribute most to extreme heat?"
+                        </p>
+                        <div class="story-text" style="margin-top: 20px;">
+                            <p class="story-paragraph" style="font-weight: 600; color: var(--text-primary);">
+                                <strong>Key Takeaway:</strong> Built-up surfaces disproportionately contribute to the 
+                                hottest temperature class, while tree-covered areas are predominantly associated with 
+                                cooler conditions. This direct relationship between surface type and thermal behavior 
+                                explains why urban materials are a primary driver of Urban Heat Islands.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="story-grid">
@@ -274,7 +276,7 @@
                     </p>
                 </div>
 
-                <!-- Visualization 2: NDVI Rural vs Urban -->
+                <!-- Visualization 3: NDVI Rural vs Urban -->
                 <div class="story-viz">
                     <div class="story-viz-container">
                         <h3 class="viz-title">Rural vs Urban Vegetation: NDVI Map of Genoa</h3>
@@ -282,7 +284,7 @@
                             <p class="placeholder-text">Loading Genoa NDVI data from satellite imagery...</p>
                         </div>
                         <p class="viz-caption">
-                            <strong>Figure 2:</strong> Normalized Difference Vegetation Index (NDVI) map of Genoa derived from
+                            <strong>Figure 3:</strong> Normalized Difference Vegetation Index (NDVI) map of Genoa derived from
                             multispectral satellite imagery. NDVI values are defined in the range -1 to 1. NDVI values below 0
                             (water or non-vegetated surfaces) are rendered with a neutral mask, while NDVI values from 0 to 1
                             use a sequential green scale to represent vegetation density.
@@ -593,6 +595,7 @@
     <script src="js/viz-genoa-uhi.js"></script>
     <script src="js/viz-genoa-uhi-scrolly.js"></script>
     <script src="js/viz-genoa-ndvi.js"></script>
+    <script src="js/viz-sankey-landcover.js"></script>
     <!-- Main initialization (must be last) -->
     <script src="js/visualizations.js"></script>
     <script src="js/main.js"></script>

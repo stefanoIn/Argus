@@ -582,6 +582,14 @@ code {
     max-width: 100%;
     box-sizing: border-box;
     overflow: hidden;
+    margin-left: 0;
+}
+
+/* Prevent sidebar overlap on larger screens */
+@media (min-width: 1025px) {
+    .story-viz-container {
+        margin-left: 40px;
+    }
 }
 
 .story-viz-container .viz-title {
@@ -597,7 +605,10 @@ code {
     width: 100%;
     max-width: 100%;
     min-height: 600px;
-    overflow: hidden;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: relative;
     display: flex;
     align-items: center;
@@ -610,6 +621,8 @@ code {
     line-height: var(--line-height-normal);
     padding-top: var(--spacing-md);
     border-top: 1px solid var(--border-light);
+    width: 100%;
+    max-width: 100%;
 }
 
 .story-viz-scrolly {
@@ -1436,11 +1449,14 @@ code {
     line-height: var(--line-height-normal);
     padding-top: var(--spacing-md);
     border-top: 1px solid var(--border-light);
+    width: 100%;
+    max-width: 100%;
 }
 
 .viz-caption p {
     margin: 0;
     max-width: 100%;
+    width: 100%;
 }
 
 .viz-caption strong {
@@ -2669,6 +2685,97 @@ code {
     .genoa-modal-close {
         min-height: 44px;
         min-width: 44px;
+    }
+}
+
+/* Dashboard layout for Land Cover visualization */
+.landcover-dashboard-wrapper {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    max-width: 100%;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.landcover-dashboard-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 0 0 300px;
+    min-width: 280px;
+    max-width: 100%;
+}
+
+.dashboard-legend-section,
+.dashboard-controls-section,
+.dashboard-stats-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: background var(--transition-normal), border-color var(--transition-normal);
+}
+
+.dashboard-legend-section > div:first-child,
+.dashboard-controls-section > div:first-child,
+.dashboard-stats-section > div:first-child {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+@media (max-width: 1200px) {
+    .landcover-dashboard-wrapper {
+        flex-direction: column;
+    }
+    
+    .layered-map-container {
+        flex: 1 1 100% !important;
+        min-width: 100% !important;
+    }
+    
+    .landcover-dashboard-panel {
+        flex: 1 1 100%;
+        max-width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .dashboard-legend-section,
+    .dashboard-controls-section,
+    .dashboard-stats-section {
+        flex: 1 1 calc(33.333% - 15px);
+        min-width: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .landcover-dashboard-wrapper {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .landcover-dashboard-panel {
+        flex: 1 1 100%;
+        min-width: 100%;
+        flex-direction: column;
+    }
+    
+    .layered-map-container {
+        flex: 1 1 100% !important;
+        min-width: 100% !important;
+    }
+    
+    .dashboard-legend-section,
+    .dashboard-controls-section,
+    .dashboard-stats-section {
+        flex: 1 1 100%;
+        min-width: 100%;
     }
 }
 

@@ -24,4 +24,5 @@ function initializeVisualizations() {
     initializeGenoaUHIViz();
     initializeGenoaUhiScrolly();
     initializeGenoaNDVIViz();
+    initializeSankeyLandCoverViz();
 }

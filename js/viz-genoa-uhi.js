@@ -469,10 +469,15 @@ function initializeGenoaUHIViz() {
                                 const clampedValue = Math.max(p1Val, Math.min(p99Val, avgValue));
                                 
                                 // Update tooltip - fixed position in top-right corner (using right/top CSS)
+                                // In dark mode, use gray text for low temperatures for better visibility
+                                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                                const isLowTemp = avgValue < (p1Val + (p99Val - p1Val) * 0.3); // Below 30% of percentile range
+                                const textColor = (isDarkMode && isLowTemp) ? '#9ca3af' : colorScale(clampedValue);
+                                
                                 tooltip
                                     .html(`
                                         <div style="font-weight: 600; margin-bottom: 6px; font-size: 12px; opacity: 0.9;">Temperature</div>
-                                        <div style="font-size: 24px; font-weight: 700; color: ${colorScale(clampedValue)}; line-height: 1.2;">
+                                        <div style="font-size: 24px; font-weight: 700; color: ${textColor}; line-height: 1.2;">
                                             ${avgValue.toFixed(1)}°C
                                         </div>
                                     `)
