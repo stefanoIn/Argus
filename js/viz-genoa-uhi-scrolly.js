@@ -639,10 +639,10 @@ function initializeGenoaUhiScrolly() {
             .style('background', 'var(--bg-card)')
             .style('border', '1px solid var(--border-light)')
             .style('border-radius', '8px')
-            .style('padding', '16px')
+            .style('padding', '4px')
             .style('box-shadow', '0 1px 3px rgba(0,0,0,0.1)');
         
-        // Stats title
+        // Stats title (centered)
         statsSection.append('div')
             .style('font-size', '13px')
             .style('font-weight', '600')
@@ -650,19 +650,22 @@ function initializeGenoaUhiScrolly() {
             .style('margin-bottom', '16px')
             .style('text-transform', 'uppercase')
             .style('letter-spacing', '0.5px')
+            .style('text-align', 'center')
             .text('Temperature Comparison');
         
         // Create proper bar chart with axes
-        const chartWidth = 250;
+        const chartWidth = 280;
         const chartHeight = 200;
-        const chartMargin = { top: 10, right: 20, bottom: 40, left: 120 };
+        const chartMargin = { top: 10, right: 20, bottom: 30, left: 90 };
         const plotWidth = chartWidth - chartMargin.left - chartMargin.right;
         const plotHeight = chartHeight - chartMargin.top - chartMargin.bottom;
         
         const chartSvg = statsSection.append('svg')
             .attr('width', chartWidth)
             .attr('height', chartHeight)
-            .style('overflow', 'visible');
+            .style('overflow', 'visible')
+            .style('display', 'block')
+            .style('margin', '0 auto');
         
         const chartG = chartSvg.append('g')
             .attr('transform', `translate(${chartMargin.left},${chartMargin.top})`);
@@ -703,25 +706,25 @@ function initializeGenoaUhiScrolly() {
             .range([0, plotHeight])
             .padding(0.3);
         
-        // Add X axis
+        // Add X axis with better spacing
         const xAxis = d3.axisBottom(xScale)
-            .ticks(5)
+            .ticks(4)
             .tickFormat(d => `${d}°C`);
         
         chartG.append('g')
             .attr('transform', `translate(0,${plotHeight})`)
             .call(xAxis)
             .style('color', 'var(--text-secondary)')
-            .style('font-size', '10px')
+            .style('font-size', '9px')
             .selectAll('text')
-            .style('fill', 'var(--text-secondary)');
+            .style('fill', 'var(--text-secondary)')
+            .attr('transform', 'translate(0,3)'); // Add small vertical offset
         
         chartG.selectAll('.domain, .tick line')
             .style('stroke', 'var(--border-medium)');
         
-        // Add Y axis
-        const yAxis = d3.axisLeft(yScale)
-            .tickFormat(d => d.length > 15 ? d.substring(0, 15) + '...' : d);
+        // Add Y axis - no truncation needed with larger left margin
+        const yAxis = d3.axisLeft(yScale);
         
         chartG.append('g')
             .call(yAxis)
