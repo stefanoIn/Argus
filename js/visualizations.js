@@ -20,9 +20,37 @@ document.addEventListener('DOMContentLoaded', function() {
  * Initialize all visualizations
  */
 function initializeVisualizations() {
-    // Initialize each visualization for storytelling format
-    initializeGenoaUHIViz();
-    initializeGenoaUhiScrolly();
-    initializeGenoaNDVIViz();
-    initializeSankeyLandCoverViz();
+    console.log('[Viz] Initializing all visualizations...');
+    
+    // Initialize each visualization with error handling
+    try {
+        initializeGenoaUHIViz();
+    } catch (error) {
+        console.error('[Viz] Error initializing Genoa UHI:', error);
+    }
+    
+    // Add delay for Land Cover visualization to ensure DOM is ready
+    setTimeout(() => {
+        try {
+            initializeGenoaUhiScrolly();
+        } catch (error) {
+            console.error('[Viz] Error initializing Land Cover:', error);
+        }
+    }, 100);
+    
+    setTimeout(() => {
+        try {
+            initializeGenoaNDVIViz();
+        } catch (error) {
+            console.error('[Viz] Error initializing NDVI:', error);
+        }
+    }, 200);
+    
+    setTimeout(() => {
+        try {
+            initializeSankeyLandCoverViz();
+        } catch (error) {
+            console.error('[Viz] Error initializing Sankey:', error);
+        }
+    }, 300);
 }

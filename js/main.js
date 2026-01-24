@@ -266,7 +266,7 @@ function applyTheme(theme) {
  */
 function initializeHeaderScroll() {
     const header = document.querySelector('.header');
-    const sidebarNav = document.getElementById('sidebar-nav');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
     let lastScrollTop = window.scrollY || window.pageYOffset || 0;
     const scrollThreshold = 100;
     
@@ -275,43 +275,29 @@ function initializeHeaderScroll() {
         return;
     }
     
-    console.log('Header scroll handler initialized');
     
     function handleScroll() {
         const scrollTop = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
         
-        // Debug: log first few scroll events
-        if (scrollTop !== lastScrollTop) {
-            console.log('Scroll detected:', scrollTop, 'Last:', lastScrollTop);
-        }
-        
         // Hide/show header based on scroll direction
         if (scrollTop > lastScrollTop && scrollTop > 50) {
             // Scrolling down - hide header
-            console.log('Hiding header');
             header.style.transform = 'translateY(-100%)';
             header.style.display = 'block'; // Ensure it's still in DOM
             header.classList.add('hidden');
         } else if (scrollTop < lastScrollTop || scrollTop <= 50) {
             // Scrolling up or at top - show header
-            console.log('Showing header');
             header.style.transform = 'translateY(0)';
             header.style.display = 'block';
             header.classList.remove('hidden');
         }
         
-        // Show/hide sidebar
-        if (sidebarNav) {
+        // Show/hide sidebar toggle button
+        if (sidebarToggle) {
             if (scrollTop > scrollThreshold) {
-                sidebarNav.style.opacity = '1';
-                sidebarNav.style.visibility = 'visible';
-                sidebarNav.style.pointerEvents = 'auto';
-                sidebarNav.classList.add('visible');
+                sidebarToggle.classList.add('visible');
             } else {
-                sidebarNav.style.opacity = '0';
-                sidebarNav.style.visibility = 'hidden';
-                sidebarNav.style.pointerEvents = 'none';
-                sidebarNav.classList.remove('visible');
+                sidebarToggle.classList.remove('visible');
             }
         }
         
@@ -339,27 +325,80 @@ function initializeHeaderScroll() {
             setTimeout(handleScroll, 200);
         });
     }
-    
-    // Expose for manual testing in console
-    window.testHeaderScroll = function() {
-        console.log('=== Testing Header Scroll ===');
-        console.log('Current scroll position:', window.scrollY || window.pageYOffset);
-        console.log('Last scroll top:', lastScrollTop);
-        console.log('Header element:', header);
-        console.log('Header classes:', header.className);
-        handleScroll();
-        console.log('After handleScroll - Header transform:', header.style.transform);
-    };
 }
 
 /**
  * Initialize sidebar navigation
  */
 function initializeSidebarNav() {
+    const sidebarNav = document.getElementById('sidebar-nav');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
     const sidebarLinks = document.querySelectorAll('.sidebar-nav-link');
     const sections = document.querySelectorAll('section[id]');
     
-    if (sidebarLinks.length === 0) return;
+    if (sidebarLinks.length === 0 || !sidebarNav || !sidebarToggle) return;
+    
+    let isOpen = false;
+    let hoverTimeout = null;
+    
+    // Toggle sidebar on button click
+    sidebarToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        isOpen = !isOpen;
+        if (isOpen) {
+            sidebarNav.classList.add('visible');
+            sidebarToggle.style.opacity = '0';
+            sidebarToggle.style.pointerEvents = 'none';
+        } else {
+            sidebarNav.classList.remove('visible');
+            sidebarToggle.style.opacity = '1';
+            sidebarToggle.style.pointerEvents = 'auto';
+        }
+    });
+    
+    // Show sidebar on toggle button hover
+    sidebarToggle.addEventListener('mouseenter', function() {
+        clearTimeout(hoverTimeout);
+        sidebarNav.classList.add('visible');
+        // Hide toggle button when sidebar is open
+        sidebarToggle.style.opacity = '0';
+        sidebarToggle.style.pointerEvents = 'none';
+    });
+    
+    // Keep sidebar open while hovering over it
+    sidebarNav.addEventListener('mouseenter', function() {
+        clearTimeout(hoverTimeout);
+    });
+    
+    // Hide sidebar when mouse leaves (with delay)
+    function scheduleSidebarHide() {
+        clearTimeout(hoverTimeout);
+        hoverTimeout = setTimeout(function() {
+            if (!isOpen) {
+                sidebarNav.classList.remove('visible');
+                // Show toggle button again
+                if (sidebarToggle.classList.contains('visible')) {
+                    sidebarToggle.style.opacity = '1';
+                    sidebarToggle.style.pointerEvents = 'auto';
+                }
+            }
+        }, 300);
+    }
+    
+    sidebarToggle.addEventListener('mouseleave', scheduleSidebarHide);
+    sidebarNav.addEventListener('mouseleave', scheduleSidebarHide);
+    
+    // Close sidebar when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!sidebarNav.contains(e.target) && !sidebarToggle.contains(e.target)) {
+            isOpen = false;
+            sidebarNav.classList.remove('visible');
+            if (sidebarToggle.classList.contains('visible')) {
+                sidebarToggle.style.opacity = '1';
+                sidebarToggle.style.pointerEvents = 'auto';
+            }
+        }
+    });
     
     // Update active state on scroll
     function updateActiveSection() {
@@ -387,6 +426,14 @@ function initializeSidebarNav() {
             e.preventDefault();
             const targetId = this.getAttribute('data-section');
             const targetSection = document.getElementById(targetId);
+            
+            // Close sidebar after clicking a link
+            isOpen = false;
+            sidebarNav.classList.remove('visible');
+            if (sidebarToggle.classList.contains('visible')) {
+                sidebarToggle.style.opacity = '1';
+                sidebarToggle.style.pointerEvents = 'auto';
+            }
             
             if (targetSection) {
                 const headerHeight = document.querySelector('.header')?.offsetHeight || 0;

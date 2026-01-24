@@ -3,8 +3,11 @@
  * Sankey diagram showing relationship between land cover types and temperature classes
  * Answers: "Which surfaces contribute most to extreme heat?"
  * 
- * Uses WorldCover classification and LST data to show flow from land cover → temperature
+ * Uses pre-computed statistics from JSON (faster, no pixel processing in browser)
  */
+
+let sankeyData = null; // Store data for resize
+let sankeyResizeTimeout = null;
 
 function initializeSankeyLandCoverViz() {
     const container = d3.select('#viz-sankey-landcover');
@@ -30,147 +33,39 @@ function initializeSankeyLandCoverViz() {
         .style('justify-content', 'center');
     
     loadingMsg.append('p')
-        .text('Loading land cover and temperature data...')
+        .text('Loading land cover and temperature statistics...')
         .style('font-size', '16px')
         .style('margin', '0');
     
-    // Load both TIFF files
-    const lstPath = 'data/processed/LST_10m_XGB_2025-07-09_Genoa.tif';
-    const wcPath = 'data/processed/WorldCover_Genova_2021_semantic.tif';
+    // Load pre-computed statistics from JSON
+    const dataPath = 'data/json/sankey_landcover_temp.json';
     
-    function loadTiff(path) {
-        return fetch(path)
-            .then(response => {
-                if (!response.ok) throw new Error(`HTTP ${response.status}: ${path}`);
-                return response.arrayBuffer();
-            })
-            .then(arrayBuffer => GeoTIFF.fromArrayBuffer(arrayBuffer))
-            .then(tiff => tiff.getImage())
-            .then(image => {
-                return image.readRasters().then(rasters => ({
-                    data: rasters[0],
-                    width: image.getWidth(),
-                    height: image.getHeight()
-                }));
-            });
-    }
-    
-    // Resample WorldCover to match LST dimensions
-    function resampleWorldCover(wcData, wcWidth, wcHeight, targetWidth, targetHeight) {
-        const resampledData = new Uint8Array(targetWidth * targetHeight);
-        const xScale = wcWidth / targetWidth;
-        const yScale = wcHeight / targetHeight;
-        
-        for (let ty = 0; ty < targetHeight; ty++) {
-            for (let tx = 0; tx < targetWidth; tx++) {
-                const sx = Math.floor(tx * xScale);
-                const sy = Math.floor(ty * yScale);
-                const srcX = Math.max(0, Math.min(wcWidth - 1, sx));
-                const srcY = Math.max(0, Math.min(wcHeight - 1, sy));
-                const srcIdx = srcY * wcWidth + srcX;
-                const targetIdx = ty * targetWidth + tx;
-                resampledData[targetIdx] = wcData[srcIdx];
-            }
-        }
-        return resampledData;
-    }
-    
-    // Load both datasets
-    Promise.all([loadTiff(lstPath), loadTiff(wcPath)])
-        .then(([lstData, wcData]) => {
-            let { data: lstValues, width: lstWidth, height: lstHeight } = lstData;
-            let { data: wcValues, width: wcWidth, height: wcHeight } = wcData;
-            
-            // Resample WorldCover to match LST if needed
-            if (lstWidth !== wcWidth || lstHeight !== wcHeight) {
-                wcValues = resampleWorldCover(wcValues, wcWidth, wcHeight, lstWidth, lstHeight);
-            }
-            
+    // Load pre-computed data
+    fetch(dataPath)
+        .then(response => {
+            if (!response.ok) throw new Error(`Failed to load ${dataPath}`);
+            return response.json();
+        })
+        .then(data => {
             loadingMsg.remove();
             
-            // Process data: create associations between land cover and temperature
+            
+            // Convert array of flows to associations object and store area data
             const associations = {};
-            let totalValidPixels = 0; // Track total valid pixels for percentage calculations
+            const flowAreas = {}; // Store area for each flow
+            let totalAreaKm2 = 0;
             
-            // Calculate temperature statistics for classification (not percentiles!)
-            // Use mean and standard deviation to create meaningful temperature categories
-            const validTemps = [];
-            for (let i = 0; i < lstValues.length; i++) {
-                const temp = lstValues[i];
-                if (Number.isFinite(temp) && temp !== null && temp !== undefined) {
-                    validTemps.push(temp);
-                }
-            }
+            data.forEach(flow => {
+                const key = `${flow.source}→${flow.target}`;
+                associations[key] = flow.pixel_count;
+                flowAreas[key] = flow.area_km2;
+                totalAreaKm2 += flow.area_km2;
+            });
             
-            // Calculate mean and standard deviation
-            const mean = validTemps.reduce((a, b) => a + b, 0) / validTemps.length;
-            const variance = validTemps.reduce((sum, temp) => sum + Math.pow(temp - mean, 2), 0) / validTemps.length;
-            const stdDev = Math.sqrt(variance);
             
-            // Calculate min/max for inferno color scale (same as LST visualization)
-            validTemps.sort((a, b) => a - b);
-            const p1Index = Math.floor(validTemps.length * 0.01);
-            const p99Index = Math.floor(validTemps.length * 0.99);
-            const minTemp = validTemps[p1Index];  // 1st percentile (for color mapping)
-            const maxTemp = validTemps[p99Index]; // 99th percentile (for color mapping)
             
-            // Define temperature thresholds based on standard deviations from mean
-            // This creates categories that reflect actual temperature distribution, not equal-sized groups
-            const coolThreshold = mean - stdDev;      // Below mean - 1 std dev = Cool
-            const moderateThreshold = mean;           // Mean - 1 std dev to mean = Moderate
-            const warmThreshold = mean + stdDev;      // Mean to mean + 1 std dev = Warm
-            // Above mean + 1 std dev = Hot
-            
-            // Store thresholds for potential display (though we use descriptive names)
-            const p25 = coolThreshold;    // Keep for compatibility, but not used as percentile
-            const p50 = moderateThreshold;
-            const p75 = warmThreshold;
-            
-            // Store temperature range for color mapping
-            const tempRange = { min: minTemp, max: maxTemp };
-            
-            // WorldCover class mapping to new categories (exclude water)
-            // Vegetated: Dense (Trees), Sparse (Low)
-            // Non-vegetated: Built-up, Bare Soil
-            const landCoverMap = {
-                1: 'Dense Vegetation',  // Trees -> Dense
-                2: 'Sparse Vegetation', // Low -> Sparse
-                3: 'Built-up',          // Built-up
-                4: 'Bare Soil',         // Bare Ground -> Bare Soil
-                // 5: Water - excluded
-            };
-            
-            // Count associations (only valid pixels, exclude water)
-            for (let i = 0; i < lstValues.length; i++) {
-                const temp = lstValues[i];
-                const wcClass = wcValues[i];
-                
-                // Only count valid pixels (finite temperature and valid WorldCover class, exclude water)
-                if (!Number.isFinite(temp) || wcClass === 0 || wcClass > 4 || wcClass === 5) continue;
-                
-                totalValidPixels++; // Count this as a valid pixel
-                
-                const landCover = landCoverMap[wcClass];
-                
-                // Classify temperature using standard deviation-based thresholds
-                // This reflects actual temperature distribution, not equal-sized groups
-                let tempClass;
-                if (temp < coolThreshold) {
-                    tempClass = 'Cool';
-                } else if (temp < moderateThreshold) {
-                    tempClass = 'Moderate';
-                } else if (temp < warmThreshold) {
-                    tempClass = 'Warm';
-                } else {
-                    tempClass = 'Hot';
-                }
-                
-                const key = `${landCover}→${tempClass}`;
-                associations[key] = (associations[key] || 0) + 1;
-            }
-            
-            // Build Sankey data structure (new categories, no water)
-            const landCoverTypes = ['Dense Vegetation', 'Sparse Vegetation', 'Built-up', 'Bare Soil'];
+            // Build Sankey data structure
+            const landCoverTypes = ['Dense Vegetation', 'Sparse Vegetation', 'Bare Soil', 'Built-up'];
             const tempClasses = ['Cool', 'Moderate', 'Warm', 'Hot'];
             
             // Create nodes
@@ -202,8 +97,9 @@ function initializeSankeyLandCoverViz() {
                 nodeMap.set(tempClass, nodeIndex++);
             });
             
-            // Create links
+            // Create links from pre-computed flows
             const links = [];
+            let totalFlowPixels = 0;
             landCoverTypes.forEach(landCover => {
                 tempClasses.forEach(tempClass => {
                     const key = `${landCover}→${tempClass}`;
@@ -212,47 +108,71 @@ function initializeSankeyLandCoverViz() {
                         links.push({
                             source: nodeMap.get(landCover),
                             target: nodeMap.get(tempClass),
-                            value: value
+                            value: value,
+                            areaKm2: flowAreas[key] || 0  // Store area from JSON
                         });
+                        totalFlowPixels += value;
                     }
                 });
             });
             
-            // Render Sankey diagram (pass totalValidPixels and tempRange for percentage calculations and color mapping)
-            renderSankey(container, nodes, links, p25, p50, p75, totalValidPixels, tempRange);
+            // Store data for resize
+            sankeyData = { container, nodes, links, totalAreaKm2, totalFlowPixels };
             
-        }).catch(error => {
-            console.error('Error loading data for Sankey:', error);
+            // Render Sankey diagram
+            renderSankey(container, nodes, links, totalAreaKm2, totalFlowPixels);
+            
+            // Add resize handler for responsiveness
+            window.addEventListener('resize', function() {
+                clearTimeout(sankeyResizeTimeout);
+                sankeyResizeTimeout = setTimeout(function() {
+                    if (sankeyData) {
+                        sankeyData.container.selectAll('*').remove();
+                        renderSankey(
+                            sankeyData.container, 
+                            sankeyData.nodes, 
+                            sankeyData.links, 
+                            sankeyData.totalAreaKm2, 
+                            sankeyData.totalFlowPixels
+                        );
+                    }
+                }, 250);
+            });
+            
+        })
+        .catch(error => {
+            console.error('[Sankey] Error loading data:', error);
             loadingMsg.html(`<p style="color: #e53e3e;">Error loading data: ${error.message}</p>`);
         });
 }
 
-function renderSankey(container, nodes, links, p25, p50, p75, totalValidPixels) {
+function renderSankey(container, nodes, links, totalAreaKm2, totalFlowPixels) {
     // Set up dimensions - balance top and bottom margins for vertical centering
     const containerWidth = container.node().getBoundingClientRect().width || 1200;
     const containerHeight = container.node().getBoundingClientRect().height || 700;
     const maxWidth = 1200;
     const contentWidth = Math.min(maxWidth, containerWidth);
     
-    // Calculate optimal height based on container
-    const baseHeight = 600;
-    const availableHeight = Math.max(baseHeight, containerHeight - 120); // Leave space for margins
+    // Calculate optimal height based on container (reduced for shorter diagram)
+    const baseHeight = 350;
+    const availableHeight = Math.max(baseHeight, containerHeight - 100); // Leave space for margins
     
-    // Use balanced margins for vertical centering
-    const margin = { top: 60, right: 40, bottom: 60, left: 40 };
+    // Use smaller margins since legend is removed
+    const margin = { top: 40, right: 40, bottom: 20, left: 40 };
     const width = contentWidth - margin.left - margin.right;
     const height = availableHeight - margin.top - margin.bottom;
     
-    // Create SVG with proper centering
+    // Create SVG with proper centering and responsiveness
     const svgWidth = contentWidth;
     const svgHeight = availableHeight;
     const svg = container.append('svg')
-        .attr('width', svgWidth)
-        .attr('height', svgHeight)
+        .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
         .style('display', 'block')
         .style('margin', '0 auto')
         .style('max-width', '100%')
-        .style('width', '100%');
+        .style('width', '100%')
+        .style('height', 'auto');
     
     const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
@@ -322,10 +242,10 @@ function renderSankey(container, nodes, links, p25, p50, p75, totalValidPixels) 
     
     // Color scales - match legend colors from Land Cover visualization
     const landCoverColors = {
-        'Dense Vegetation': '#649664',  // rgb(100, 150, 100) - Vegetation (Trees)
-        'Sparse Vegetation': '#8CB48C', // rgb(140, 180, 140) - Vegetation (Low)
-        'Built-up': '#B47864',          // rgb(180, 120, 100) - Built-up
-        'Bare Soil': '#C8BEAA'          // rgb(200, 190, 170) - Bare Ground
+        'Dense Vegetation': '#649664',  // rgb(100, 150, 100) - Dense Vegetation
+        'Sparse Vegetation': '#8CB48C', // rgb(140, 180, 140) - Sparse Vegetation
+        'Bare Soil': '#B47864',         // rgb(180, 120, 100) - Bare Soil (brown)
+        'Built-up': '#505050'           // rgb(80, 80, 80) - Built-up (dark gray)
     };
     
     // Temperature color scheme (blue to red gradient)
@@ -434,12 +354,22 @@ function renderSankey(container, nodes, links, p25, p50, p75, totalValidPixels) 
                     .style('border', '1px solid var(--border-medium)')
                     .style('opacity', 0);
                 
+                // Format area display
+                let areaDisplay;
+                if (link.areaKm2 >= 1) {
+                    areaDisplay = `${link.areaKm2.toFixed(2)} km²`;
+                } else if (link.areaHa >= 1) {
+                    areaDisplay = `${link.areaHa.toFixed(1)} ha`;
+                } else {
+                    areaDisplay = `${link.areaM2.toFixed(0)} m²`;
+                }
+                
                 tooltip.html(`
                     <div style="font-weight: 600; margin-bottom: 8px; font-size: 14px;">
                         ${source.name} → ${target.name}
                     </div>
                     <div style="font-size: 18px; font-weight: 700; margin-bottom: 6px;">
-                        ${link.value.toLocaleString()} pixels
+                        ${areaDisplay}
                     </div>
                     <div style="font-size: 11px; opacity: 0.8; line-height: 1.6;">
                         <div>${linkPercentageOfSource}% of ${source.name}</div>
@@ -515,13 +445,18 @@ function renderSankey(container, nodes, links, p25, p50, p75, totalValidPixels) 
         }
         
         const labelParts = Array.isArray(labelText) ? labelText : [labelText];
-        const labelY = node.height < 50 ? node.height / 2 : node.height / 2 - (labelParts.length - 1) * 6;
+        
+        // Calculate vertical centering for multi-line labels
+        const lineHeight = 14;
+        const totalHeight = labelParts.length * lineHeight;
+        const startY = (node.height - totalHeight) / 2 + lineHeight / 2;
         
         labelParts.forEach((part, i) => {
             nodeG.append('text')
                 .attr('x', nodeWidth / 2)
-                .attr('y', labelY + (i * 14))
+                .attr('y', startY + (i * lineHeight))
                 .attr('text-anchor', 'middle')
+                .attr('dominant-baseline', 'middle')
                 .style('fill', 'var(--text-primary)')
                 .style('font-size', node.height < 50 ? '11px' : '12px')
                 .style('font-weight', '600')
@@ -529,11 +464,20 @@ function renderSankey(container, nodes, links, p25, p50, p75, totalValidPixels) 
                 .text(part);
         });
         
-        // Calculate node statistics for tooltip (using only valid pixels)
+        // Calculate node statistics for tooltip
         const total = nodeTotals.get(node.id);
         const totalPixels = total || 0;
-        // Use totalValidPixels as denominator for percentage calculation
-        const percentage = totalValidPixels > 0 ? ((totalPixels / totalValidPixels) * 100).toFixed(1) : '0.0';
+        
+        // Calculate node area from the JSON data (not from pixel count calculation)
+        // Sum up all flow areas for this node from the original data
+        let nodeAreaKm2 = 0;
+        links.forEach(link => {
+            if (link.source === node.id || link.target === node.id) {
+                nodeAreaKm2 += link.areaKm2 || 0;
+            }
+        });
+        
+        const percentage = totalAreaKm2 > 0 ? ((nodeAreaKm2 / totalAreaKm2) * 100).toFixed(1) : '0.0';
         
         // Add interactive hover tooltip for nodes
         nodeG.select('rect')
@@ -556,10 +500,13 @@ function renderSankey(container, nodes, links, p25, p50, p75, totalValidPixels) 
                     .style('border', '1px solid var(--border-medium)')
                     .style('opacity', 0);
                 
+                // Display area
+                let nodeAreaDisplay = `${nodeAreaKm2.toFixed(2)} km²`;
+                
                 tooltip.html(`
                     <div style="font-weight: 600; margin-bottom: 8px; font-size: 14px;">${node.name}</div>
                     <div style="font-size: 18px; font-weight: 700; color: ${color}; margin-bottom: 4px;">
-                        ${totalPixels.toLocaleString()} pixels
+                        ${nodeAreaDisplay}
                     </div>
                     <div style="font-size: 12px; opacity: 0.8;">
                         ${percentage}% of total area
@@ -593,67 +540,20 @@ function renderSankey(container, nodes, links, p25, p50, p75, totalValidPixels) 
     // Add title (centered)
     g.append('text')
         .attr('x', width / 2)
-        .attr('y', -20)
+        .attr('y', -15)
         .style('text-anchor', 'middle')
         .style('fill', 'var(--text-primary)')
-        .style('font-size', '18px')
+        .style('font-size', '17px')
         .style('font-weight', '600')
         .text('Which Surfaces Contribute Most to Extreme Heat?');
     
     // Add subtitle (centered)
     g.append('text')
         .attr('x', width / 2)
-        .attr('y', -5)
+        .attr('y', -2)
         .style('text-anchor', 'middle')
         .style('fill', 'var(--text-secondary)')
-        .style('font-size', '12px')
-        .text('Flow width = number of pixels (area) for each land cover–temperature combination. Temperature classes based on standard deviations from mean.');
+        .style('font-size', '11px')
+        .text(`Flow width represents area for each land cover–temperature combination • Study area: ${totalAreaKm2.toFixed(1)} km²`);
     
-    // Add axis labels (centered under each column)
-    // Get actual node positions after they're calculated
-    const firstLandCoverNode = landCoverNodes[0];
-    const firstTempNode = tempNodes[0];
-    
-    g.append('text')
-        .attr('x', firstLandCoverNode ? (firstLandCoverNode.x + nodeWidth / 2) : width / 4)
-        .attr('y', height + 25)
-        .attr('text-anchor', 'middle')
-        .style('fill', 'var(--text-primary)')
-        .style('font-size', '13px')
-        .style('font-weight', '600')
-        .text('Land Cover Types');
-    
-    g.append('text')
-        .attr('x', firstTempNode ? (firstTempNode.x + nodeWidth / 2) : width * 3 / 4)
-        .attr('y', height + 25)
-        .attr('text-anchor', 'middle')
-        .style('fill', 'var(--text-primary)')
-        .style('font-size', '13px')
-        .style('font-weight', '600')
-        .text('Temperature Classes');
-    
-    // Add legend for temperature classes (centered)
-    const legend = g.append('g')
-        .attr('transform', `translate(${width / 2 - 100}, ${height + 45})`);
-    
-    const tempClasses = ['Cool', 'Moderate', 'Warm', 'Hot'];
-    tempClasses.forEach((tempClass, i) => {
-        const legendItem = legend.append('g')
-            .attr('transform', `translate(${i * 80}, 0)`);
-        
-        legendItem.append('rect')
-            .attr('width', 14)
-            .attr('height', 14)
-            .attr('fill', tempColorScale(tempClass))
-            .attr('opacity', 0.9)
-            .attr('rx', 3);
-        
-        legendItem.append('text')
-            .attr('x', 18)
-            .attr('y', 11)
-            .style('fill', 'var(--text-primary)')
-            .style('font-size', '11px')
-            .style('font-weight', '500')
-            .text(tempClass);
-    });
 }

@@ -1,0 +1,26 @@
+[
+  {
+    "land_cover": "Dense Vegetation",
+    "mean_temperature": 30.538558959960938,
+    "pixel_count": 3087817,
+    "area_km2": 157.49646575230534
+  },
+  {
+    "land_cover": "Sparse Vegetation",
+    "mean_temperature": 32.67738723754883,
+    "pixel_count": 733254,
+    "area_km2": 37.400180612627274
+  },
+  {
+    "land_cover": "Built-up",
+    "mean_temperature": 41.20964813232422,
+    "pixel_count": 892561,
+    "area_km2": 45.52575588784679
+  },
+  {
+    "land_cover": "Bare Soil",
+    "mean_temperature": 40.20927810668945,
+    "pixel_count": 17099,
+    "area_km2": 0.872147561820752
+  }
+]

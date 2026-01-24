@@ -1,0 +1,98 @@
+[
+  {
+    "source": "Dense Vegetation",
+    "target": "Cool",
+    "pixel_count": 540016,
+    "area_km2": 27.54392875280398
+  },
+  {
+    "source": "Dense Vegetation",
+    "target": "Moderate",
+    "pixel_count": 1612266,
+    "area_km2": 82.23485940151451
+  },
+  {
+    "source": "Dense Vegetation",
+    "target": "Warm",
+    "pixel_count": 791206,
+    "area_km2": 40.35606665874905
+  },
+  {
+    "source": "Dense Vegetation",
+    "target": "Hot",
+    "pixel_count": 144329,
+    "area_km2": 7.361610939237811
+  },
+  {
+    "source": "Sparse Vegetation",
+    "target": "Cool",
+    "pixel_count": 13776,
+    "area_km2": 0.702655407429831
+  },
+  {
+    "source": "Sparse Vegetation",
+    "target": "Moderate",
+    "pixel_count": 389034,
+    "area_km2": 19.842976464435022
+  },
+  {
+    "source": "Sparse Vegetation",
+    "target": "Warm",
+    "pixel_count": 294177,
+    "area_km2": 15.004722691019555
+  },
+  {
+    "source": "Sparse Vegetation",
+    "target": "Hot",
+    "pixel_count": 36267,
+    "area_km2": 1.8498260497428631
+  },
+  {
+    "source": "Built-up",
+    "target": "Cool",
+    "pixel_count": 1061,
+    "area_km2": 0.05411711580161518
+  },
+  {
+    "source": "Built-up",
+    "target": "Warm",
+    "pixel_count": 229807,
+    "area_km2": 11.721481650350405
+  },
+  {
+    "source": "Built-up",
+    "target": "Moderate",
+    "pixel_count": 9528,
+    "area_km2": 0.4859829211666253
+  },
+  {
+    "source": "Built-up",
+    "target": "Hot",
+    "pixel_count": 652165,
+    "area_km2": 33.264174200528146
+  },
+  {
+    "source": "Bare Soil",
+    "target": "Cool",
+    "pixel_count": 4,
+    "area_km2": 0.0002040230567450148
+  },
+  {
+    "source": "Bare Soil",
+    "target": "Hot",
+    "pixel_count": 10308,
+    "area_km2": 0.5257674172319031
+  },
+  {
+    "source": "Bare Soil",
+    "target": "Warm",
+    "pixel_count": 6378,
+    "area_km2": 0.3253147639799261
+  },
+  {
+    "source": "Bare Soil",
+    "target": "Moderate",
+    "pixel_count": 409,
+    "area_km2": 0.020861357552177766
+  }
+]
