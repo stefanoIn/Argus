@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="description" content="The Story of Urban Heat Islands: A Data-Driven Narrative">
     <meta name="theme-color" content="#ffffff">
-    <title>UHI Story</title>
+    <title>Urban Heat Islands</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="favicon.png">
@@ -102,7 +102,7 @@
     <!-- Hero / Introduction -->
     <section id="introduction" class="story-hero">
         <div class="story-container">
-            <h1 class="story-title">The Urban Heat Island Story</h1>
+            <h1 class="story-title">Urban Heat Islands</h1>
             <p class="story-lead">
                 As cities grow, they create their own climate. Urban areas become islands of heat, 
                 significantly warmer than the surrounding countryside. This is the story of how 
@@ -123,17 +123,47 @@
                 </div>
                 
                 <div class="story-text">
-                    <p class="story-paragraph">
+                    <p class="story-paragraph story-fade-in">
                         Picture a city from above, viewed through a thermal camera. What you'd see 
                         is striking: the urban core glows like a hot ember, while the surrounding 
                         countryside appears cool and dark. This is an Urban Heat Island—a metropolitan 
                         area that experiences significantly warmer temperatures than its rural surroundings.
                     </p>
-                    <p class="story-paragraph">
+                    <p class="story-paragraph story-fade-in" style="animation-delay: 0.2s;">
                         The temperature difference is most dramatic at night, when urban areas can be 
                         1-3°C warmer on average, and up to 12°C warmer in extreme cases. This isn't 
                         just a curiosity—it affects energy consumption, public health, and the daily 
                         lives of millions of urban residents.
+                    </p>
+                </div>
+
+                <!-- Story Transition -->
+                <div class="story-transition">
+                    <hr>
+                    <span>How Do They Form?</span>
+                    <hr>
+                </div>
+
+                <div class="story-text">
+                    <p class="story-paragraph story-fade-in">
+                        Urban Heat Islands emerge from a simple principle: <span class="highlight-text">what cities are made of</span>. 
+                        Sidewalks, roads, parking lots, and buildings—constructed from asphalt, brick, and concrete—share 
+                        a critical characteristic. These materials absorb sunlight during the day and release stored heat 
+                        slowly, particularly at night, creating a persistent thermal blanket over urban areas.
+                    </p>
+                    <p class="story-paragraph story-fade-in" style="animation-delay: 0.2s;">
+                        While the Sun shines equally on cities and countryside, urban surfaces behave fundamentally differently. 
+                        Many hard, dark city surfaces have <strong>low albedo</strong>—they reflect less sunlight and absorb 
+                        more energy. Crucially, because these surfaces hold virtually no water, they cannot cool through 
+                        evaporation the way soil, grass, or trees can. Instead, absorbed energy converts directly to heat, 
+                        spreading through the air via infrared radiation, convection, and conduction.
+                    </p>
+                    <p class="story-paragraph story-fade-in" style="animation-delay: 0.4s;">
+                        The result: <span class="highlight-text">a warmer "bubble" over urban areas</span>—sometimes several 
+                        degrees hotter than nearby suburbs or countryside. The contrast between rocky, impervious city surfaces 
+                        and natural, water-rich rural landscapes creates one of the most significant human modifications to 
+                        local climate. Understanding this thermal signature is the first step toward designing cities that 
+                        remain livable as global temperatures rise.
                     </p>
                 </div>
 
@@ -173,101 +203,219 @@
                 </div>
                 
                 <div class="story-text">
+                    <p class="story-paragraph story-fade-in">
+                        Urban Heat Islands (UHIs) are not accidental. They emerge from a combination of physical, 
+                        material, and structural factors that systematically alter how cities absorb, store, and 
+                        release heat. While these factors interact, some play a much stronger role than others.
+                    </p>
+                    <p class="story-paragraph story-fade-in">
+                        To understand UHIs, it helps to first outline the main drivers, and then examine the most 
+                        influential ones in detail.
+                    </p>
+                </div>
+
+                <!-- Main Drivers Overview -->
+                <div class="story-text" style="margin-top: 40px;">
+                    <h3 style="font-size: 24px; font-weight: 700; margin-bottom: 20px; color: var(--primary-color);">
+                        Main Drivers of Urban Heat Islands
+                    </h3>
                     <p class="story-paragraph">
-                        Urban Heat Islands don't form by accident. They're the result of multiple 
-                        factors working together, each contributing to the overall warming effect. 
-                        Understanding these causes is crucial to addressing the problem.
+                        Urban heat islands are primarily caused by:
+                    </p>
+                    <ul style="font-size: 18px; line-height: 1.8; margin: 20px 0 20px 40px; color: var(--text-primary);">
+                        <li style="margin-bottom: 10px;"><strong>Lack of vegetation</strong></li>
+                        <li style="margin-bottom: 10px;"><strong>Heat-retaining urban materials and surfaces</strong></li>
+                        <li style="margin-bottom: 10px;"><strong>Urban structure and geometry</strong></li>
+                        <li style="margin-bottom: 10px;"><strong>Anthropogenic (waste) heat</strong></li>
+                    </ul>
+                    <p class="story-paragraph" style="font-style: italic; color: var(--text-secondary); margin-top: 20px;">
+                        Among these, land cover and surface materials play a dominant role in shaping urban temperature patterns.
+                    </p>
+                </div>
+
+                <!-- Driver 1: Lack of Vegetation -->
+                <div class="story-text" style="margin-top: 50px;">
+                    <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 15px; color: var(--text-primary);">
+                        1. Lack of Vegetation
+                    </h3>
+                    <p class="story-paragraph">
+                        Vegetation provides cooling through:
+                    </p>
+                    <ul style="font-size: 17px; line-height: 1.8; margin: 15px 0 20px 30px; color: var(--text-primary);">
+                        <li style="margin-bottom: 8px;"><strong>Shade</strong>, which reduces surface heating</li>
+                        <li style="margin-bottom: 8px;"><strong>Evapotranspiration</strong>, which dissipates heat into the atmosphere</li>
+                    </ul>
+                    <p class="story-paragraph">
+                        Urban areas typically contain <strong>20–40% less vegetation</strong> than surrounding rural regions, 
+                        removing this natural cooling mechanism. As a result, surfaces heat up faster during the day and cool 
+                        down more slowly at night.
+                    </p>
+                </div>
+
+                <!-- Driver 2: Urban Materials (Primary Driver) -->
+                <div class="story-text" style="margin-top: 50px;">
+                    <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 15px; color: var(--primary-color);">
+                        2. Urban Materials and Surfaces <span style="font-size: 16px; font-weight: 600;">(Primary Driver)</span>
+                    </h3>
+                    <p class="story-paragraph">
+                        Built environments are dominated by materials such as <strong>concrete, asphalt, and brick</strong>. 
+                        These materials:
+                    </p>
+                    <ul style="font-size: 17px; line-height: 1.8; margin: 15px 0 20px 30px; color: var(--text-primary);">
+                        <li style="margin-bottom: 8px;">Have <strong>low albedo</strong>, absorbing large amounts of solar radiation</li>
+                        <li style="margin-bottom: 8px;"><strong>Store heat efficiently</strong> and release it slowly after sunset</li>
+                        <li style="margin-bottom: 8px;">Remain <strong>warm during the night</strong>, intensifying thermal discomfort</li>
+                    </ul>
+                </div>
+
+                <!-- Subheading: Land Cover → Heat -->
+                <div class="story-text" style="margin-top: 40px; margin-bottom: 30px;">
+                    <h4 style="font-size: 20px; font-weight: 700; margin-bottom: 15px; color: var(--text-primary);">
+                        Land Cover → Heat: Direct Evidence
+                    </h4>
+                    <p class="story-paragraph">
+                        Figure 2a directly compares land cover and land surface temperature in Genoa. 
+                        Using the same temperature data and applying different land-cover masks shows that:
+                    </p>
+                    <ul style="font-size: 17px; line-height: 1.8; margin: 15px 0 20px 30px; color: var(--text-primary);">
+                        <li style="margin-bottom: 8px;"><strong>Vegetated areas</strong> consistently exhibit lower temperatures</li>
+                        <li style="margin-bottom: 8px;"><strong>Built-up surfaces</strong> are significantly hotter</li>
+                        <li style="margin-bottom: 8px;"><strong>Bare soil and sparse vegetation</strong> fall in between</li>
+                    </ul>
+                    <p class="story-paragraph" style="font-weight: 600; color: var(--primary-color);">
+                        This confirms that surface type, not location or weather alone, is a primary determinant of urban heat.
                     </p>
                 </div>
 
                 <!-- Land Cover & Heat Visualization: Side-by-Side Comparison -->
                 <div class="story-viz">
                     <div class="story-viz-container">
-                        <h3 class="viz-title">Land Cover & Heat: Direct Comparison</h3>
                         <div id="viz-genoa-uhi-scrolly" class="visualization">
                             <p class="placeholder-text">Loading Genoa land-cover and temperature data...</p>
                         </div>
                         <p class="viz-caption">
                             <strong>Figure 2a:</strong> Side-by-side comparison of Genoa's land cover and temperature patterns. 
-                            Left: Land cover classification (WorldCover) showing spatial context. Middle: Temperature for vegetated 
-                            areas only. Right: Temperature for built-up/urban areas only. The same temperature data is used; 
-                            only the mask changes. This visualization clearly shows that built-up areas are significantly hotter 
-                            than vegetated areas, demonstrating why urban materials are a primary driver of Urban Heat Islands.
+                            <strong>Land Cover Only</strong>: WorldCover classification showing spatial context. 
+                            <strong>Vegetation Heat</strong>: Temperature for vegetated areas only. 
+                            <strong>Urban Heat</strong>: Temperature for built-up/urban areas only. 
+                            The same temperature data is used; only the mask changes. This visualization clearly demonstrates that 
+                            built-up areas are significantly hotter than vegetated areas.
                         </p>
                     </div>
+                </div>
+
+                <!-- Subheading: Which Surfaces Contribute Most? -->
+                <div class="story-text" style="margin-top: 50px; margin-bottom: 30px;">
+                    <h4 style="font-size: 20px; font-weight: 700; margin-bottom: 15px; color: var(--text-primary);">
+                        Which Surfaces Contribute Most to Extreme Heat?
+                    </h4>
+                    <p class="story-paragraph">
+                        Figure 2 further quantifies this relationship using a Sankey diagram linking land cover classes 
+                        to temperature ranges.
+                    </p>
+                    <p class="story-paragraph">
+                        The visualization shows that:
+                    </p>
+                    <ul style="font-size: 17px; line-height: 1.8; margin: 15px 0 20px 30px; color: var(--text-primary);">
+                        <li style="margin-bottom: 8px;"><strong>Built-up surfaces</strong> disproportionately contribute to the hottest temperature class</li>
+                        <li style="margin-bottom: 8px;"><strong>Tree-covered areas</strong> are overwhelmingly associated with cooler temperatures</li>
+                    </ul>
+                    <p class="story-paragraph" style="font-weight: 600; color: var(--primary-color);">
+                        This makes clear that urban materials are not just warmer on average—they dominate extreme heat conditions.
+                    </p>
                 </div>
 
                 <!-- Sankey Diagram: Land Cover → Temperature -->
                 <div class="story-viz">
                     <div class="story-viz-container">
-                        <h3 class="viz-title">Land Cover → Heat Relationships</h3>
                         <div id="viz-sankey-landcover" class="visualization">
                             <p class="placeholder-text">Loading land cover and temperature data...</p>
                         </div>
                         <p class="viz-caption">
                             <strong>Figure 2:</strong> Sankey diagram showing the relationship between land cover types 
                             and temperature classes in Genoa. <strong>Flow width represents the number of pixels (area) 
-                            associated with each land cover–temperature class combination.</strong> This visualization 
-                            answers: "Which surfaces contribute most to extreme heat?"
-                        </p>
-                        <div class="story-text" style="margin-top: 20px;">
-                            <p class="story-paragraph" style="font-weight: 600; color: var(--text-primary);">
-                                <strong>Key Takeaway:</strong> Built-up surfaces disproportionately contribute to the 
-                                hottest temperature class, while tree-covered areas are predominantly associated with 
-                                cooler conditions. This direct relationship between surface type and thermal behavior 
-                                explains why urban materials are a primary driver of Urban Heat Islands.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="story-grid">
-                    <div class="story-card">
-                        <h3 class="card-title">1. Reduced Vegetation</h3>
-                        <p>
-                            Trees and plants provide natural cooling through shade and evapotranspiration. 
-                            Urban areas typically have 20-40% less vegetation than rural areas, losing 
-                            this critical cooling mechanism.
-                        </p>
-                    </div>
-                    <div class="story-card">
-                        <h3 class="card-title">2. Urban Materials</h3>
-                        <p>
-                            Concrete, asphalt, and brick absorb and store heat during the day, releasing 
-                            it slowly at night. These materials have low albedo (reflectivity), meaning 
-                            they absorb more solar energy than natural surfaces.
-                        </p>
-                    </div>
-                    <div class="story-card">
-                        <h3 class="card-title">3. Urban Geometry</h3>
-                        <p>
-                            Tall buildings create "urban canyons" that trap heat and reduce wind flow. 
-                            Multiple surfaces absorb and re-radiate heat, creating a complex thermal 
-                            environment that intensifies warming.
-                        </p>
-                    </div>
-                    <div class="story-card">
-                        <h3 class="card-title">4. Waste Heat</h3>
-                        <p>
-                            Human activities generate significant waste heat from vehicles, air conditioning, 
-                            and industrial processes. This anthropogenic heat directly contributes to 
-                            elevated urban temperatures.
+                            associated with each land cover–temperature class combination.</strong> Built-up surfaces 
+                            dominate the hottest temperature categories, while tree cover is predominantly linked to cooler conditions.
                         </p>
                     </div>
                 </div>
 
-                <div class="story-text">
+                <!-- Driver 3: Additional Amplifying Factors -->
+                <div class="story-text" style="margin-top: 60px;">
+                    <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 20px; color: var(--text-primary);">
+                        3. Additional Amplifying Factors
+                    </h3>
+                    
+                    <h4 style="font-size: 19px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary); margin-top: 30px;">
+                        Urban Structure and Geometry
+                    </h4>
                     <p class="story-paragraph">
-                        These factors don't work in isolation—they create a feedback loop. As cities 
-                        get hotter, people use more air conditioning, which generates more waste heat, 
-                        making cities even hotter. Breaking this cycle requires understanding not just 
-                        the causes, but the consequences.
+                        Dense building arrangements create <strong>urban canyons</strong> that:
+                    </p>
+                    <ul style="font-size: 17px; line-height: 1.8; margin: 15px 0 20px 30px; color: var(--text-primary);">
+                        <li style="margin-bottom: 8px;">Trap heat between surfaces</li>
+                        <li style="margin-bottom: 8px;">Reduce wind flow</li>
+                        <li style="margin-bottom: 8px;">Limit nighttime cooling</li>
+                    </ul>
+                    <p class="story-paragraph">
+                        Multiple heated surfaces re-radiate energy toward each other, intensifying warming.
+                    </p>
+
+                    <h4 style="font-size: 19px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary); margin-top: 30px;">
+                        Anthropogenic (Waste) Heat
+                    </h4>
+                    <p class="story-paragraph">
+                        Cities generate additional heat through:
+                    </p>
+                    <ul style="font-size: 17px; line-height: 1.8; margin: 15px 0 20px 30px; color: var(--text-primary);">
+                        <li style="margin-bottom: 8px;">Air conditioning</li>
+                        <li style="margin-bottom: 8px;">Vehicles</li>
+                        <li style="margin-bottom: 8px;">Industrial activity</li>
+                    </ul>
+                    <p class="story-paragraph">
+                        This waste heat directly raises ambient temperatures and reinforces existing heat accumulation.
+                    </p>
+                </div>
+
+                <!-- Self-Reinforcing Cycle -->
+                <div class="story-text" style="margin-top: 50px; padding: 30px; background: var(--bg-secondary); border-radius: 12px; border-left: 4px solid var(--primary-color);">
+                    <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 15px; color: var(--primary-color);">
+                        A Self-Reinforcing Cycle
+                    </h3>
+                    <p class="story-paragraph">
+                        These factors do not act independently. As cities warm:
+                    </p>
+                    <ul style="font-size: 17px; line-height: 1.8; margin: 15px 0 20px 30px; color: var(--text-primary);">
+                        <li style="margin-bottom: 8px;"><strong>Cooling demand increases</strong></li>
+                        <li style="margin-bottom: 8px;"><strong>More waste heat is released</strong></li>
+                        <li style="margin-bottom: 8px;"><strong>Nighttime temperatures rise further</strong></li>
+                    </ul>
+                    <p class="story-paragraph" style="font-weight: 600;">
+                        This feedback loop explains why UHIs are persistent and difficult to mitigate.
+                    </p>
+                </div>
+
+                <!-- Closing Statement -->
+                <div class="story-text" style="margin-top: 40px;">
+                    <p class="story-paragraph" style="font-size: 18px; font-weight: 600; color: var(--text-primary);">
+                        Understanding which factors dominate—particularly <span class="highlight-text">land cover and surface materials</span>—is 
+                        essential for designing effective urban cooling strategies.
                     </p>
                 </div>
             </div>
         </section>
 
-     
+        <!-- Narrative Bridge: From Causes to Impacts -->
+        <section class="narrative-bridge">
+            <div class="bridge-container">
+                <div class="bridge-content">
+                    <p class="bridge-text">
+                        Now we understand <em>why</em> cities are hotter. But what does this actually mean 
+                        for the people who live in them? Let's translate satellite data into human experience.
+                    </p>
+                </div>
+            </div>
+        </section>
 
         <!-- Chapter 3: Why does this matter? -->
         <section id="impacts" class="story-chapter">
@@ -278,65 +426,81 @@
                 </div>
                 
                 <div class="story-text">
-                    <p class="story-paragraph">
-                        The impacts of Urban Heat Islands extend far beyond uncomfortable summer days. 
-                        They create cascading effects that touch nearly every aspect of urban life, 
-                        from energy bills to public health to economic productivity.
+                    <p class="story-paragraph story-fade-in">
+                        The answer is simple: <span class="highlight-text">more people live in cities than ever before</span>. 
+                        In 1960, just over 1 billion people lived in urban areas. Today, that number has grown to nearly 
+                        4.7 billion—representing more than half of the world's population. As cities expand and densify, 
+                        the Urban Heat Island effect intensifies, putting more lives at risk.
                     </p>
                 </div>
 
-             
-
-                   <!-- Implications Section -->
-                <div class="implications-section">
-                    <h3 class="implications-title">Why does this matter?</h3>
-                    <div class="implications-highlight">
-                        <svg class="implications-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <p class="implications-stat">Built-up areas are <strong>~10°C hotter</strong> than vegetated areas</p>
-                    </div>
-                    <p class="implications-context">
-                        Elevated surface temperatures can contribute to higher near-surface air temperatures, 
-                        especially during heatwaves and low-wind conditions.
-                    </p>
-                    <p class="implications-intro">These areas coincide with:</p>
-                    <div class="implications-grid">
-                        <div class="implications-item">
-                            <svg class="implications-icon-small" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Highest population density</span>
-                        </div>
-                        <div class="implications-item">
-                            <svg class="implications-icon-small" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Least green cover</span>
-                        </div>
-                    </div>
-                    <p class="implications-conclusion">
-                        <svg class="implications-icon-inline" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                            <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            <path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        The hottest places overlap with <strong>where people are</strong> and <strong>where shade is scarce</strong>
+                <!-- Urban Population Growth Visualization -->
+                <div class="story-viz-container">
+                    <div id="viz-urban-population" class="visualization story-viz"></div>
+                    <p class="viz-caption">
+                        <strong>Figure 3:</strong> Global urban population has grown 4.5 times since 1960, from 1.03 billion to 4.69 billion people in 2024, 
+                        with projections reaching 4.82 billion by 2026. This rapid urbanization means that Urban Heat Islands now affect more than half of humanity. 
+                        As cities continue to grow, the need to understand and mitigate heat island effects becomes increasingly urgent. 
+                        Data: World Bank World Development Indicators (historical); UN projections (2025-2026).
                     </p>
                 </div>
 
                 <div class="story-text">
-                    <h3 class="subsection-title">Energy Consumption</h3>
-                    <p class="story-paragraph">
-                        Higher temperatures drive up air conditioning demand by 20-25%, creating a 
-                        vicious cycle: more cooling generates more waste heat, which requires more 
-                        cooling. This increases both energy costs and greenhouse gas emissions.
+                    <p class="story-paragraph story-fade-in">
+                        With billions of people now concentrated in urban environments, the impacts of heat islands 
+                        are no longer a niche concern—they're a global crisis affecting energy consumption, public health, 
+                        and quality of life for the majority of the world's population.
+                    </p>
+                </div>
+                
+                <!-- Human-Scale Interpretation Callout -->
+                <div class="human-scale-callout">
+                    <div class="callout-content">
+                        <h3 class="callout-title">What does 10°C actually feel like?</h3>
+                        <p class="callout-text">
+                            Imagine walking from a tree-lined park into a concrete plaza on a summer afternoon. 
+                            That sudden wave of heat you feel? That's the Urban Heat Island effect. A 10°C surface 
+                            temperature difference translates to roughly 3-5°C higher air temperatures—enough to turn 
+                            a manageable 30°C into a dangerous 35°C. For vulnerable populations—the elderly, children, 
+                            outdoor workers—this difference isn't just uncomfortable. <strong>It can be deadly.</strong>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="story-text">
+                    <p class="story-paragraph story-fade-in">
+                        The impacts of Urban Heat Islands extend far beyond uncomfortable summer days. 
+                        They create cascading effects that touch nearly every aspect of urban life, 
+                        from energy bills to public health to economic productivity.
+                    </p>
+                    <p class="story-paragraph story-fade-in" style="animation-delay: 0.2s;">
+                        The data reveals a stark reality: <span class="highlight-text">built-up areas are approximately 10°C hotter</span> than vegetated areas. 
+                        This temperature difference isn't just a number—it's a force that shapes how we live, 
+                        how we consume energy, and how we survive extreme heat.
+                    </p>
+                    <p class="story-paragraph story-fade-in" style="animation-delay: 0.4s;">
+                        And here's the cruel irony: <span class="highlight-text">the hottest places coincide with where people are</span>—areas 
+                        of highest population density—and <span class="highlight-text">where shade is scarce</span>—places with 
+                        the least green cover. The people who need cooling the most often have the least access to it.
+                    </p>
+                </div>
+
+                <!-- Pull Quote: Human Cost -->
+                <div class="pull-quote">
+                    <blockquote>
+                        "When temperatures rise, our response is measured not just in kilowatts, but in lives. 
+                        Every degree of warming triggers a cascade: higher energy demand, more waste heat, 
+                        increased health risks. The data doesn't lie—summer peaks in electricity consumption 
+                        directly track summer peaks in temperature. And for those who can't afford air conditioning, 
+                        those peaks can be fatal."
+                    </blockquote>
+                </div>
+
+                <div class="story-text">
+                    <p class="story-paragraph story-fade-in" style="animation-delay: 0.6s;">
+                        The numbers tell the story: Higher temperatures drive up air conditioning demand by 20-25%, 
+                        creating a vicious cycle. More cooling generates more waste heat, which requires more cooling. 
+                        Let's see exactly when and how this happens.
                     </p>
                 </div>
 
@@ -347,70 +511,141 @@
                         <div id="viz-italy-electricity" class="visualization">
                             <p class="placeholder-text">Loading Italy electricity consumption and temperature data...</p>
                         </div>
-                        <p class="viz-caption">
-                            <strong>Figure 3a:</strong> Small multiples showing electricity consumption and average temperature in Italy (2021-2025). 
-                            <strong>Panel A</strong> shows monthly electricity consumption (TWh), while <strong>Panel B</strong> shows average temperature (°C). 
-                            Both panels share the same time axis and summer shading (June-August), allowing for direct vertical comparison. 
-                            Peaks in electricity consumption consistently align with peak summer temperatures, suggesting a strong relationship between 
-                            heat and electricity demand. The visualization uses separate y-axes to avoid visual distortion, allowing readers to naturally 
-                            compare peaks vertically. Data sources: Terna (electricity), ERA5 Copernicus (temperature).
-                        </p>
+                    <p class="viz-caption">
+                        <strong>Figure 4a:</strong> Electricity consumption and temperature patterns in Italy (2021-2025). 
+                        The <strong>top panel</strong> shows monthly electricity consumption (TWh); the <strong>bottom panel</strong> shows average temperature (°C). 
+                        Summer shading (beige) and shared time axis enable direct vertical comparison. <strong>Key insight:</strong> Peak electricity 
+                        consumption directly coincides with peak summer temperatures, revealing how extreme heat drives energy demand through 
+                        air conditioning use. Annotations and visual connectors highlight this correlation. The visualization animates on scroll, 
+                        with lines growing left-to-right. Data: Terna (electricity), ERA5 Copernicus (temperature).
+                    </p>
                     </div>
+                </div>
+
+                <!-- Transition: From Electricity to Long-term Trends -->
+                <div class="story-transition">
+                    <div class="transition-line"></div>
+                    <p class="transition-text">From monthly patterns to yearly trends</p>
+                    <div class="transition-line"></div>
+                </div>
+
+                <div class="story-text">
+                    <p class="story-paragraph story-fade-in" style="animation-delay: 0.8s;">
+                        Over decades, the pattern becomes undeniable. As temperatures climb, our need for cooling grows, 
+                        while our need for heating diminishes. The trend is clear: we're moving toward a future where 
+                        cooling dominates our energy consumption, especially during the hottest months.
+                    </p>
                 </div>
 
                 <!-- HDD and CDD Visualization -->
                 <div class="story-viz">
                     <div class="story-viz-container">
-                        <h3 class="viz-title">Heating and Cooling Degree Days Over Time</h3>
+                        <h3 class="viz-title">Some Like It Hot</h3>
+                        
+                        <!-- Explanation of HDD and CDD -->
+                        <div class="story-text" style="margin-bottom: 30px; padding: 20px; background: var(--bg-secondary); border-left: 4px solid var(--primary-color); border-radius: 6px;">
+                            <p class="story-paragraph" style="margin-bottom: 15px; font-size: 16px;">
+                                To quantify heating and cooling demand, climate scientists use two key metrics:
+                            </p>
+                            <ul style="font-size: 16px; line-height: 1.8; margin: 0 0 15px 20px; color: var(--text-primary);">
+                                <li style="margin-bottom: 10px;">
+                                    <strong>Heating Degree Days (HDD)</strong>: Measures how much energy is needed to heat buildings during cold weather. 
+                                    Higher HDD values indicate colder years requiring more heating.
+                                </li>
+                                <li style="margin-bottom: 10px;">
+                                    <strong>Cooling Degree Days (CDD)</strong>: Measures how much energy is needed to cool buildings during hot weather. 
+                                    Higher CDD values indicate hotter years requiring more air conditioning.
+                                </li>
+                            </ul>
+                            <p class="story-paragraph" style="font-size: 16px; font-style: italic; color: var(--text-secondary);">
+                                Both metrics are calculated relative to a baseline temperature (typically 18°C for HDD and 24°C for CDD) 
+                                and summed over the year to capture total heating or cooling demand.
+                            </p>
+                        </div>
+                        
                         <div id="viz-hdd-cdd" class="visualization">
                             <p class="placeholder-text">Loading HDD and CDD data...</p>
                         </div>
                         <p class="viz-caption">
-                            <strong>Figure 3c:</strong> Annual average Heating Degree Days (HDD) and Cooling Degree Days (CDD) in Italy (1979-2024). 
-                            HDD measures heating demand (colder years = higher HDD), while CDD measures cooling demand (hotter years = higher CDD). 
-                            The increasing trend in CDD values reflects rising temperatures and growing cooling needs. Data source: Eurostat (nrg_chdd_m).
+                            <strong>Figure 4c:</strong> Annual average Heating Degree Days (HDD) and Cooling Degree Days (CDD) in Italy (1979-2024). 
+                            The declining trend in HDD (blue) shows milder winters, while the rising trend in CDD (red) reflects hotter summers and growing cooling needs. 
+                            Data source: Eurostat (nrg_chdd_m).
                         </p>
                     </div>
                 </div>
 
                 <div class="story-text">
-                    <h3 class="subsection-title">Public Health</h3>
-                    <p class="story-paragraph">
-                        Heat-related illnesses become more common, especially among vulnerable populations. 
-                        During heat waves amplified by UHI effects, emergency room visits spike, and 
-                        mortality rates increase. The elderly, children, and those with pre-existing 
-                        conditions are most at risk.
+                    <p class="story-paragraph story-fade-in" style="animation-delay: 1s;">
+                        But energy consumption is only part of the story. When heat becomes extreme, when temperatures 
+                        soar beyond what our bodies can handle, the consequences are measured not in kilowatts, but in lives. 
+                        Heat-related illnesses become more common, especially among vulnerable populations. During heat waves 
+                        amplified by UHI effects, emergency room visits spike, and mortality rates increase. The elderly, 
+                        children, and those with pre-existing conditions are most at risk.
                     </p>
                 </div>
 
-                <!-- Heat-Related Deaths Visualization -->
+                <!-- Sleep Hours Lost Visualization -->
                 <div class="story-viz">
                     <div class="story-viz-container">
-                        <h3 class="viz-title">Heat-Related Mortality in Italy</h3>
-                        <div id="viz-heat-deaths" class="visualization">
-                            <p class="placeholder-text">Loading heat-related mortality data...</p>
+                        <h3 class="viz-title">Sleep Hours Lost Due to Heat in Italy</h3>
+                        <div id="viz-sleep-hours-lost" class="visualization">
+                            <p class="placeholder-text">Loading sleep hours lost data...</p>
                         </div>
                         <p class="viz-caption">
-                            <strong>Figure 3b:</strong> Excess deaths attributed to heat in Italy (2015-2023). 
-                            The dramatic spike in 2022 (18,010 deaths) reflects the extreme heat wave that summer. 
-                            Data source: Nature Medicine (2023).
+                            <strong>Figure 4b:</strong> Population-weighted hours of sleep lost per person per year due to heat exposure in Italy (1990-2024). 
+                            Rising heat exposure directly impacts sleep quality and duration, with significant public health implications. 
+                            Data source: Lancet Countdown Report 2025.
                         </p>
                     </div>
                 </div>
 
-                    <h3 class="subsection-title">Air Quality</h3>
-                    <p class="story-paragraph">
-                        Higher temperatures accelerate the formation of ground-level ozone and other 
-                        pollutants. Combined with increased energy demand and emissions, this degrades 
-                        air quality, creating additional health risks.
-                    </p>
+                <!-- Vulnerable Population Exposure Visualization -->
+                <div class="story-viz">
+                    <div class="story-viz-container">
+                        <h3 class="viz-title">Heatwave Exposure of Vulnerable Populations in Italy</h3>
+                        <div id="viz-vulnerable-exposure" class="visualization">
+                            <p class="placeholder-text">Loading vulnerable population data...</p>
+                        </div>
+                        <p class="viz-caption">
+                            <strong>Figure 4c:</strong> Total heatwave exposure events for infants and adults aged 65+ in Italy (1980-2024). 
+                            Vulnerable populations face disproportionate health risks during heatwaves due to reduced thermoregulatory capacity. 
+                            Exposure measured as person-events exceeding heat thresholds.
+                            Data source: Lancet Countdown Report 2025.
+                        </p>
+                    </div>
+                </div>
 
-                    <h3 class="subsection-title">Economic Impacts</h3>
-                    <p class="story-paragraph">
-                        The economic costs are substantial: increased healthcare expenses, higher energy 
-                        bills, reduced worker productivity, and infrastructure damage from thermal expansion. 
-                        These costs are borne by individuals, businesses, and governments alike.
-                    </p>
+                <!-- Global Vulnerable Population Choropleth -->
+                <div class="story-viz">
+                    <div class="story-viz-container">
+                        <h3 class="viz-title">Global Heatwave Exposure: Vulnerable Populations in 2024</h3>
+                        <div id="viz-vulnerable-choropleth" class="visualization">
+                            <p class="placeholder-text">Loading global vulnerability data...</p>
+                        </div>
+                        <p class="viz-caption">
+                            <strong>Figure 4d:</strong> Worldwide distribution of heatwave exposure for vulnerable populations (infants and adults 65+) in 2024. 
+                            Darker colors indicate higher cumulative exposure. Countries across the Global South and Mediterranean regions show particularly high vulnerability. 
+                            Data source: Lancet Countdown Report 2025.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Human Stories: Making Data Personal -->
+                <div class="human-scale-callout" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.03) 100%); border-left: 4px solid var(--accent-color);">
+                    <div class="callout-content">
+                        <h3 class="callout-title">Behind the numbers: Real people, real consequences</h3>
+                        <p class="callout-text">
+                            <strong>The grandmother</strong> in a top-floor apartment without air conditioning, trying to sleep through 
+                            a 40°C night. <strong>The construction worker</strong> who must choose between earning a wage and risking heat stroke. 
+                            <strong>The homeless person</strong> with no escape from sun-baked concrete. Each spike in these graphs represents 
+                            thousands of people facing impossible choices.
+                        </p>
+                        <p class="callout-text" style="margin-top: 12px; font-style: italic; color: var(--text-secondary);">
+                            The cascade continues: higher temperatures accelerate ground-level ozone formation, degrade air quality, 
+                            drive up healthcare costs, reduce worker productivity. The economic toll is measured in billions. 
+                            But the human cost—measured in lives cut short—cannot be captured by any balance sheet.
+                        </p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -553,15 +788,15 @@
                         <p><strong>Health Data:</strong></p>
                         <ul class="data-sources-list">
                             <li>
-                                <strong>Nature Medicine (2023)</strong> - Heat-related mortality in Europe during the summer of 2022. 
-                                Research article: "Heat-related mortality in Europe during the summer of 2022". 
-                                Italy-specific estimate: 18,010 deaths (95% CI: 13,793–22,225) for 2022.
-                                <a href="https://www.nature.com/articles/s41591-023-02419-z" target="_blank" rel="noopener noreferrer">Nature Medicine Article</a>.
+                                <strong>Lancet Countdown on Health and Climate Change (2025)</strong> - Comprehensive global health and climate indicators. 
+                                Includes: Indicator 1.1.1 (Heatwave exposure for vulnerable populations: infants and adults 65+), 
+                                Indicator 1.1.3 (Population-weighted hours lost due to heat - PWHL). 
+                                Country-level data (1980–2024) and global aggregates. 
+                                <a href="https://www.lancetcountdown.org/data-platform/" target="_blank" rel="noopener noreferrer">Lancet Countdown Data Platform</a>.
                             </li>
                             <li>
-                                <strong>Eurostat Excess Mortality</strong> - Excess mortality statistics (dataset: <code>demo_mexrt</code>). 
-                                Used for estimating heat-related deaths in years prior to 2022, based on excess mortality patterns during heat waves.
-                                Accessed via <a href="https://ec.europa.eu/eurostat/databrowser/view/demo_mexrt" target="_blank" rel="noopener noreferrer">Eurostat Data Browser</a>.
+                                <strong>Data Coverage:</strong> Sleep hours lost (Italy, 1990–2024), Heatwave exposure for infants and adults 65+ (Italy, 1980–2024; Global, 2024). 
+                                Exposure measured as person-events exceeding heat thresholds based on ERA5 temperature data and population statistics.
                             </li>
                         </ul>
                         
@@ -634,7 +869,7 @@
                             <li><strong>Satellite Imagery:</strong> Load GeoTIFF files using Python libraries (<code>rasterio</code>, <code>xarray</code>, <code>geopandas</code>)</li>
                             <li><strong>API Data:</strong> Fetch JSON/CSV from Eurostat REST API, Copernicus CDS, or download manually</li>
                             <li><strong>Tabular Data:</strong> Load Excel/CSV files (Terna electricity, Eurostat TSV) using <code>pandas</code></li>
-                            <li><strong>Research Data:</strong> Extract published statistics from research papers (Nature Medicine)</li>
+                            <li><strong>Research Data:</strong> Extract published statistics from research datasets (Lancet Countdown Data Platform)</li>
                         </ul>
                         
                         <p><strong>Stage 2: Preprocessing</strong></p>
@@ -814,8 +1049,13 @@
                     <p>All data sources are properly cited in the <a href="#methodology">Methodology section</a> above.</p>
                     <p><strong>Primary Sources:</strong></p>
                     <ul class="footer-list">
-                        <li>Landsat 8-9 (USGS EarthExplorer)</li>
-                        <li>Sentinel-2 (Copernicus Open Access Hub)</li>
+                        <li>Landsat 8-9 <a href="https://github.com/stefanoIn/USGS-m2m-client">(USGS M2M Client)</a></li>
+                        <li>Sentinel-2 <a href="https://github.com/stefanoIn/CDSE-api">(CDSE Client)</a></li>
+                        <li>ESA WorldCover 2021</li>
+                        <li>ERA5 Reanalysis (Copernicus Climate Data Store)</li>
+                        <li>Terna S.p.A. Electricity Consumption Data</li>
+                        <li>Eurostat Energy Statistics</li>
+                        <li>Lancet Countdown on Health and Climate Change 2025</li>
                     </ul>
                     <p>See README.md in the repository for complete data source documentation and links.</p>
                 </div>
@@ -848,9 +1088,14 @@
     <script src="js/viz-genoa-ndvi.js"></script>
     <script src="js/viz-sankey-landcover.js"></script>
     <script src="js/viz-energy-temperature.js"></script>
-    <script src="js/viz-heat-deaths.js"></script>
+    <script src="js/viz-sleep-hours-lost.js"></script>
+    <script src="js/viz-vulnerable-exposure.js"></script>
+    <script src="js/viz-vulnerable-choropleth.js"></script>
     <script src="js/viz-hdd-cdd.js"></script>
     <script src="js/viz-italy-electricity.js"></script>
+    <script src="js/viz-urban-population.js"></script>
+    <!-- Scroll-based animations -->
+    <script src="js/scroll-animations.js"></script>
     <!-- Main initialization (must be last) -->
     <script src="js/visualizations.js"></script>
     <script src="js/main.js"></script>

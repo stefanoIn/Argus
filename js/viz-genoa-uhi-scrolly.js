@@ -61,10 +61,16 @@ function initializeGenoaUhiScrolly() {
         .style('pointer-events', 'none')
         .style('white-space', 'nowrap');
     
-    loadingMsg.append('p')
+    const statusText = loadingMsg.append('p')
         .text('Loading Genoa land-cover and temperature data...')
         .style('font-size', '16px')
-        .style('margin', '0');
+        .style('margin', '0 0 10px 0');
+    
+    const progressText = loadingMsg.append('p')
+        .text('')
+        .style('font-size', '13px')
+        .style('margin', '0')
+        .style('color', '#718096');
 
     // INFERNO colormap: perceptually uniform, colorblind-friendly
     // Goes from black (cool) → purple → red → orange → yellow (hot)
@@ -81,17 +87,51 @@ function initializeGenoaUhiScrolly() {
         5: { r: 120, g: 160, b: 200, a: 255 }   // Water (blue) - full opacity
     };
 
-    function loadTiff(path) {
-        return fetch(path)
-            .then(response => {
+    // Track download progress for both files
+    let totalDownloaded = 0;
+    let totalSize = 0;
+    const fileSizes = {};
+    
+    function loadTiff(path, fileName) {
+        // Create progress callback for this specific file
+        const progressCallback = (typeof fetchWithProgress === 'function' && typeof formatBytes === 'function')
+            ? (received, total) => {
+                fileSizes[path] = { received, total };
+                totalSize = Object.values(fileSizes).reduce((sum, f) => sum + (f.total || 0), 0);
+                totalDownloaded = Object.values(fileSizes).reduce((sum, f) => sum + (f.received || 0), 0);
+                
+                if (totalSize > 0) {
+                    const percent = Math.round((totalDownloaded / totalSize) * 100);
+                    const downloadedMB = formatBytes(totalDownloaded);
+                    const totalMB = formatBytes(totalSize);
+                    progressText.text(`Downloading... ${percent}% (${downloadedMB} / ${totalMB})`);
+                }
+            }
+            : null;
+        
+        // Use fetchWithProgress if available, otherwise fallback to regular fetch
+        const fetchPromise = (typeof fetchWithProgress === 'function')
+            ? fetchWithProgress(path, progressCallback)
+            : fetch(path).then(response => {
                 if (!response.ok) throw new Error(`HTTP ${response.status}: ${path}`);
                 return response.arrayBuffer();
+            });
+        
+        return fetchPromise
+            .then(arrayBuffer => {
+                if (progressText && typeof formatBytes === 'function') {
+                    progressText.text(`Processing ${fileName}...`);
+                }
+                return GeoTIFF.fromArrayBuffer(arrayBuffer);
             })
-            .then(arrayBuffer => GeoTIFF.fromArrayBuffer(arrayBuffer))
             .then(tiff => tiff.getImage())
             .then(image => {
                 const pixelScale = image.getFileDirectory().ModelPixelScale;
                 const resolution = pixelScale ? pixelScale[0] : 10;
+                
+                if (progressText && typeof formatBytes === 'function') {
+                    progressText.text(`Reading ${fileName} raster data...`);
+                }
                 
                 return image.readRasters().then(rasters => ({
                     data: rasters[0],
@@ -106,8 +146,14 @@ function initializeGenoaUhiScrolly() {
     }
 
     // Load both TIFF files in parallel (WorldCover now matches LST dimensions)
-    Promise.all([loadTiff(lstPath), loadTiff(wcPath)])
+    Promise.all([
+        loadTiff(lstPath, 'temperature data'),
+        loadTiff(wcPath, 'land cover data')
+    ])
         .then(([lstData, wcData]) => {
+            if (progressText && typeof formatBytes === 'function') {
+                progressText.text('Rendering visualization...');
+            }
             const lstValues = lstData.data;
             const wcValues = wcData.data;
             const width = lstData.width;
@@ -242,7 +288,7 @@ function initializeGenoaUhiScrolly() {
                 .style('min-width', '500px')
                 .style('aspect-ratio', `${displayWidth} / ${displayHeight}`)
                 .style('max-width', '100%')
-                .style('background', '#f0f0f0')
+                .style('background', '#e8e8e8')
                 .style('border-radius', '8px')
                 .style('overflow', 'hidden')
                 .style('box-shadow', '0 2px 8px rgba(0,0,0,0.1)');
@@ -543,20 +589,22 @@ function initializeGenoaUhiScrolly() {
         
         // Controls title
         controlsSection.append('div')
-            .style('font-size', '12px')
-            .style('font-weight', '600')
+            .style('font-size', '13px')
+            .style('font-weight', '700')
             .style('color', 'var(--text-primary)')
-            .style('margin-bottom', '10px')
+            .style('margin-bottom', '16px')
             .style('text-transform', 'uppercase')
-            .style('letter-spacing', '0.5px')
+            .style('letter-spacing', '1px')
+            .style('text-align', 'center')
             .text('View Selection');
         
         // Layer controls container - horizontal
         const layerControlsContainer = controlsSection.append('div')
             .style('display', 'flex')
             .style('flex-wrap', 'wrap')
-            .style('gap', '16px')
-            .style('justify-content', 'center');
+            .style('gap', '12px')
+            .style('justify-content', 'center')
+            .style('align-items', 'center');
         
         // Create radio buttons for exclusive layer selection (3 layers total)
         const layers = [
@@ -569,27 +617,44 @@ function initializeGenoaUhiScrolly() {
         
         layers.forEach((layer, index) => {
             const layerControl = layerControlsContainer.append('label')
-                .style('display', 'flex')
+                .style('display', 'inline-flex')
                 .style('align-items', 'center')
+                .style('justify-content', 'center')
                 .style('gap', '8px')
                 .style('cursor', 'pointer')
-                .style('font-size', '13px')
-                .style('color', 'var(--text-primary)')
-                .style('padding', '8px 12px')
-                .style('border-radius', '6px')
-                .style('border', '1px solid var(--border-light)')
-                .style('transition', 'all 0.2s ease')
-                .style('background', index === 0 ? 'var(--bg-secondary)' : 'transparent')
+                .style('font-size', '14px')
+                .style('font-weight', '600')
+                .style('color', index === 0 ? '#fff' : 'var(--text-secondary)')
+                .style('padding', '12px 24px')
+                .style('border-radius', '8px')
+                .style('border', '2px solid ' + (index === 0 ? 'var(--primary-color)' : 'var(--border-light)'))
+                .style('transition', 'all 0.3s ease')
+                .style('background', index === 0 ? 'var(--primary-color)' : 'white')
+                .style('box-shadow', index === 0 ? '0 4px 12px rgba(232, 93, 4, 0.3)' : '0 2px 4px rgba(0,0,0,0.05)')
+                .style('min-width', '140px')
+                .style('text-align', 'center')
+                .style('user-select', 'none')
                 .on('mouseenter', function() {
-                    d3.select(this)
-                        .style('background', 'var(--bg-secondary)')
-                        .style('border-color', 'var(--primary-color)');
+                    const isChecked = d3.select(this).select('input').property('checked');
+                    if (!isChecked) {
+                        d3.select(this)
+                            .style('background', 'rgba(232, 93, 4, 0.05)')
+                            .style('border-color', 'var(--primary-color)')
+                            .style('color', 'var(--primary-color)')
+                            .style('transform', 'translateY(-2px)')
+                            .style('box-shadow', '0 4px 8px rgba(0,0,0,0.1)');
+                    }
                 })
                 .on('mouseleave', function() {
                     const isChecked = d3.select(this).select('input').property('checked');
-                    d3.select(this)
-                        .style('background', isChecked ? 'var(--bg-secondary)' : 'transparent')
-                        .style('border-color', 'var(--border-light)');
+                    if (!isChecked) {
+                        d3.select(this)
+                            .style('background', 'white')
+                            .style('border-color', 'var(--border-light)')
+                            .style('color', 'var(--text-secondary)')
+                            .style('transform', 'translateY(0)')
+                            .style('box-shadow', '0 2px 4px rgba(0,0,0,0.05)');
+                    }
                 });
             
             const radio = layerControl.append('input')
@@ -597,16 +662,21 @@ function initializeGenoaUhiScrolly() {
                 .attr('name', 'layer-select')
                 .attr('id', layer.id)
                 .attr('checked', index === 0 ? true : null)
-                .style('cursor', 'pointer')
-                .style('width', '16px')
-                .style('height', '16px')
-                .style('accent-color', 'var(--primary-color)')
+                .style('display', 'none')
                 .on('change', function() {
-                    // Update all label backgrounds
+                    // Update all label styles
                     layerControlsContainer.selectAll('label')
-                        .style('background', 'transparent');
+                        .style('background', 'white')
+                        .style('border-color', 'var(--border-light)')
+                        .style('color', 'var(--text-secondary)')
+                        .style('box-shadow', '0 2px 4px rgba(0,0,0,0.05)');
+                    
+                    // Style active button
                     d3.select(this.parentNode)
-                        .style('background', 'var(--bg-secondary)');
+                        .style('background', 'var(--primary-color)')
+                        .style('border-color', 'var(--primary-color)')
+                        .style('color', '#fff')
+                        .style('box-shadow', '0 4px 12px rgba(232, 93, 4, 0.3)');
                     
                     // Hide all layers
                     step0Canvas.canvas.style.opacity = '0';
@@ -629,7 +699,6 @@ function initializeGenoaUhiScrolly() {
                 });
             
             layerControl.append('span')
-                .style('font-weight', '500')
                 .text(layer.label);
         });
         

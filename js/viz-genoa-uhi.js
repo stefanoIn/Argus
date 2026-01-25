@@ -33,22 +33,41 @@ function initializeGenoaUHIViz() {
         .style('align-items', 'center')
         .style('justify-content', 'center');
     
-    loadingMsg.append('p')
+    const statusText = loadingMsg.append('p')
         .text('Loading Genoa UHI data from satellite imagery...')
         .style('font-size', '16px')
-        .style('margin', '0');
+        .style('margin', '0 0 10px 0');
+    
+    const progressText = loadingMsg.append('p')
+        .text('')
+        .style('font-size', '13px')
+        .style('margin', '0')
+        .style('color', '#718096');
     
     // Try to load the TIFF file
     const tiffPath = 'data/processed/LST_10m_XGB_2025-07-09_Genoa.tif';
     
-    // Use fetch to load the file
-    fetch(tiffPath)
-        .then(response => {
+    // Use fetchWithProgress to load the file with progress tracking
+    const progressCallback = (typeof fetchWithProgress === 'function' && typeof formatBytes === 'function')
+        ? (received, total) => {
+            const percent = Math.round((received / total) * 100);
+            const receivedMB = formatBytes(received);
+            const totalMB = formatBytes(total);
+            progressText.text(`Downloading... ${percent}% (${receivedMB} / ${totalMB})`);
+        }
+        : null;
+    
+    // Use fetchWithProgress if available, otherwise fallback to regular fetch
+    const fetchPromise = (typeof fetchWithProgress === 'function')
+        ? fetchWithProgress(tiffPath, progressCallback)
+        : fetch(tiffPath).then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.arrayBuffer();
-        })
+        });
+    
+    fetchPromise
         .then(arrayBuffer => {
             return GeoTIFF.fromArrayBuffer(arrayBuffer);
         })
@@ -109,6 +128,9 @@ function initializeGenoaUHIViz() {
             });
         })
         .then(({ data, width, height, minVal, maxVal, p1Val, p99Val, bbox }) => {
+            if (progressText && typeof formatBytes === 'function') {
+                progressText.text('Rendering visualization...');
+            }
             
             //svg display - minimal margins, map should fill the div
             const margin = { top: 0, right: 0, bottom: 120, left: 0 };
@@ -242,6 +264,15 @@ function initializeGenoaUHIViz() {
                 
                 // Create a group for zoom/pan
                 const imageGroup = svgGroup.append('g');
+                
+                // Add subtle dark background to improve contrast for bright colors (yellow/white)
+                imageGroup.append('rect')
+                    .attr('x', 0)
+                    .attr('y', 0)
+                    .attr('width', displayWidth)
+                    .attr('height', displayHeight)
+                    .attr('fill', '#f8f8f8')
+                    .attr('opacity', 1);
                 
                 const imageElement = imageGroup.append('image')
                     .attr('href', imageUrl)
@@ -839,6 +870,15 @@ function openEnlargedView({ data, width, height, minVal, maxVal, p1Val, p99Val, 
     
     // Create image group for zoom/pan
     const imageGroup = modalSvg.append('g');
+    
+    // Add subtle dark background to improve contrast for bright colors (yellow/white)
+    imageGroup.append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', finalWidth)
+        .attr('height', finalHeight)
+        .attr('fill', '#f8f8f8')
+        .attr('opacity', 1);
     
     // Add high-resolution image
     const modalImage = imageGroup.append('image')

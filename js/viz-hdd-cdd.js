@@ -4,6 +4,10 @@
  * Shows area chart of HDD and CDD values over time
  */
 
+// Store data globally for resize
+let hddCddData = null;
+let hddCddResizeTimeout = null;
+
 function initializeHDDCDDViz() {
     const container = d3.select('#viz-hdd-cdd');
     
@@ -65,7 +69,13 @@ function initializeHDDCDDViz() {
                 throw new Error('No monthly data available');
             }
             
+            // Store data for resize
+            hddCddData = { hddYearlyData, cddYearlyData, hddMonthlyData, cddMonthlyData };
+            
             createHDDCDDChart(hddYearlyData, cddYearlyData, hddMonthlyData, cddMonthlyData, container, loadingMsg);
+            
+            // Add resize listener
+            window.addEventListener('resize', handleHDDCDDResize);
         })
         .catch(error => {
             console.error('[HDD/CDD] Error:', error);
@@ -350,7 +360,32 @@ function createHDDCDDChart(hddData, cddData, hddMonthlyData, cddMonthlyData, con
     createMonthlyHeatmaps(hddMonthlyData, cddMonthlyData, container, width, margin);
     
     // Remove loading message
-    loadingMsg.remove();
+    if (loadingMsg) {
+        loadingMsg.remove();
+    }
+}
+
+function handleHDDCDDResize() {
+    if (hddCddResizeTimeout) {
+        clearTimeout(hddCddResizeTimeout);
+    }
+    
+    hddCddResizeTimeout = setTimeout(() => {
+        if (hddCddData) {
+            const container = d3.select('#viz-hdd-cdd');
+            if (!container.empty()) {
+                container.selectAll('*').remove();
+                createHDDCDDChart(
+                    hddCddData.hddYearlyData,
+                    hddCddData.cddYearlyData,
+                    hddCddData.hddMonthlyData,
+                    hddCddData.cddMonthlyData,
+                    container,
+                    null
+                );
+            }
+        }
+    }, 250);
 }
 
 function createMonthlyHeatmaps(hddMonthlyData, cddMonthlyData, container, mainWidth, mainMargin) {

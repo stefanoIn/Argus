@@ -153,12 +153,12 @@ function renderSankey(container, nodes, links, totalAreaKm2, totalFlowPixels) {
     const maxWidth = 1200;
     const contentWidth = Math.min(maxWidth, containerWidth);
     
-    // Calculate optimal height based on container (reduced for shorter diagram)
-    const baseHeight = 350;
-    const availableHeight = Math.max(baseHeight, containerHeight - 100); // Leave space for margins
+    // Calculate optimal height based on container (increased for larger diagram)
+    const baseHeight = 500;
+    const availableHeight = Math.max(baseHeight, containerHeight - 60); // Reduced space for margins
     
     // Use smaller margins since legend is removed
-    const margin = { top: 40, right: 40, bottom: 0, left: 40 };
+    const margin = { top: 60, right: 40, bottom: 20, left: 40 };
     const width = contentWidth - margin.left - margin.right;
     const height = availableHeight - margin.top - margin.bottom;
     
@@ -540,17 +540,17 @@ function renderSankey(container, nodes, links, totalAreaKm2, totalFlowPixels) {
     // Add title (centered)
     g.append('text')
         .attr('x', width / 2)
-        .attr('y', -15)
+        .attr('y', -25)
         .style('text-anchor', 'middle')
         .style('fill', 'var(--text-primary)')
         .style('font-size', '17px')
         .style('font-weight', '600')
         .text('Which Surfaces Contribute Most to Extreme Heat?');
     
-    // Add subtitle (centered)
+    // Add subtitle (centered, positioned lower)
     g.append('text')
         .attr('x', width / 2)
-        .attr('y', -2)
+        .attr('y', -8)
         .style('text-anchor', 'middle')
         .style('fill', 'var(--text-secondary)')
         .style('font-size', '11px')

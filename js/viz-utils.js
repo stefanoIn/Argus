@@ -82,3 +82,114 @@ function setupVizControls() {
     }
 }
 
+/**
+ * Lazy load visualization when container enters viewport
+ * Uses IntersectionObserver to only initialize when visible
+ * @param {string} containerSelector - CSS selector for visualization container
+ * @param {Function} initFunction - Function to call when container becomes visible
+ * @param {Object} options - Configuration options
+ * @param {string} options.rootMargin - Margin around root (e.g., '200px' for pre-loading)
+ * @param {number} options.threshold - Intersection threshold (0-1)
+ */
+function initializeLazyViz(containerSelector, initFunction, options = {}) {
+    const container = document.querySelector(containerSelector);
+    if (!container) {
+        console.warn(`[LazyViz] Container not found: ${containerSelector}`);
+        return;
+    }
+    
+    // Check if already loaded
+    if (container.dataset.loaded === 'true') {
+        return;
+    }
+    
+    // Check if IntersectionObserver is supported
+    if (typeof IntersectionObserver === 'undefined') {
+        // Fallback: initialize immediately
+        console.warn('[LazyViz] IntersectionObserver not supported, initializing immediately');
+        container.dataset.loaded = 'true';
+        initFunction();
+        return;
+    }
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && entry.target.dataset.loaded !== 'true') {
+                entry.target.dataset.loaded = 'true';
+                console.log(`[LazyViz] Loading visualization: ${containerSelector}`);
+                try {
+                    initFunction();
+                } catch (error) {
+                    console.error(`[LazyViz] Error initializing ${containerSelector}:`, error);
+                }
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        rootMargin: options.rootMargin || '200px',
+        threshold: options.threshold || 0.1
+    });
+    
+    observer.observe(container);
+}
+
+/**
+ * Fetch file with progress tracking
+ * @param {string} url - URL to fetch
+ * @param {Function} onProgress - Callback function(received, total) called during download
+ * @returns {Promise<ArrayBuffer>} - Promise resolving to ArrayBuffer
+ */
+async function fetchWithProgress(url, onProgress) {
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const contentLength = response.headers.get('content-length');
+    const total = contentLength ? parseInt(contentLength, 10) : null;
+    
+    if (!response.body) {
+        throw new Error('ReadableStream not supported');
+    }
+    
+    const reader = response.body.getReader();
+    const chunks = [];
+    let received = 0;
+    
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        chunks.push(value);
+        received += value.length;
+        
+        if (onProgress && total) {
+            onProgress(received, total);
+        }
+    }
+    
+    // Combine chunks into single ArrayBuffer
+    const allChunks = new Uint8Array(received);
+    let position = 0;
+    for (const chunk of chunks) {
+        allChunks.set(chunk, position);
+        position += chunk.length;
+    }
+    
+    return allChunks.buffer;
+}
+
+/**
+ * Format bytes to human-readable string
+ * @param {number} bytes - Number of bytes
+ * @returns {string} - Formatted string (e.g., "18.5 MB")
+ */
+function formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+}
+

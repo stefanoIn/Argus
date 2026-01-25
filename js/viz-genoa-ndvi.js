@@ -28,26 +28,59 @@ function initializeGenoaNDVIViz() {
         .style('align-items', 'center')
         .style('justify-content', 'center');
     
-    loadingMsg.append('p')
+    const statusText = loadingMsg.append('p')
         .text('Loading Genoa NDVI data…')
         .style('font-size', '16px')
-        .style('margin', '0');
+        .style('margin', '0 0 10px 0');
+    
+    const progressText = loadingMsg.append('p')
+        .text('')
+        .style('font-size', '13px')
+        .style('margin', '0')
+        .style('color', '#718096');
 
     const tiffPath = 'data/processed/NDVI_genoa_2025-07-09.tif';
-
-    fetch(tiffPath)
-        .then(r => {
+    
+    // Use fetchWithProgress to load the file with progress tracking
+    const progressCallback = (typeof fetchWithProgress === 'function' && typeof formatBytes === 'function')
+        ? (received, total) => {
+            const percent = Math.round((received / total) * 100);
+            const receivedMB = formatBytes(received);
+            const totalMB = formatBytes(total);
+            progressText.text(`Downloading... ${percent}% (${receivedMB} / ${totalMB})`);
+        }
+        : null;
+    
+    // Use fetchWithProgress if available, otherwise fallback to regular fetch
+    const fetchPromise = (typeof fetchWithProgress === 'function')
+        ? fetchWithProgress(tiffPath, progressCallback)
+        : fetch(tiffPath).then(r => {
             if (!r.ok) throw new Error(`HTTP ${r.status}`);
             return r.arrayBuffer();
+        });
+    
+    fetchPromise
+        .then(b => {
+            if (progressText && typeof formatBytes === 'function') {
+                progressText.text('Processing TIFF file...');
+            }
+            return GeoTIFF.fromArrayBuffer(b);
         })
-        .then(b => GeoTIFF.fromArrayBuffer(b))
         .then(t => t.getImage())
-        .then(image => image.readRasters().then(rasters => ({
-            data: rasters[0],
-            width: image.getWidth(),
-            height: image.getHeight()
-        })))
+        .then(image => {
+            if (progressText && typeof formatBytes === 'function') {
+                progressText.text('Reading raster data...');
+            }
+            return image.readRasters().then(rasters => ({
+                data: rasters[0],
+                width: image.getWidth(),
+                height: image.getHeight()
+            }));
+        })
         .then(({ data, width, height }) => {
+            if (progressText && typeof formatBytes === 'function') {
+                progressText.text('Rendering visualization...');
+            }
 
             /* -----------------------------
                DISPLAY & DOWNSAMPLING
@@ -193,7 +226,7 @@ function initializeGenoaNDVIViz() {
                     // Function to determine land type from NDVI value
                     function getLandType(ndvi) {
                         if (ndvi < 0) return 'Non-vegetated';
-                        if (ndvi > 0 &&ndvi <= 0.2 ) return 'Bare/nearly bare soil';
+                        if (ndvi > 0 && ndvi <= 0.2) return 'Bare/nearly bare soil';
                         if (ndvi > 0.2 && ndvi <= 0.4) return 'Sparse vegetation';
                         if (ndvi > 0.4 && ndvi <= 0.6) return 'Moderate vegetation';
                         if (ndvi > 0.6 && ndvi <= 0.8) return 'Dense vegetation';

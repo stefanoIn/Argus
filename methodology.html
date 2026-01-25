@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Methodology - Urban Heat Islands Visualization</title>
+    <meta name="description" content="Detailed methodology, data sources, processing pipeline, and limitations for the Urban Heat Islands visualization project">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="story-header">
+        <div class="story-container">
+            <div class="header-content">
+                <div class="logo-container">
+                    <svg class="logo-icon" viewBox="0 0 100 100" width="40" height="40">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" stroke-width="2" opacity="0.7"/>
+                        <circle cx="50" cy="50" r="25" fill="none" stroke="currentColor" stroke-width="2" opacity="0.4"/>
+                        <circle cx="50" cy="50" r="5" fill="currentColor"/>
+                    </svg>
+                    <h1 class="site-title">Urban Heat Islands</h1>
+                </div>
+                <nav class="main-nav">
+                    <a href="index.html">Home</a>
+                    <a href="methodology.html" class="active">Methodology</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="story-main">
+        <section id="methodology" class="story-chapter methodology-section">
+            <div class="story-container">
+                <div class="chapter-header">
+                    <h2 class="chapter-title">How We Know: Methodology</h2>
+                </div>
+                
+                <div class="methodology-content">
+                    <div class="methodology-subsection">
+                        <h3 class="subsection-title">Data Sources</h3>
+                        <p>
+                            This analysis integrates multiple publicly available datasets from Earth observation, climate, energy, and health sources.
+                        </p>
+                        
+                        <p><strong>Satellite Imagery & Land Cover:</strong></p>
+                        <ul class="data-sources-list">
+                            <li>
+                                <strong>Landsat 8-9 TIRS</strong> - Thermal infrared imagery for Land Surface Temperature (LST) mapping. 
+                                Accessed via <a href="https://earthexplorer.usgs.gov/" target="_blank" rel="noopener noreferrer">USGS EarthExplorer</a> 
+                                or <a href="https://earthengine.google.com/" target="_blank" rel="noopener noreferrer">Google Earth Engine</a>.
+                                Resolution: 100m (thermal band), Date: July 9, 2025 (Genoa region).
+                            </li>
+                            <li>
+                                <strong>Sentinel-2</strong> - Multispectral imagery (10m resolution) for NDVI/vegetation analysis. 
+                                Accessed via <a href="https://scihub.copernicus.eu/" target="_blank" rel="noopener noreferrer">Copernicus Open Access Hub</a>.
+                                Used for calculating Normalized Difference Vegetation Index (NDVI).
+                            </li>
+                            <li>
+                                <strong>ESA WorldCover 2021</strong> - Global land cover classification at 10m resolution. 
+                                Accessed via <a href="https://esa-worldcover.org/en" target="_blank" rel="noopener noreferrer">ESA WorldCover</a>.
+                                Used for categorizing land cover types (built-up, tree cover, grassland, etc.) in Genoa.
+                            </li>
+                        </ul>
+                        
+                        <p><strong>Climate Data:</strong></p>
+                        <ul class="data-sources-list">
+                            <li>
+                                <strong>ERA5 Reanalysis</strong> - Monthly average 2-meter air temperature for Italy (2021-2025). 
+                                Accessed via <a href="https://cds.climate.copernicus.eu/" target="_blank" rel="noopener noreferrer">Copernicus Climate Data Store (CDS)</a>.
+                                Dataset: "ERA5 monthly averaged data on single levels from 1940 to present". 
+                                Spatial resolution: 0.25° × 0.25°, aggregated to country-level monthly averages.
+                            </li>
+                            <li>
+                                <strong>Eurostat CHDD</strong> - Heating Degree Days (HDD) and Cooling Degree Days (CDD) for Italy (1979-2024). 
+                                Dataset code: <code>nrg_chdd_m</code>. 
+                                Accessed via <a href="https://ec.europa.eu/eurostat/databrowser/view/nrg_chdd_m" target="_blank" rel="noopener noreferrer">Eurostat Data Browser</a> 
+                                or <a href="https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_chdd_m" target="_blank" rel="noopener noreferrer">Eurostat REST API</a>.
+                                HDD measures heating demand (colder years = higher HDD), CDD measures cooling demand (hotter years = higher CDD).
+                            </li>
+                        </ul>
+                        
+                        <p><strong>Energy Data:</strong></p>
+                        <ul class="data-sources-list">
+                            <li>
+                                <strong>Terna S.p.A.</strong> - Monthly electricity consumption in Italy (2021-2025), measured in TWh. 
+                                Terna is the Italian transmission system operator. 
+                                Data downloaded from official Terna reports and processed from Excel files.
+                                Files located in <code>data/electricity_consumption_italy/</code>.
+                            </li>
+                            <li>
+                                <strong>Eurostat Energy Statistics</strong> - European energy balance data. 
+                                Dataset codes: <code>nrg_cb_pem</code> (energy balances), <code>nrg_10m</code> (monthly energy statistics). 
+                                Accessed via <a href="https://ec.europa.eu/eurostat/databrowser/view/nrg_cb_pem" target="_blank" rel="noopener noreferrer">Eurostat Data Browser</a> 
+                                or REST API. Used as supplementary/validation data for energy consumption patterns.
+                            </li>
+                        </ul>
+                        
+                        <p><strong>Health Data:</strong></p>
+                        <ul class="data-sources-list">
+                            <li>
+                                <strong>Nature Medicine (2023)</strong> - Heat-related mortality in Europe during the summer of 2022. 
+                                Research article: "Heat-related mortality in Europe during the summer of 2022". 
+                                Italy-specific estimate: 18,010 deaths (95% CI: 13,793–22,225) for 2022.
+                                <a href="https://www.nature.com/articles/s41591-023-02419-z" target="_blank" rel="noopener noreferrer">Nature Medicine Article</a>.
+                            </li>
+                            <li>
+                                <strong>Eurostat Excess Mortality</strong> - Excess mortality statistics (dataset: <code>demo_mexrt</code>). 
+                                Used for estimating heat-related deaths in years prior to 2022, based on excess mortality patterns during heat waves.
+                                Accessed via <a href="https://ec.europa.eu/eurostat/databrowser/view/demo_mexrt" target="_blank" rel="noopener noreferrer">Eurostat Data Browser</a>.
+                            </li>
+                        </ul>
+                        
+                        <p>
+                            <strong>Data Location:</strong> Processed data files are in <code>data/processed/</code> and <code>data/json/</code>. 
+                            Raw data (if stored) is in <code>data/raw/</code>. 
+                            Preprocessing scripts are in <code>data/</code> directory.
+                        </p>
+                    </div>
+
+                    <div class="methodology-subsection">
+                        <h3 class="subsection-title">Data Cleaning and Imputation</h3>
+                        <p>
+                            Raw data underwent systematic preprocessing to ensure quality and consistency:
+                        </p>
+                        
+                        <p><strong>Satellite Imagery Processing:</strong></p>
+                        <ul>
+                            <li><strong>Cloud Cover Removal:</strong> Cloud-contaminated pixels identified using quality assessment bands and masked out</li>
+                            <li><strong>Gap Filling:</strong> Sensor gaps and cloud shadows filled using spatial interpolation (nearest neighbor or bilinear interpolation)</li>
+                            <li><strong>Atmospheric Correction:</strong> Thermal bands corrected for atmospheric effects using standard algorithms (e.g., split-window method for Landsat)</li>
+                            <li><strong>Coordinate System:</strong> All raster data transformed to consistent CRS (EPSG:4326 or UTM) for spatial alignment</li>
+                        </ul>
+                        
+                        <p><strong>Temperature Data Processing:</strong></p>
+                        <ul>
+                            <li><strong>Outlier Detection:</strong> Extreme values outside plausible ranges (-50°C to 60°C for LST, -30°C to 50°C for air temperature) flagged and excluded</li>
+                            <li><strong>Missing Values:</strong> ERA5 monthly data gaps (rare) handled via temporal interpolation or excluded from analysis</li>
+                            <li><strong>Validation:</strong> Cross-checked against meteorological station data where available</li>
+                        </ul>
+                        
+                        <p><strong>Energy Data Processing:</strong></p>
+                        <ul>
+                            <li><strong>Unit Conversion:</strong> Terna data converted from MWh to TWh for consistency</li>
+                            <li><strong>Missing Months:</strong> No missing data in Terna dataset (complete 2021-2025 coverage)</li>
+                            <li><strong>Validation:</strong> Compared against Eurostat energy statistics for consistency checks</li>
+                        </ul>
+                        
+                        <p><strong>Health Data Processing:</strong></p>
+                        <ul>
+                            <li><strong>Data Imputation:</strong> Years prior to 2022 estimated based on Eurostat excess mortality patterns during heat waves (assumption: 30% of excess summer mortality attributed to heat)</li>
+                            <li><strong>Uncertainty:</strong> 2022 data from peer-reviewed research (Nature Medicine) includes confidence intervals; earlier years have higher uncertainty</li>
+                            <li><strong>Validation:</strong> Cross-referenced with published research and Eurostat mortality statistics</li>
+                        </ul>
+                        
+                        <p><strong>Eurostat CHDD Processing:</strong></p>
+                        <ul>
+                            <li><strong>Data Parsing:</strong> Complex Eurostat TSV format parsed and reshaped into structured JSON</li>
+                            <li><strong>Value Cleaning:</strong> Removed flags, whitespace, and non-numeric characters from cell values</li>
+                            <li><strong>Aggregation:</strong> Monthly data aggregated to annual averages for trend analysis</li>
+                        </ul>
+                        
+                        <p>
+                            <strong>Preprocessing Scripts:</strong> All preprocessing code is available in the repository:
+                            <code>data/download_and_preprocess_heat_data.py</code>, 
+                            <code>data/eurostat_chdd/preprocessing_estat_chdd.ipynb</code>,
+                            <code>data/average_monthly_temperature_ERA5/avg_monthly_temperature_italy_era5.ipynb</code>,
+                            and <code>data/electricity_consumption_italy/electricity_italy_2021_2025.ipynb</code>.
+                        </p>
+                    </div>
+
+                    <div class="methodology-subsection">
+                        <h3 class="subsection-title">Data Processing and Analysis Pipeline</h3>
+                        <p>
+                            The complete pipeline transforms raw data from multiple sources into interactive visualizations:
+                        </p>
+                        
+                        <p><strong>Stage 1: Data Ingestion</strong></p>
+                        <ul>
+                            <li><strong>Satellite Imagery:</strong> Load GeoTIFF files using Python libraries (<code>rasterio</code>, <code>xarray</code>, <code>geopandas</code>)</li>
+                            <li><strong>API Data:</strong> Fetch JSON/CSV from Eurostat REST API, Copernicus CDS, or download manually</li>
+                            <li><strong>Tabular Data:</strong> Load Excel/CSV files (Terna electricity, Eurostat TSV) using <code>pandas</code></li>
+                            <li><strong>Research Data:</strong> Extract published statistics from research papers (Nature Medicine)</li>
+                        </ul>
+                        
+                        <p><strong>Stage 2: Preprocessing</strong></p>
+                        <ul>
+                            <li>Apply data cleaning and imputation steps (see "Data Cleaning and Imputation" above)</li>
+                            <li>Transform coordinate systems, handle missing values, remove outliers</li>
+                            <li>Validate data ranges, temporal consistency, and spatial coherence</li>
+                        </ul>
+                        
+                        <p><strong>Stage 3: Feature Extraction</strong></p>
+                        <ul>
+                            <li><strong>LST Calculation:</strong> Convert thermal infrared radiance to Land Surface Temperature using emissivity and atmospheric correction</li>
+                            <li><strong>NDVI Calculation:</strong> Compute Normalized Difference Vegetation Index from Sentinel-2 red and NIR bands: NDVI = (NIR - Red) / (NIR + Red)</li>
+                            <li><strong>UHI Intensity:</strong> Calculate temperature difference between urban and rural areas</li>
+                            <li><strong>Spatial Statistics:</strong> Compute mean, median, percentiles by land cover type, region, and time period</li>
+                            <li><strong>HDD/CDD Calculation:</strong> Aggregate degree days from Eurostat monthly data to annual averages</li>
+                        </ul>
+                        
+                        <p><strong>Stage 4: Data Aggregation and Transformation</strong></p>
+                        <ul>
+                            <li><strong>Temporal Aggregation:</strong> Summarize by month, year, or multi-year periods</li>
+                            <li><strong>Spatial Aggregation:</strong> Aggregate pixels by land cover class, administrative boundaries, or custom regions</li>
+                            <li><strong>Cross-tabulation:</strong> Create land cover × temperature class matrices for Sankey diagram</li>
+                            <li><strong>JSON Export:</strong> Transform processed data into JSON format optimized for web visualization</li>
+                        </ul>
+                        
+                        <p><strong>Stage 5: Visualization Encoding</strong></p>
+                        <ul>
+                            <li><strong>Color Scales:</strong> Use D3.js color scales (e.g., <code>d3.scaleSequential</code> with <code>d3.interpolateInferno</code> for temperature, <code>d3.interpolateBlues</code>/<code>d3.interpolateReds</code> for heatmaps)</li>
+                            <li><strong>Spatial Encoding:</strong> Map geographic coordinates to SVG/Canvas pixel positions using appropriate projections</li>
+                            <li><strong>Temporal Encoding:</strong> Map dates to x-axis positions using <code>d3.scaleTime</code></li>
+                            <li><strong>Interactive Elements:</strong> Add tooltips, zoom/pan, filters, and hover interactions using D3.js event handlers</li>
+                            <li><strong>Responsive Design:</strong> Adapt visualizations to screen size using viewport-based scaling</li>
+                        </ul>
+                        
+                        <p>
+                            <strong>Pipeline Scripts:</strong> Complete pipeline documented in repository:
+                            <code>data/download_and_preprocess_heat_data.py</code> (main preprocessing),
+                            Jupyter notebooks in <code>data/eurostat_chdd/</code>, <code>data/average_monthly_temperature_ERA5/</code>, 
+                            and <code>data/electricity_consumption_italy/</code> for specific datasets.
+                        </p>
+                    </div>
+
+                    <div class="methodology-subsection">
+                        <h3 class="subsection-title">Limitations</h3>
+                        <p>
+                            Key constraints and methodological limitations to consider when interpreting results:
+                        </p>
+                        
+                        <p><strong>Satellite Data Limitations:</strong></p>
+                        <ul>
+                            <li><strong>Coverage Gaps:</strong> Cloud cover and sensor limitations create spatial/temporal gaps in satellite imagery. Some areas may have incomplete coverage.</li>
+                            <li><strong>Resolution Constraints:</strong> Satellite resolution (100m for Landsat thermal, 10m for Sentinel-2) limits detection of fine-scale temperature variations at street or building level.</li>
+                            <li><strong>Temporal Bias:</strong> Data collected at specific times (e.g., Landsat ~10:30 AM local time) may miss peak heat island effects, which often occur at night or during different times of day.</li>
+                            <li><strong>Measurement Uncertainty:</strong> Sensor errors, atmospheric correction algorithms, and emissivity assumptions introduce uncertainty (±2-3°C typical for LST).</li>
+                            <li><strong>Land Cover Classification Accuracy:</strong> WorldCover classifications may not capture all environmental factors (e.g., building materials, local microclimates, water features) that influence temperature.</li>
+                            <li><strong>Scale Dependency:</strong> Results vary with spatial/temporal analysis scale. UHI intensity measured at different resolutions may yield different values.</li>
+                        </ul>
+                        
+                        <p><strong>Climate and Energy Data Limitations:</strong></p>
+                        <ul>
+                            <li><strong>ERA5 Spatial Aggregation:</strong> Country-level monthly averages mask regional and local variations. Urban vs. rural temperature differences within Italy are not captured.</li>
+                            <li><strong>Temporal Coverage:</strong> Electricity consumption data limited to 2021-2025. Temperature data extends to 2025 but may have processing delays for recent months.</li>
+                            <li><strong>Energy Data Attribution:</strong> Electricity consumption peaks correlate with temperature but are also influenced by economic activity, holidays, and other factors not accounted for in this analysis.</li>
+                            <li><strong>HDD/CDD Assumptions:</strong> Degree days assume fixed base temperatures (typically 18°C for HDD, 18°C or 24°C for CDD). Actual heating/cooling behavior may vary.</li>
+                        </ul>
+                        
+                        <p><strong>Health Data Limitations:</strong></p>
+                        <ul>
+                            <li><strong>Attribution Uncertainty:</strong> Heat-related mortality estimates involve statistical attribution. Not all excess deaths during heat waves can be definitively attributed to heat alone.</li>
+                            <li><strong>Data Imputation:</strong> Years prior to 2022 use estimated values based on excess mortality patterns. These estimates have higher uncertainty than the 2022 peer-reviewed data.</li>
+                            <li><strong>Confidence Intervals:</strong> 2022 data includes 95% confidence intervals (13,793–22,225 deaths), indicating significant uncertainty even in the best-documented year.</li>
+                            <li><strong>Underreporting:</strong> Heat-related deaths may be underreported, especially for indirect effects (e.g., cardiovascular events triggered by heat).</li>
+                        </ul>
+                        
+                        <p><strong>Methodological Constraints:</strong></p>
+                        <ul>
+                            <li><strong>Single Case Study:</strong> Genoa UHI analysis represents one city. Results may not generalize to all urban areas.</li>
+                            <li><strong>Single Time Point:</strong> Satellite imagery from July 9, 2025 represents one snapshot. UHI intensity varies seasonally and with weather conditions.</li>
+                            <li><strong>Correlation vs. Causation:</strong> Visualizations show correlations (e.g., electricity and temperature) but do not establish causal relationships without additional analysis.</li>
+                            <li><strong>Missing Variables:</strong> Analysis does not account for all factors influencing UHI (e.g., wind patterns, humidity, building density, population density at fine scale).</li>
+                        </ul>
+                    </div>
+
+                    <div class="methodology-subsection">
+                        <h3 class="subsection-title">Uncertainty Communication</h3>
+                        <p>
+                            Uncertainty is communicated through:
+                        </p>
+                        <ul>
+                            <li>Missing data indicators (gray shading, "No Data" labels)</li>
+                            <li>Error bars and confidence intervals where applicable</li>
+                            <li>Data quality metadata and coverage information</li>
+                            <li>Documented processing steps and assumptions</li>
+                        </ul>
+                        <p>
+                            <strong>Note:</strong> Relative comparisons (urban vs. rural) are more reliable than absolute temperature values. 
+                            Spatial patterns are more reliable than precise point measurements.
+                        </p>
+                    </div>
+
+                    <div class="methodology-subsection">
+                        <h3 class="subsection-title">Interaction Design</h3>
+                        <p>
+                            Interactive features enable data exploration:
+                        </p>
+                        <ul>
+                            <li><strong>Tooltips:</strong> Hover to see temperature values, locations, and metadata</li>
+                            <li><strong>Zoom & Pan:</strong> Explore geographic visualizations in detail</li>
+                            <li><strong>Semantic Slider:</strong> Toggle between land cover, vegetation, and urban heat views</li>
+                            <li><strong>Responsive:</strong> Touch-friendly design optimized for mobile devices</li>
+                        </ul>
+                    </div>
+
+                    <div class="methodology-subsection">
+                        <h3 class="subsection-title">Performance</h3>
+                        <p>
+                            Optimizations for fast loading and smooth interactions:
+                        </p>
+                        <ul>
+                            <li>Pre-aggregated data files, downsampling for initial rendering</li>
+                            <li>Asynchronous data loading with chunked processing</li>
+                            <li>Canvas rendering for large datasets, SVG for interactive elements</li>
+                            <li>Lazy loading of visualizations using Intersection Observer API</li>
+                            <li>Mobile-optimized with reduced resolution and touch-friendly interactions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Project Information</h3>
+                    <p><strong>Urban Heat Islands: Satellite Data Visualization</strong></p>
+                    <p>Data Visualization Course Project</p>
+                    <p>A storytelling website communicating data-driven insights about Urban Heat Islands through satellite data visualization.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Repository & Links</h3>
+                    <p>
+                        <a href="#" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+                    </p>
+                    <p>
+                        <a href="#" target="_blank" rel="noopener noreferrer">Live Website (GitHub Pages)</a>
+                    </p>
+                    <p>
+                        <a href="methodology.html">Methodology</a> - Detailed documentation of data sources, processing, and limitations
+                    </p>
+                </div>
+                <div class="footer-section">
+                    <h3>Data Sources</h3>
+                    <p>All data sources are properly cited in the <a href="methodology.html">Methodology section</a> above.</p>
+                    <p><strong>Primary Sources:</strong></p>
+                    <ul class="footer-list">
+                        <li>Landsat 8-9 <a href="https://github.com/stefanoIn/USGS-m2m-client">(USGS M2M Client)</a></li>
+                        <li>Sentinel-2 <a href="https://github.com/stefanoIn/CDSE-api">(CDSE Client)</a></li>
+                    </ul>
+                    <p>See README.md in the repository for complete data source documentation and links.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Preprocessing & Reproducibility</h3>
+                    <p>Preprocessing Python scripts are documented separately. See the repository README.md for:</p>
+                    <ul class="footer-list">
+                        <li>How to run preprocessing scripts</li>
+                        <li>Data folder structure</li>
+                        <li>Reproducibility instructions</li>
+                        <li>Local development setup</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p><strong>Author:</strong> Stefano Infusini, AI student at University of Genoa</p>
+                <p>&copy; 2025 Urban Heat Islands Visualization Project. All rights reserved.</p>
+                <p class="footer-meta">Built with HTML5, CSS3, JavaScript, and D3.js v7 | Deployed via GitHub Pages</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

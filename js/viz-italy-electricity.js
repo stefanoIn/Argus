@@ -6,6 +6,11 @@
  * Panel B: Average temperature (°C)
  */
 
+// Store data globally for resize
+let italyElectricityData = null;
+let italyTemperatureData = null;
+let italyElecResizeTimeout = null;
+
 function initializeItalyElectricityViz() {
     const container = d3.select('#viz-italy-electricity');
     
@@ -57,7 +62,14 @@ function initializeItalyElectricityViz() {
                 throw new Error('No temperature data available');
             }
             
+            // Store data for resize
+            italyElectricityData = electricityData;
+            italyTemperatureData = temperatureData;
+            
             createSmallMultiplesChart(electricityData, temperatureData, container, loadingMsg);
+            
+            // Add resize listener
+            window.addEventListener('resize', handleItalyElecResize);
         })
         .catch(error => {
             console.error('[Italy Electricity] Error:', error);
@@ -69,6 +81,22 @@ function initializeItalyElectricityViz() {
                 </button>
             `);
         });
+}
+
+function handleItalyElecResize() {
+    if (italyElecResizeTimeout) {
+        clearTimeout(italyElecResizeTimeout);
+    }
+    
+    italyElecResizeTimeout = setTimeout(() => {
+        if (italyElectricityData && italyTemperatureData) {
+            const container = d3.select('#viz-italy-electricity');
+            if (!container.empty()) {
+                container.selectAll('*').remove();
+                createSmallMultiplesChart(italyElectricityData, italyTemperatureData, container, null);
+            }
+        }
+    }, 250);
 }
 
 function createSmallMultiplesChart(electricityData, temperatureData, container, loadingMsg) {
@@ -97,8 +125,8 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
     // Sort by date
     parsedData.sort((a, b) => a.date - b.date);
     
-    // Set up dimensions
-    const margin = { top: 20, right: 80, bottom: 60, left: 80 };
+    // Set up dimensions - increased margins to prevent overlap
+    const margin = { top: 20, right: 100, bottom: 80, left: 100 };
     const containerWidth = container.node().getBoundingClientRect().width;
     const width = Math.max(1000, containerWidth) - margin.left - margin.right;
     const panelGap = 20;
@@ -110,6 +138,16 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
         .attr('width', width + margin.left + margin.right)
         .attr('height', totalHeight)
         .style('overflow', 'visible');
+    
+    // Add descriptive subtitle with data context
+    svg.append('text')
+        .attr('x', (width + margin.left + margin.right) / 2)
+        .attr('y', 15)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '13px')
+        .style('fill', '#6b7280')
+        .style('font-weight', '400')
+        .text('Monthly electricity consumption (TWh) and average temperature (°C) in Italy, 2021–2025 | Data: Terna & ERA5-Copernicus');
     
     const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
@@ -126,7 +164,7 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
         .attr('transform', `translate(0, ${panelAY})`);
     
     const yElecScale = d3.scaleLinear()
-        .domain(d3.extent(parsedData, d => d.consumption))
+        .domain([0, d3.max(parsedData, d => d.consumption)])
         .nice()
         .range([panelHeight, 0]);
     
@@ -149,18 +187,67 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
         }
     });
     
-    // Electricity line
+    // Electricity line with animation
     const elecLine = d3.line()
         .x(d => xScale(d.date))
         .y(d => yElecScale(d.consumption))
         .curve(d3.curveMonotoneX);
     
-    panelAG.append('path')
+    const elecPath = panelAG.append('path')
         .datum(parsedData)
         .attr('fill', 'none')
         .attr('stroke', '#3182ce')
         .attr('stroke-width', 2.5)
         .attr('d', elecLine);
+    
+    // Store path for animation (will be triggered by IntersectionObserver)
+    const elecPathLength = elecPath.node().getTotalLength();
+    elecPath
+        .attr('stroke-dasharray', `${elecPathLength} ${elecPathLength}`)
+        .attr('stroke-dashoffset', elecPathLength)
+        .attr('data-animate', 'true');
+    
+    // Function to animate the line
+    function animateElectricityLine() {
+        elecPath
+            .transition()
+            .duration(2000)
+            .ease(d3.easeLinear)
+            .attr('stroke-dashoffset', 0);
+    }
+    
+    // Store animation function on the viz container element
+    const vizContainer = document.querySelector('#viz-italy-electricity');
+    if (vizContainer) {
+        vizContainer._animateElecLine = animateElectricityLine;
+    }
+    
+    // Add circle markers for each data point (electricity)
+    const elecCircles = panelAG.selectAll('.elec-circle')
+        .data(parsedData)
+        .enter()
+        .append('circle')
+        .attr('class', 'elec-circle')
+        .attr('cx', d => xScale(d.date))
+        .attr('cy', d => yElecScale(d.consumption))
+        .attr('r', 3)
+        .attr('fill', '#3182ce')
+        .attr('stroke', 'white')
+        .attr('stroke-width', 1.5)
+        .style('opacity', 0);
+    
+    // Animate circles to appear after line animation
+    function animateElectricityCircles() {
+        elecCircles.transition()
+            .delay((d, i) => 2000 + (i * 20))
+            .duration(300)
+            .style('opacity', 1);
+    }
+    
+    // Store circle animation function
+    if (vizContainer) {
+        vizContainer._animateElecCircles = animateElectricityCircles;
+    }
     
     // Y-axis for electricity
     const yElecAxis = d3.axisLeft(yElecScale)
@@ -177,7 +264,7 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
     
     panelAG.append('text')
         .attr('transform', 'rotate(-90)')
-        .attr('y', -60)
+        .attr('y', -75)
         .attr('x', -panelHeight / 2)
         .attr('text-anchor', 'middle')
         .style('fill', '#3182ce')
@@ -185,45 +272,60 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
         .style('font-weight', '600')
         .text('Electricity Consumption (TWh)');
     
-    // Panel label
-    panelAG.append('text')
-        .attr('x', width - 5)
-        .attr('y', 15)
-        .attr('text-anchor', 'end')
-        .style('fill', 'var(--text-primary)')
-        .style('font-size', '13px')
-        .style('font-weight', '700')
-        .text('Panel A');
+    // Simplified annotations - only key insights
+    // Find the absolute peak across all years (not just summer)
+    const maxElec = d3.max(parsedData, d => d.consumption);
+    const peakPoint = parsedData.find(d => d.consumption === maxElec);
     
-    // Find and annotate July peaks
-    const julyData = parsedData.filter(d => d.month === 7);
-    const maxJulyElec = d3.max(julyData, d => d.consumption);
-    const peakJuly = julyData.find(d => d.consumption === maxJulyElec);
-    
-    if (peakJuly) {
-        const peakX = xScale(peakJuly.date);
-        const peakY = yElecScale(peakJuly.consumption);
+    if (peakPoint) {
+        const peakX = xScale(peakPoint.date);
+        const peakY = yElecScale(peakPoint.consumption);
         
-        // Thin annotation line
-        panelAG.append('line')
+        const annotation = panelAG.append('g')
+            .attr('class', 'annotation peak-annotation')
+            .style('opacity', 0);
+        
+        // Callout circle
+        annotation.append('circle')
+            .attr('cx', peakX)
+            .attr('cy', peakY)
+            .attr('r', 5)
+            .attr('fill', 'none')
+            .attr('stroke', '#e85d04')
+            .attr('stroke-width', 2);
+        
+        // Annotation line
+        annotation.append('line')
             .attr('x1', peakX)
-            .attr('x2', peakX)
+            .attr('x2', peakX + 60)
             .attr('y1', peakY)
-            .attr('y2', peakY - 20)
-            .attr('stroke', '#4a5568')
-            .attr('stroke-width', 1)
-            .attr('stroke-dasharray', '2,2')
-            .attr('opacity', 0.6);
+            .attr('y2', peakY - 40)
+            .attr('stroke', '#e85d04')
+            .attr('stroke-width', 1.5);
         
         // Annotation text
-        panelAG.append('text')
-            .attr('x', peakX)
-            .attr('y', peakY - 25)
-            .attr('text-anchor', 'middle')
-            .style('fill', '#4a5568')
+        annotation.append('text')
+            .attr('x', peakX + 65)
+            .attr('y', peakY - 42)
+            .attr('text-anchor', 'start')
+            .style('fill', '#e85d04')
+            .style('font-size', '12px')
+            .style('font-weight', '700')
+            .text('Peak electricity demand');
+        
+        annotation.append('text')
+            .attr('x', peakX + 65)
+            .attr('y', peakY - 28)
+            .attr('text-anchor', 'start')
+            .style('fill', '#718096')
             .style('font-size', '10px')
             .style('font-weight', '500')
-            .text('Peak');
+            .text('Driven by summer AC use');
+        
+        annotation.transition()
+            .delay(2000)
+            .duration(600)
+            .style('opacity', 1);
     }
     
     // Panel B: Temperature
@@ -233,7 +335,7 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
         .attr('transform', `translate(0, ${panelBY})`);
     
     const yTempScale = d3.scaleLinear()
-        .domain(d3.extent(parsedData, d => d.temperature))
+        .domain([0, d3.max(parsedData, d => d.temperature)])
         .nice()
         .range([panelHeight, 0]);
     
@@ -256,18 +358,67 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
         }
     });
     
-    // Temperature line
+    // Temperature line with animation
     const tempLine = d3.line()
         .x(d => xScale(d.date))
         .y(d => yTempScale(d.temperature))
         .curve(d3.curveMonotoneX);
     
-    panelBG.append('path')
+    const tempPath = panelBG.append('path')
         .datum(parsedData)
         .attr('fill', 'none')
         .attr('stroke', '#e53e3e')
         .attr('stroke-width', 2.5)
         .attr('d', tempLine);
+    
+    // Store path for animation (will be triggered by IntersectionObserver)
+    const tempPathLength = tempPath.node().getTotalLength();
+    tempPath
+        .attr('stroke-dasharray', `${tempPathLength} ${tempPathLength}`)
+        .attr('stroke-dashoffset', tempPathLength)
+        .attr('data-animate', 'true');
+    
+    // Function to animate the line
+    function animateTemperatureLine() {
+        tempPath
+            .transition()
+            .duration(2000)
+            .ease(d3.easeLinear)
+            .attr('stroke-dashoffset', 0);
+    }
+    
+    // Store animation function on the viz container element
+    const vizContainerTemp = document.querySelector('#viz-italy-electricity');
+    if (vizContainerTemp) {
+        vizContainerTemp._animateTempLine = animateTemperatureLine;
+    }
+    
+    // Add circle markers for each data point (temperature)
+    const tempCircles = panelBG.selectAll('.temp-circle')
+        .data(parsedData)
+        .enter()
+        .append('circle')
+        .attr('class', 'temp-circle')
+        .attr('cx', d => xScale(d.date))
+        .attr('cy', d => yTempScale(d.temperature))
+        .attr('r', 3)
+        .attr('fill', '#e53e3e')
+        .attr('stroke', 'white')
+        .attr('stroke-width', 1.5)
+        .style('opacity', 0);
+    
+    // Animate circles to appear after line animation
+    function animateTemperatureCircles() {
+        tempCircles.transition()
+            .delay((d, i) => 2000 + (i * 20))
+            .duration(300)
+            .style('opacity', 1);
+    }
+    
+    // Store circle animation function
+    if (vizContainerTemp) {
+        vizContainerTemp._animateTempCircles = animateTemperatureCircles;
+    }
     
     // Y-axis for temperature
     const yTempAxis = d3.axisLeft(yTempScale)
@@ -284,7 +435,7 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
     
     panelBG.append('text')
         .attr('transform', 'rotate(-90)')
-        .attr('y', -60)
+        .attr('y', -75)
         .attr('x', -panelHeight / 2)
         .attr('text-anchor', 'middle')
         .style('fill', '#e53e3e')
@@ -292,44 +443,136 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
         .style('font-weight', '600')
         .text('Average Temperature (°C)');
     
-    // Panel label
-    panelBG.append('text')
-        .attr('x', width - 5)
-        .attr('y', 15)
-        .attr('text-anchor', 'end')
-        .style('fill', 'var(--text-primary)')
-        .style('font-size', '13px')
-        .style('font-weight', '700')
-        .text('Panel B');
+    // Simplified temperature annotation - just the peak
+    const maxTemp = d3.max(parsedData, d => d.temperature);
+    const peakTempPoint = parsedData.find(d => d.temperature === maxTemp);
     
-    // Find and annotate July peaks for temperature
-    const maxJulyTemp = d3.max(julyData, d => d.temperature);
-    const peakJulyTemp = julyData.find(d => d.temperature === maxJulyTemp);
-    
-    if (peakJulyTemp) {
-        const peakX = xScale(peakJulyTemp.date);
-        const peakY = yTempScale(peakJulyTemp.temperature);
+    if (peakTempPoint) {
+        const peakX = xScale(peakTempPoint.date);
+        const peakY = yTempScale(peakTempPoint.temperature);
         
-        // Thin annotation line
-        panelBG.append('line')
+        const annotation = panelBG.append('g')
+            .attr('class', 'annotation peak-annotation')
+            .style('opacity', 0);
+        
+        // Callout circle
+        annotation.append('circle')
+            .attr('cx', peakX)
+            .attr('cy', peakY)
+            .attr('r', 5)
+            .attr('fill', 'none')
+            .attr('stroke', '#e85d04')
+            .attr('stroke-width', 2);
+        
+        // Annotation line
+        annotation.append('line')
             .attr('x1', peakX)
-            .attr('x2', peakX)
+            .attr('x2', peakX + 60)
             .attr('y1', peakY)
-            .attr('y2', peakY - 20)
-            .attr('stroke', '#4a5568')
-            .attr('stroke-width', 1)
-            .attr('stroke-dasharray', '2,2')
-            .attr('opacity', 0.6);
+            .attr('y2', peakY + 40)
+            .attr('stroke', '#e85d04')
+            .attr('stroke-width', 1.5);
         
         // Annotation text
-        panelBG.append('text')
-            .attr('x', peakX)
-            .attr('y', peakY - 25)
-            .attr('text-anchor', 'middle')
-            .style('fill', '#4a5568')
+        annotation.append('text')
+            .attr('x', peakX + 65)
+            .attr('y', peakY + 44)
+            .attr('text-anchor', 'start')
+            .style('fill', '#e85d04')
+            .style('font-size', '12px')
+            .style('font-weight', '700')
+            .text('Peak temperature');
+        
+        annotation.append('text')
+            .attr('x', peakX + 65)
+            .attr('y', peakY + 58)
+            .attr('text-anchor', 'start')
+            .style('fill', '#718096')
             .style('font-size', '10px')
             .style('font-weight', '500')
-            .text('Peak');
+            .text('Summer heat waves');
+        
+        annotation.transition()
+            .delay(2000)
+            .duration(600)
+            .style('opacity', 1);
+    }
+    
+    // Add visual connector between peak electricity and peak temperature
+    if (peakPoint && peakTempPoint && Math.abs(peakPoint.date - peakTempPoint.date) < 90 * 24 * 60 * 60 * 1000) {
+        // If peaks are within ~3 months of each other, draw a connection
+        const elecPeakX = xScale(peakPoint.date);
+        const tempPeakX = xScale(peakTempPoint.date);
+        const connectorY = panelHeight + (panelGap / 2);
+        
+        const connector = g.append('g')
+            .attr('class', 'peak-connector')
+            .style('opacity', 0);
+        
+        // Vertical line from electricity peak
+        connector.append('line')
+            .attr('x1', elecPeakX)
+            .attr('y1', panelAY + yElecScale(peakPoint.consumption))
+            .attr('x2', elecPeakX)
+            .attr('y2', panelAY + connectorY)
+            .attr('stroke', '#e85d04')
+            .attr('stroke-width', 2)
+            .attr('stroke-dasharray', '5,3')
+            .attr('opacity', 0.5);
+        
+        // Vertical line from temperature peak
+        connector.append('line')
+            .attr('x1', tempPeakX)
+            .attr('y1', panelBY + yTempScale(peakTempPoint.temperature))
+            .attr('x2', tempPeakX)
+            .attr('y2', panelBY - (panelGap / 2))
+            .attr('stroke', '#e85d04')
+            .attr('stroke-width', 2)
+            .attr('stroke-dasharray', '5,3')
+            .attr('opacity', 0.5);
+        
+        connector.transition()
+            .delay(2600)
+            .duration(600)
+            .style('opacity', 1);
+    }
+    
+    // Add annotation for August dip (summer shutdowns)
+    const augustData = parsedData.filter(d => d.month === 8);
+    if (augustData.length > 0) {
+        // Find August with relatively low consumption (use 2024 for clarity)
+        const augustPoint = augustData.find(d => d.year === 2024) || augustData[augustData.length - 1];
+        
+        const augustX = xScale(augustPoint.date);
+        const augustY = yElecScale(augustPoint.consumption);
+        
+        const augustAnnotation = panelAG.append('g')
+            .attr('class', 'annotation august-annotation')
+            .style('opacity', 0);
+        
+        // Simple text label with arrow pointing down
+        augustAnnotation.append('text')
+            .attr('x', augustX)
+            .attr('y', augustY - 25)
+            .attr('text-anchor', 'middle')
+            .style('fill', '#4b5563')
+            .style('font-size', '11px')
+            .style('font-weight', '700')
+            .text('↓ Summer shutdowns');
+        
+        // Small circle marker on the point
+        augustAnnotation.append('circle')
+            .attr('cx', augustX)
+            .attr('cy', augustY)
+            .attr('r', 4)
+            .attr('fill', 'none')
+            .attr('stroke', '#4b5563')
+            .attr('stroke-width', 1.5);
+        
+        augustAnnotation.transition()
+            .delay(2400)
+            .duration(600)
+            .style('opacity', 1);
     }
     
     // Shared X-axis (only on bottom panel)
@@ -349,7 +592,7 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
     
     panelBG.append('text')
         .attr('x', width / 2)
-        .attr('y', panelHeight + 50)
+        .attr('y', panelHeight + 60)
         .attr('text-anchor', 'middle')
         .style('fill', 'var(--text-secondary)')
         .style('font-size', '13px')
@@ -438,5 +681,7 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
     addInteractiveArea(panelBG, yTempScale, panelBY, '#e53e3e', d => d.temperature);
     
     // Remove loading message
-    loadingMsg.remove();
+    if (loadingMsg) {
+        loadingMsg.remove();
+    }
 }
