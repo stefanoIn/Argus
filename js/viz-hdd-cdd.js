@@ -321,4 +321,249 @@ function createHDDCDDChart(hddData, cddData, hddMonthlyData, cddMonthlyData, con
         .style('border', '1px solid var(--border-medium)');
     
     function showTooltip(event, d, type) {
-        const [x, y]
+        const pointer = d3.pointer(event, container.node());
+        const x = pointer[0];
+        const y = pointer[1];
+        
+        tooltip
+            .html(`
+                <div style="font-weight: 600; margin-bottom: 6px; font-size: 12px;">${d.year}</div>
+                <div style="margin-bottom: 4px;">
+                    <span style="color: ${hddColor}; font-weight: 600;">HDD:</span> 
+                    <span>${d.hdd.toFixed(2)}</span>
+                </div>
+                <div>
+                    <span style="color: ${cddColor}; font-weight: 600;">CDD:</span> 
+                    <span>${d.cdd.toFixed(2)}</span>
+                </div>
+            `)
+            .style('left', (x + 15) + 'px')
+            .style('top', (y - 10) + 'px')
+            .style('opacity', 1);
+    }
+    
+    function hideTooltip() {
+        tooltip.style('opacity', 0);
+    }
+    
+    // Create monthly heatmaps section
+    createMonthlyHeatmaps(hddMonthlyData, cddMonthlyData, container, width, margin);
+    
+    // Remove loading message
+    loadingMsg.remove();
+}
+
+function createMonthlyHeatmaps(hddMonthlyData, cddMonthlyData, container, mainWidth, mainMargin) {
+    // Add question text above heatmaps
+    const questionText = container.append('div')
+        .style('text-align', 'center')
+        .style('margin-top', '40px')
+        .style('margin-bottom', '20px')
+        .style('font-size', '16px')
+        .style('font-weight', '600')
+        .style('color', 'var(--text-primary)')
+        .text('When do we use heating and cooling?');
+    
+    // Create container for heatmaps
+    const heatmapsContainer = container.append('div')
+        .style('display', 'flex')
+        .style('gap', '30px')
+        .style('justify-content', 'center')
+        .style('flex-wrap', 'wrap');
+    
+    // Month names
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    // Sort monthly data by month
+    const sortedHDD = [...hddMonthlyData].sort((a, b) => a.month - b.month);
+    const sortedCDD = [...cddMonthlyData].sort((a, b) => a.month - b.month);
+    
+    // Find max values for color scaling
+    const maxHDD = d3.max(sortedHDD, d => d.consumption);
+    const maxCDD = d3.max(sortedCDD, d => d.consumption);
+    
+    // Create color scales
+    const hddColorScale = d3.scaleSequential(d3.interpolateBlues)
+        .domain([0, maxHDD]);
+    
+    const cddColorScale = d3.scaleSequential(d3.interpolateReds)
+        .domain([0, maxCDD]);
+    
+    // Heatmap dimensions
+    const heatmapWidth = Math.min(400, (mainWidth + mainMargin.left + mainMargin.right) / 2 - 40);
+    const heatmapHeight = 300;
+    const cellWidth = heatmapWidth / 12;
+    const cellHeight = 50;
+    
+    // Tooltip for heatmaps (create once)
+    const heatmapTooltip = container.append('div')
+        .attr('class', 'heatmap-tooltip')
+        .style('position', 'absolute')
+        .style('pointer-events', 'none')
+        .style('background', 'var(--bg-overlay)')
+        .style('color', 'var(--text-primary)')
+        .style('padding', '10px 14px')
+        .style('border-radius', '8px')
+        .style('font-size', '13px')
+        .style('opacity', 0)
+        .style('transition', 'opacity 0.2s')
+        .style('z-index', '10')
+        .style('box-shadow', 'var(--shadow-lg)')
+        .style('border', '1px solid var(--border-medium)');
+    
+    function showHeatmapTooltip(event, d, monthName, type, color) {
+        const pointer = d3.pointer(event, container.node());
+        const x = pointer[0];
+        const y = pointer[1];
+        
+        heatmapTooltip
+            .html(`
+                <div style="font-weight: 600; margin-bottom: 6px; font-size: 12px;">${monthName}</div>
+                <div style="color: ${color}; font-weight: 600; font-size: 16px;">
+                    ${type}: ${d.consumption.toFixed(2)}
+                </div>
+                <div style="margin-top: 4px; font-size: 11px; color: var(--text-secondary);">
+                    Average across all years
+                </div>
+            `)
+            .style('left', (x + 15) + 'px')
+            .style('top', (y - 10) + 'px')
+            .style('opacity', 1);
+    }
+    
+    function hideHeatmapTooltip() {
+        heatmapTooltip.style('opacity', 0);
+    }
+    
+    // Create HDD heatmap
+    const hddHeatmapWrapper = heatmapsContainer.append('div')
+        .style('display', 'flex')
+        .style('flex-direction', 'column')
+        .style('align-items', 'center');
+    
+    hddHeatmapWrapper.append('div')
+        .style('font-size', '14px')
+        .style('font-weight', '600')
+        .style('color', 'var(--text-primary)')
+        .style('margin-bottom', '10px')
+        .text('Heating Degree Days (HDD)');
+    
+    const hddSvg = hddHeatmapWrapper.append('svg')
+        .attr('width', heatmapWidth)
+        .attr('height', heatmapHeight)
+        .style('overflow', 'visible');
+    
+    const hddG = hddSvg.append('g');
+    
+    // Create cells for HDD
+    sortedHDD.forEach((d, i) => {
+        const cell = hddG.append('rect')
+            .attr('x', i * cellWidth)
+            .attr('y', (heatmapHeight - cellHeight) / 2)
+            .attr('width', cellWidth - 2)
+            .attr('height', cellHeight)
+            .attr('fill', hddColorScale(d.consumption))
+            .attr('stroke', 'var(--border-light)')
+            .attr('stroke-width', 1)
+            .attr('rx', 4)
+            .style('cursor', 'pointer')
+            .on('mouseenter', function(event) {
+                d3.select(this)
+                    .attr('stroke', '#3182ce')
+                    .attr('stroke-width', 2);
+                showHeatmapTooltip(event, d, monthNames[d.month - 1], 'HDD', hddColorScale(d.consumption));
+            })
+            .on('mouseleave', function() {
+                d3.select(this)
+                    .attr('stroke', 'var(--border-light)')
+                    .attr('stroke-width', 1);
+                hideHeatmapTooltip();
+            });
+        
+        // Add month label
+        hddG.append('text')
+            .attr('x', i * cellWidth + cellWidth / 2)
+            .attr('y', (heatmapHeight - cellHeight) / 2 + cellHeight / 2)
+            .attr('text-anchor', 'middle')
+            .attr('dy', '0.35em')
+            .style('fill', d.consumption > maxHDD / 2 ? 'white' : 'var(--text-primary)')
+            .style('font-size', '11px')
+            .style('font-weight', '600')
+            .text(monthNames[d.month - 1]);
+        
+        // Add value label below
+        hddG.append('text')
+            .attr('x', i * cellWidth + cellWidth / 2)
+            .attr('y', (heatmapHeight - cellHeight) / 2 + cellHeight + 15)
+            .attr('text-anchor', 'middle')
+            .style('fill', 'var(--text-secondary)')
+            .style('font-size', '10px')
+            .text(d.consumption.toFixed(1));
+    });
+    
+    // Create CDD heatmap
+    const cddHeatmapWrapper = heatmapsContainer.append('div')
+        .style('display', 'flex')
+        .style('flex-direction', 'column')
+        .style('align-items', 'center');
+    
+    cddHeatmapWrapper.append('div')
+        .style('font-size', '14px')
+        .style('font-weight', '600')
+        .style('color', 'var(--text-primary)')
+        .style('margin-bottom', '10px')
+        .text('Cooling Degree Days (CDD)');
+    
+    const cddSvg = cddHeatmapWrapper.append('svg')
+        .attr('width', heatmapWidth)
+        .attr('height', heatmapHeight)
+        .style('overflow', 'visible');
+    
+    const cddG = cddSvg.append('g');
+    
+    // Create cells for CDD
+    sortedCDD.forEach((d, i) => {
+        const cell = cddG.append('rect')
+            .attr('x', i * cellWidth)
+            .attr('y', (heatmapHeight - cellHeight) / 2)
+            .attr('width', cellWidth - 2)
+            .attr('height', cellHeight)
+            .attr('fill', cddColorScale(d.consumption))
+            .attr('stroke', 'var(--border-light)')
+            .attr('stroke-width', 1)
+            .attr('rx', 4)
+            .style('cursor', 'pointer')
+            .on('mouseenter', function(event) {
+                d3.select(this)
+                    .attr('stroke', '#e53e3e')
+                    .attr('stroke-width', 2);
+                showHeatmapTooltip(event, d, monthNames[d.month - 1], 'CDD', cddColorScale(d.consumption));
+            })
+            .on('mouseleave', function() {
+                d3.select(this)
+                    .attr('stroke', 'var(--border-light)')
+                    .attr('stroke-width', 1);
+                hideHeatmapTooltip();
+            });
+        
+        // Add month label
+        cddG.append('text')
+            .attr('x', i * cellWidth + cellWidth / 2)
+            .attr('y', (heatmapHeight - cellHeight) / 2 + cellHeight / 2)
+            .attr('text-anchor', 'middle')
+            .attr('dy', '0.35em')
+            .style('fill', d.consumption > maxCDD / 2 ? 'white' : 'var(--text-primary)')
+            .style('font-size', '11px')
+            .style('font-weight', '600')
+            .text(monthNames[d.month - 1]);
+        
+        // Add value label below
+        cddG.append('text')
+            .attr('x', i * cellWidth + cellWidth / 2)
+            .attr('y', (heatmapHeight - cellHeight) / 2 + cellHeight + 15)
+            .attr('text-anchor', 'middle')
+            .style('fill', 'var(--text-secondary)')
+            .style('font-size', '10px')
+            .text(d.consumption.toFixed(1));
+    });
+}
