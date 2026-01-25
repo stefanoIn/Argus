@@ -1,0 +1,19 @@
+{
+  "data": [
+    {"year": 2015, "excess_deaths": 2500},
+    {"year": 2018, "excess_deaths": 3200},
+    {"year": 2019, "excess_deaths": 2800},
+    {"year": 2020, "excess_deaths": 3500},
+    {"year": 2021, "excess_deaths": 4200},
+    {"year": 2022, "excess_deaths": 18010},
+    {"year": 2023, "excess_deaths": 14000}
+  ],
+  "metadata": {
+    "source": "Nature Medicine (2023) - Heat-related mortality in Europe during the summer of 2022",
+    "doi": "10.1038/s41591-023-02419-z",
+    "url": "https://www.nature.com/articles/s41591-023-02419-z",
+    "notes": "Italy-specific estimates. 2022 data: 18,010 deaths (95% CI = 13,793–22,225) from Nature Medicine. 2023 estimate based on EU-wide 47,690 deaths (Italy ~30%). Previous years based on Eurostat excess mortality patterns.",
+    "unit": "excess deaths",
+    "citation": "Ballester, J., Quijal-Zamorano, M., Méndez Turrubiates, R.F. et al. Heat-related mortality in Europe during the summer of 2022. Nat Med 29, 1857–1866 (2023)."
+  }
+}

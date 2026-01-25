@@ -53,4 +53,37 @@ function initializeVisualizations() {
             console.error('[Viz] Error initializing Sankey:', error);
         }
     }, 300);
+    
+    setTimeout(() => {
+        try {
+            initializeEnergyTemperatureViz();
+        } catch (error) {
+            console.error('[Viz] Error initializing Energy Temperature:', error);
+        }
+    }, 400);
+    
+    setTimeout(() => {
+        try {
+            initializeHeatDeathsViz();
+        } catch (error) {
+            console.error('[Viz] Error initializing Heat Deaths:', error);
+        }
+    }, 500);
+    
+    setTimeout(() => {
+        try {
+            initializeHDDCDDViz();
+        } catch (error) {
+            console.error('[Viz] Error initializing HDD/CDD:', error);
+        }
+    }, 600);
+    
+    setTimeout(() => {
+        try {
+            initializeItalyElectricityViz();
+        } catch (error) {
+            console.error('[Viz] Error initializing Italy Electricity:', error);
+        }
+    }, 700);
 }
+

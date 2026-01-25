@@ -1,0 +1,50 @@
+[
+  {
+    "month": 1,
+    "consumption": 395.2848
+  },
+  {
+    "month": 2,
+    "consumption": 334.9759
+  },
+  {
+    "month": 3,
+    "consumption": 280.1398
+  },
+  {
+    "month": 4,
+    "consumption": 174.89
+  },
+  {
+    "month": 5,
+    "consumption": 62.1859
+  },
+  {
+    "month": 6,
+    "consumption": 17.5935
+  },
+  {
+    "month": 7,
+    "consumption": 8.0539
+  },
+  {
+    "month": 8,
+    "consumption": 8.8002
+  },
+  {
+    "month": 9,
+    "consumption": 25.5796
+  },
+  {
+    "month": 10,
+    "consumption": 92.9511
+  },
+  {
+    "month": 11,
+    "consumption": 232.4076
+  },
+  {
+    "month": 12,
+    "consumption": 358.2063
+  }
+]

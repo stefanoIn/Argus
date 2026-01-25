@@ -267,12 +267,14 @@
             </div>
         </section>
 
-        <!-- Chapter 3: What They Cause -->
+     
+
+        <!-- Chapter 3: Why does this matter? -->
         <section id="impacts" class="story-chapter">
             <div class="story-container">
                 <div class="chapter-header">
                     <span class="chapter-number">03</span>
-                    <h2 class="chapter-title">What Do Urban Heat Islands Cause?</h2>
+                    <h2 class="chapter-title">Why does this matter?</h2>
                 </div>
                 
                 <div class="story-text">
@@ -283,20 +285,50 @@
                     </p>
                 </div>
 
-                <!-- Visualization 3: NDVI Rural vs Urban -->
-                <div class="story-viz">
-                    <div class="story-viz-container">
-                        <h3 class="viz-title">Rural vs Urban Vegetation: NDVI Map of Genoa</h3>
-                        <div id="viz-genoa-ndvi" class="visualization">
-                            <p class="placeholder-text">Loading Genoa NDVI data from satellite imagery...</p>
-                        </div>
-                        <p class="viz-caption">
-                            <strong>Figure 3:</strong> Normalized Difference Vegetation Index (NDVI) map of Genoa derived from
-                            multispectral satellite imagery. NDVI values are defined in the range -1 to 1. NDVI values below 0
-                            (water or non-vegetated surfaces) are rendered with a neutral mask, while NDVI values from 0 to 1
-                            use a sequential green scale to represent vegetation density.
-                        </p>
+             
+
+                   <!-- Implications Section -->
+                <div class="implications-section">
+                    <h3 class="implications-title">Why does this matter?</h3>
+                    <div class="implications-highlight">
+                        <svg class="implications-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <p class="implications-stat">Built-up areas are <strong>~10°C hotter</strong> than vegetated areas</p>
                     </div>
+                    <p class="implications-context">
+                        Elevated surface temperatures can contribute to higher near-surface air temperatures, 
+                        especially during heatwaves and low-wind conditions.
+                    </p>
+                    <p class="implications-intro">These areas coincide with:</p>
+                    <div class="implications-grid">
+                        <div class="implications-item">
+                            <svg class="implications-icon-small" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Highest population density</span>
+                        </div>
+                        <div class="implications-item">
+                            <svg class="implications-icon-small" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Least green cover</span>
+                        </div>
+                    </div>
+                    <p class="implications-conclusion">
+                        <svg class="implications-icon-inline" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        The hottest places overlap with <strong>where people are</strong> and <strong>where shade is scarce</strong>
+                    </p>
                 </div>
 
                 <div class="story-text">
@@ -306,7 +338,42 @@
                         vicious cycle: more cooling generates more waste heat, which requires more 
                         cooling. This increases both energy costs and greenhouse gas emissions.
                     </p>
+                </div>
 
+                <!-- Italy Electricity Consumption Visualization -->
+                <div class="story-viz">
+                    <div class="story-viz-container">
+                        <h3 class="viz-title">Italy Monthly Electricity Consumption</h3>
+                        <div id="viz-italy-electricity" class="visualization">
+                            <p class="placeholder-text">Loading Italy electricity consumption and temperature data...</p>
+                        </div>
+                        <p class="viz-caption">
+                            <strong>Figure 3a:</strong> Small multiples showing electricity consumption and average temperature in Italy (2021-2025). 
+                            <strong>Panel A</strong> shows monthly electricity consumption (TWh), while <strong>Panel B</strong> shows average temperature (°C). 
+                            Both panels share the same time axis and summer shading (June-August), allowing for direct vertical comparison. 
+                            Peaks in electricity consumption consistently align with peak summer temperatures, suggesting a strong relationship between 
+                            heat and electricity demand. The visualization uses separate y-axes to avoid visual distortion, allowing readers to naturally 
+                            compare peaks vertically. Data sources: Terna (electricity), ERA5 Copernicus (temperature).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- HDD and CDD Visualization -->
+                <div class="story-viz">
+                    <div class="story-viz-container">
+                        <h3 class="viz-title">Heating and Cooling Degree Days Over Time</h3>
+                        <div id="viz-hdd-cdd" class="visualization">
+                            <p class="placeholder-text">Loading HDD and CDD data...</p>
+                        </div>
+                        <p class="viz-caption">
+                            <strong>Figure 3c:</strong> Annual average Heating Degree Days (HDD) and Cooling Degree Days (CDD) in Italy (1979-2024). 
+                            HDD measures heating demand (colder years = higher HDD), while CDD measures cooling demand (hotter years = higher CDD). 
+                            The increasing trend in CDD values reflects rising temperatures and growing cooling needs. Data source: Eurostat (nrg_chdd_m).
+                        </p>
+                    </div>
+                </div>
+
+                <div class="story-text">
                     <h3 class="subsection-title">Public Health</h3>
                     <p class="story-paragraph">
                         Heat-related illnesses become more common, especially among vulnerable populations. 
@@ -314,6 +381,22 @@
                         mortality rates increase. The elderly, children, and those with pre-existing 
                         conditions are most at risk.
                     </p>
+                </div>
+
+                <!-- Heat-Related Deaths Visualization -->
+                <div class="story-viz">
+                    <div class="story-viz-container">
+                        <h3 class="viz-title">Heat-Related Mortality in Italy</h3>
+                        <div id="viz-heat-deaths" class="visualization">
+                            <p class="placeholder-text">Loading heat-related mortality data...</p>
+                        </div>
+                        <p class="viz-caption">
+                            <strong>Figure 3b:</strong> Excess deaths attributed to heat in Italy (2015-2023). 
+                            The dramatic spike in 2022 (18,010 deaths) reflects the extreme heat wave that summer. 
+                            Data source: Nature Medicine (2023).
+                        </p>
+                    </div>
+                </div>
 
                     <h3 class="subsection-title">Air Quality</h3>
                     <p class="story-paragraph">
@@ -603,6 +686,10 @@
     <script src="js/viz-genoa-uhi-scrolly.js"></script>
     <script src="js/viz-genoa-ndvi.js"></script>
     <script src="js/viz-sankey-landcover.js"></script>
+    <script src="js/viz-energy-temperature.js"></script>
+    <script src="js/viz-heat-deaths.js"></script>
+    <script src="js/viz-hdd-cdd.js"></script>
+    <script src="js/viz-italy-electricity.js"></script>
     <!-- Main initialization (must be last) -->
     <script src="js/visualizations.js"></script>
     <script src="js/main.js"></script>

@@ -1,0 +1,362 @@
+[
+  {
+    "year": 2021,
+    "month": 1,
+    "total_consumption_mwh": 27060942.99,
+    "total_consumption_twh": 27.0609
+  },
+  {
+    "year": 2021,
+    "month": 2,
+    "total_consumption_mwh": 24960288.25,
+    "total_consumption_twh": 24.9603
+  },
+  {
+    "year": 2021,
+    "month": 3,
+    "total_consumption_mwh": 26625317.48,
+    "total_consumption_twh": 26.6253
+  },
+  {
+    "year": 2021,
+    "month": 4,
+    "total_consumption_mwh": 24472678.49,
+    "total_consumption_twh": 24.4727
+  },
+  {
+    "year": 2021,
+    "month": 5,
+    "total_consumption_mwh": 24967308.74,
+    "total_consumption_twh": 24.9673
+  },
+  {
+    "year": 2021,
+    "month": 6,
+    "total_consumption_mwh": 27405204.99,
+    "total_consumption_twh": 27.4052
+  },
+  {
+    "year": 2021,
+    "month": 7,
+    "total_consumption_mwh": 30423444.74,
+    "total_consumption_twh": 30.4234
+  },
+  {
+    "year": 2021,
+    "month": 8,
+    "total_consumption_mwh": 26652877.28,
+    "total_consumption_twh": 26.6529
+  },
+  {
+    "year": 2021,
+    "month": 9,
+    "total_consumption_mwh": 26977234.25,
+    "total_consumption_twh": 26.9772
+  },
+  {
+    "year": 2021,
+    "month": 10,
+    "total_consumption_mwh": 26357658.73,
+    "total_consumption_twh": 26.3577
+  },
+  {
+    "year": 2021,
+    "month": 11,
+    "total_consumption_mwh": 26639736.51,
+    "total_consumption_twh": 26.6397
+  },
+  {
+    "year": 2021,
+    "month": 12,
+    "total_consumption_mwh": 27466537.99,
+    "total_consumption_twh": 27.4665
+  },
+  {
+    "year": 2022,
+    "month": 1,
+    "total_consumption_mwh": 27394341.75,
+    "total_consumption_twh": 27.3943
+  },
+  {
+    "year": 2022,
+    "month": 2,
+    "total_consumption_mwh": 25455099.75,
+    "total_consumption_twh": 25.4551
+  },
+  {
+    "year": 2022,
+    "month": 3,
+    "total_consumption_mwh": 27476136.25,
+    "total_consumption_twh": 27.4761
+  },
+  {
+    "year": 2022,
+    "month": 4,
+    "total_consumption_mwh": 24516701.51,
+    "total_consumption_twh": 24.5167
+  },
+  {
+    "year": 2022,
+    "month": 5,
+    "total_consumption_mwh": 26172716.74,
+    "total_consumption_twh": 26.1727
+  },
+  {
+    "year": 2022,
+    "month": 6,
+    "total_consumption_mwh": 28029670.25,
+    "total_consumption_twh": 28.0297
+  },
+  {
+    "year": 2022,
+    "month": 7,
+    "total_consumption_mwh": 31021503.27,
+    "total_consumption_twh": 31.0215
+  },
+  {
+    "year": 2022,
+    "month": 8,
+    "total_consumption_mwh": 25568951.51,
+    "total_consumption_twh": 25.569
+  },
+  {
+    "year": 2022,
+    "month": 9,
+    "total_consumption_mwh": 25733630.74,
+    "total_consumption_twh": 25.7336
+  },
+  {
+    "year": 2022,
+    "month": 10,
+    "total_consumption_mwh": 24420187.51,
+    "total_consumption_twh": 24.4202
+  },
+  {
+    "year": 2022,
+    "month": 11,
+    "total_consumption_mwh": 24597145.75,
+    "total_consumption_twh": 24.5971
+  },
+  {
+    "year": 2022,
+    "month": 12,
+    "total_consumption_mwh": 24674718.25,
+    "total_consumption_twh": 24.6747
+  },
+  {
+    "year": 2023,
+    "month": 1,
+    "total_consumption_mwh": 26171732.74,
+    "total_consumption_twh": 26.1717
+  },
+  {
+    "year": 2023,
+    "month": 2,
+    "total_consumption_mwh": 24902221.0,
+    "total_consumption_twh": 24.9022
+  },
+  {
+    "year": 2023,
+    "month": 3,
+    "total_consumption_mwh": 26057219.48,
+    "total_consumption_twh": 26.0572
+  },
+  {
+    "year": 2023,
+    "month": 4,
+    "total_consumption_mwh": 23231062.75,
+    "total_consumption_twh": 23.2311
+  },
+  {
+    "year": 2023,
+    "month": 5,
+    "total_consumption_mwh": 24228004.52,
+    "total_consumption_twh": 24.228
+  },
+  {
+    "year": 2023,
+    "month": 6,
+    "total_consumption_mwh": 25308916.5,
+    "total_consumption_twh": 25.3089
+  },
+  {
+    "year": 2023,
+    "month": 7,
+    "total_consumption_mwh": 29950672.25,
+    "total_consumption_twh": 29.9507
+  },
+  {
+    "year": 2023,
+    "month": 8,
+    "total_consumption_mwh": 25407199.01,
+    "total_consumption_twh": 25.4072
+  },
+  {
+    "year": 2023,
+    "month": 9,
+    "total_consumption_mwh": 25772632.74,
+    "total_consumption_twh": 25.7726
+  },
+  {
+    "year": 2023,
+    "month": 10,
+    "total_consumption_mwh": 25353249.74,
+    "total_consumption_twh": 25.3532
+  },
+  {
+    "year": 2023,
+    "month": 11,
+    "total_consumption_mwh": 24825513.22,
+    "total_consumption_twh": 24.8255
+  },
+  {
+    "year": 2023,
+    "month": 12,
+    "total_consumption_mwh": 24790229.0,
+    "total_consumption_twh": 24.7902
+  },
+  {
+    "year": 2024,
+    "month": 1,
+    "total_consumption_mwh": 26684799.75,
+    "total_consumption_twh": 26.6848
+  },
+  {
+    "year": 2024,
+    "month": 2,
+    "total_consumption_mwh": 25263637.74,
+    "total_consumption_twh": 25.2636
+  },
+  {
+    "year": 2024,
+    "month": 3,
+    "total_consumption_mwh": 25656403.5,
+    "total_consumption_twh": 25.6564
+  },
+  {
+    "year": 2024,
+    "month": 4,
+    "total_consumption_mwh": 23392628.51,
+    "total_consumption_twh": 23.3926
+  },
+  {
+    "year": 2024,
+    "month": 5,
+    "total_consumption_mwh": 24716285.25,
+    "total_consumption_twh": 24.7163
+  },
+  {
+    "year": 2024,
+    "month": 6,
+    "total_consumption_mwh": 25658845.77,
+    "total_consumption_twh": 25.6588
+  },
+  {
+    "year": 2024,
+    "month": 7,
+    "total_consumption_mwh": 31271643.26,
+    "total_consumption_twh": 31.2716
+  },
+  {
+    "year": 2024,
+    "month": 8,
+    "total_consumption_mwh": 27476746.26,
+    "total_consumption_twh": 27.4767
+  },
+  {
+    "year": 2024,
+    "month": 9,
+    "total_consumption_mwh": 25612853.49,
+    "total_consumption_twh": 25.6129
+  },
+  {
+    "year": 2024,
+    "month": 10,
+    "total_consumption_mwh": 25487807.49,
+    "total_consumption_twh": 25.4878
+  },
+  {
+    "year": 2024,
+    "month": 11,
+    "total_consumption_mwh": 25125778.75,
+    "total_consumption_twh": 25.1258
+  },
+  {
+    "year": 2024,
+    "month": 12,
+    "total_consumption_mwh": 25696428.5,
+    "total_consumption_twh": 25.6964
+  },
+  {
+    "year": 2025,
+    "month": 1,
+    "total_consumption_mwh": 26904851.48,
+    "total_consumption_twh": 26.9049
+  },
+  {
+    "year": 2025,
+    "month": 2,
+    "total_consumption_mwh": 24876279.75,
+    "total_consumption_twh": 24.8763
+  },
+  {
+    "year": 2025,
+    "month": 3,
+    "total_consumption_mwh": 25519882.02,
+    "total_consumption_twh": 25.5199
+  },
+  {
+    "year": 2025,
+    "month": 4,
+    "total_consumption_mwh": 23381249.24,
+    "total_consumption_twh": 23.3812
+  },
+  {
+    "year": 2025,
+    "month": 5,
+    "total_consumption_mwh": 24245154.74,
+    "total_consumption_twh": 24.2452
+  },
+  {
+    "year": 2025,
+    "month": 6,
+    "total_consumption_mwh": 27550071.0,
+    "total_consumption_twh": 27.5501
+  },
+  {
+    "year": 2025,
+    "month": 7,
+    "total_consumption_mwh": 30010020.26,
+    "total_consumption_twh": 30.01
+  },
+  {
+    "year": 2025,
+    "month": 8,
+    "total_consumption_mwh": 24734515.99,
+    "total_consumption_twh": 24.7345
+  },
+  {
+    "year": 2025,
+    "month": 9,
+    "total_consumption_mwh": 25970362.98,
+    "total_consumption_twh": 25.9704
+  },
+  {
+    "year": 2025,
+    "month": 10,
+    "total_consumption_mwh": 25431437.24,
+    "total_consumption_twh": 25.4314
+  },
+  {
+    "year": 2025,
+    "month": 11,
+    "total_consumption_mwh": 25482142.73,
+    "total_consumption_twh": 25.4821
+  },
+  {
+    "year": 2025,
+    "month": 12,
+    "total_consumption_mwh": 26147140.74,
+    "total_consumption_twh": 26.1471
+  }
+]
