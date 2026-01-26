@@ -1,0 +1,352 @@
+[
+  {
+    "Year": 1990,
+    "EmplPop15+": 2223125064,
+    "WHL200Serv": 11102329,
+    "WHL300Manuf": 15028351,
+    "WHL400sunAgr": 251857303,
+    "WHL400sunConstr": 17053849,
+    "TotalSunAgCon": 295041831,
+    "TotalSunWHLpp": 133
+  },
+  {
+    "Year": 1991,
+    "EmplPop15+": 2252515079,
+    "WHL200Serv": 11314034,
+    "WHL300Manuf": 14864521,
+    "WHL400sunAgr": 253226605,
+    "WHL400sunConstr": 17710099,
+    "TotalSunAgCon": 297115260,
+    "TotalSunWHLpp": 132
+  },
+  {
+    "Year": 1992,
+    "EmplPop15+": 2285639780,
+    "WHL200Serv": 10429052,
+    "WHL300Manuf": 13747711,
+    "WHL400sunAgr": 242173157,
+    "WHL400sunConstr": 17000473,
+    "TotalSunAgCon": 283350393,
+    "TotalSunWHLpp": 124
+  },
+  {
+    "Year": 1993,
+    "EmplPop15+": 2311101741,
+    "WHL200Serv": 12013476,
+    "WHL300Manuf": 14758095,
+    "WHL400sunAgr": 251052734,
+    "WHL400sunConstr": 18832093,
+    "TotalSunAgCon": 296656397,
+    "TotalSunWHLpp": 128
+  },
+  {
+    "Year": 1994,
+    "EmplPop15+": 2344424679,
+    "WHL200Serv": 13555557,
+    "WHL300Manuf": 17481307,
+    "WHL400sunAgr": 268526268,
+    "WHL400sunConstr": 20966975,
+    "TotalSunAgCon": 320530108,
+    "TotalSunWHLpp": 137
+  },
+  {
+    "Year": 1995,
+    "EmplPop15+": 2380019243,
+    "WHL200Serv": 15266226,
+    "WHL300Manuf": 18287980,
+    "WHL400sunAgr": 280189499,
+    "WHL400sunConstr": 22593181,
+    "TotalSunAgCon": 336336886,
+    "TotalSunWHLpp": 141
+  },
+  {
+    "Year": 1996,
+    "EmplPop15+": 2418087821,
+    "WHL200Serv": 14173222,
+    "WHL300Manuf": 17076482,
+    "WHL400sunAgr": 268519938,
+    "WHL400sunConstr": 22561642,
+    "TotalSunAgCon": 322331284,
+    "TotalSunWHLpp": 133
+  },
+  {
+    "Year": 1997,
+    "EmplPop15+": 2460700418,
+    "WHL200Serv": 14406413,
+    "WHL300Manuf": 17257136,
+    "WHL400sunAgr": 269295342,
+    "WHL400sunConstr": 23240801,
+    "TotalSunAgCon": 324199692,
+    "TotalSunWHLpp": 132
+  },
+  {
+    "Year": 1998,
+    "EmplPop15+": 2499366319,
+    "WHL200Serv": 21731477,
+    "WHL300Manuf": 24031886,
+    "WHL400sunAgr": 335822401,
+    "WHL400sunConstr": 28542894,
+    "TotalSunAgCon": 410128658,
+    "TotalSunWHLpp": 164
+  },
+  {
+    "Year": 1999,
+    "EmplPop15+": 2544081264,
+    "WHL200Serv": 16019026,
+    "WHL300Manuf": 18606912,
+    "WHL400sunAgr": 284499997,
+    "WHL400sunConstr": 24669424,
+    "TotalSunAgCon": 343795359,
+    "TotalSunWHLpp": 135
+  },
+  {
+    "Year": 2000,
+    "EmplPop15+": 2591818725,
+    "WHL200Serv": 16755415,
+    "WHL300Manuf": 19740211,
+    "WHL400sunAgr": 294413855,
+    "WHL400sunConstr": 25849751,
+    "TotalSunAgCon": 356759232,
+    "TotalSunWHLpp": 138
+  },
+  {
+    "Year": 2001,
+    "EmplPop15+": 2630552570,
+    "WHL200Serv": 17923685,
+    "WHL300Manuf": 20379478,
+    "WHL400sunAgr": 298045948,
+    "WHL400sunConstr": 27548177,
+    "TotalSunAgCon": 363897287,
+    "TotalSunWHLpp": 138
+  },
+  {
+    "Year": 2002,
+    "EmplPop15+": 2666043528,
+    "WHL200Serv": 20155183,
+    "WHL300Manuf": 21960270,
+    "WHL400sunAgr": 314076755,
+    "WHL400sunConstr": 30717465,
+    "TotalSunAgCon": 386909674,
+    "TotalSunWHLpp": 145
+  },
+  {
+    "Year": 2003,
+    "EmplPop15+": 2707892169,
+    "WHL200Serv": 21167179,
+    "WHL300Manuf": 22963215,
+    "WHL400sunAgr": 316286351,
+    "WHL400sunConstr": 31907453,
+    "TotalSunAgCon": 392324198,
+    "TotalSunWHLpp": 145
+  },
+  {
+    "Year": 2004,
+    "EmplPop15+": 2758691381,
+    "WHL200Serv": 20488430,
+    "WHL300Manuf": 22221221,
+    "WHL400sunAgr": 307032672,
+    "WHL400sunConstr": 33193286,
+    "TotalSunAgCon": 382935609,
+    "TotalSunWHLpp": 139
+  },
+  {
+    "Year": 2005,
+    "EmplPop15+": 2808786622,
+    "WHL200Serv": 23509139,
+    "WHL300Manuf": 25185932,
+    "WHL400sunAgr": 321128155,
+    "WHL400sunConstr": 36993640,
+    "TotalSunAgCon": 406816866,
+    "TotalSunWHLpp": 145
+  },
+  {
+    "Year": 2006,
+    "EmplPop15+": 2855731658,
+    "WHL200Serv": 23854169,
+    "WHL300Manuf": 25710766,
+    "WHL400sunAgr": 318597977,
+    "WHL400sunConstr": 40344255,
+    "TotalSunAgCon": 408507167,
+    "TotalSunWHLpp": 143
+  },
+  {
+    "Year": 2007,
+    "EmplPop15+": 2901563494,
+    "WHL200Serv": 24451810,
+    "WHL300Manuf": 26079495,
+    "WHL400sunAgr": 313093092,
+    "WHL400sunConstr": 43714816,
+    "TotalSunAgCon": 407339213,
+    "TotalSunWHLpp": 140
+  },
+  {
+    "Year": 2008,
+    "EmplPop15+": 2934305123,
+    "WHL200Serv": 21739061,
+    "WHL300Manuf": 23379957,
+    "WHL400sunAgr": 291267581,
+    "WHL400sunConstr": 43435627,
+    "TotalSunAgCon": 379822226,
+    "TotalSunWHLpp": 129
+  },
+  {
+    "Year": 2009,
+    "EmplPop15+": 2948767069,
+    "WHL200Serv": 26396013,
+    "WHL300Manuf": 26911981,
+    "WHL400sunAgr": 322139396,
+    "WHL400sunConstr": 50701029,
+    "TotalSunAgCon": 426148418,
+    "TotalSunWHLpp": 145
+  },
+  {
+    "Year": 2010,
+    "EmplPop15+": 2983621230,
+    "WHL200Serv": 32890771,
+    "WHL300Manuf": 32042709,
+    "WHL400sunAgr": 350727218,
+    "WHL400sunConstr": 60648763,
+    "TotalSunAgCon": 476309460,
+    "TotalSunWHLpp": 160
+  },
+  {
+    "Year": 2011,
+    "EmplPop15+": 3024992220,
+    "WHL200Serv": 26117336,
+    "WHL300Manuf": 26631900,
+    "WHL400sunAgr": 295546544,
+    "WHL400sunConstr": 53869282,
+    "TotalSunAgCon": 402165062,
+    "TotalSunWHLpp": 133
+  },
+  {
+    "Year": 2012,
+    "EmplPop15+": 3059461847,
+    "WHL200Serv": 28558675,
+    "WHL300Manuf": 29632259,
+    "WHL400sunAgr": 303874538,
+    "WHL400sunConstr": 58645823,
+    "TotalSunAgCon": 420711295,
+    "TotalSunWHLpp": 138
+  },
+  {
+    "Year": 2013,
+    "EmplPop15+": 3093683755,
+    "WHL200Serv": 31175707,
+    "WHL300Manuf": 32188070,
+    "WHL400sunAgr": 306930110,
+    "WHL400sunConstr": 61131964,
+    "TotalSunAgCon": 431425852,
+    "TotalSunWHLpp": 139
+  },
+  {
+    "Year": 2014,
+    "EmplPop15+": 3130919412,
+    "WHL200Serv": 32073248,
+    "WHL300Manuf": 31973161,
+    "WHL400sunAgr": 306294839,
+    "WHL400sunConstr": 63998832,
+    "TotalSunAgCon": 434340080,
+    "TotalSunWHLpp": 139
+  },
+  {
+    "Year": 2015,
+    "EmplPop15+": 3166341484,
+    "WHL200Serv": 34517061,
+    "WHL300Manuf": 33349110,
+    "WHL400sunAgr": 309884628,
+    "WHL400sunConstr": 68965361,
+    "TotalSunAgCon": 446716160,
+    "TotalSunWHLpp": 141
+  },
+  {
+    "Year": 2016,
+    "EmplPop15+": 3202631917,
+    "WHL200Serv": 42776864,
+    "WHL300Manuf": 40015314,
+    "WHL400sunAgr": 339038865,
+    "WHL400sunConstr": 77821060,
+    "TotalSunAgCon": 499652103,
+    "TotalSunWHLpp": 156
+  },
+  {
+    "Year": 2017,
+    "EmplPop15+": 3237908905,
+    "WHL200Serv": 41486970,
+    "WHL300Manuf": 39008423,
+    "WHL400sunAgr": 324085495,
+    "WHL400sunConstr": 77784180,
+    "TotalSunAgCon": 482365069,
+    "TotalSunWHLpp": 149
+  },
+  {
+    "Year": 2018,
+    "EmplPop15+": 3278150875,
+    "WHL200Serv": 40041228,
+    "WHL300Manuf": 37676071,
+    "WHL400sunAgr": 307855929,
+    "WHL400sunConstr": 77356248,
+    "TotalSunAgCon": 462929476,
+    "TotalSunWHLpp": 141
+  },
+  {
+    "Year": 2019,
+    "EmplPop15+": 3319794715,
+    "WHL200Serv": 45502666,
+    "WHL300Manuf": 40518457,
+    "WHL400sunAgr": 328184008,
+    "WHL400sunConstr": 83691776,
+    "TotalSunAgCon": 497896907,
+    "TotalSunWHLpp": 150
+  },
+  {
+    "Year": 2020,
+    "EmplPop15+": 3254106645,
+    "WHL200Serv": 42810042,
+    "WHL300Manuf": 38498810,
+    "WHL400sunAgr": 327447017,
+    "WHL400sunConstr": 78960953,
+    "TotalSunAgCon": 487716822,
+    "TotalSunWHLpp": 150
+  },
+  {
+    "Year": 2021,
+    "EmplPop15+": 3350066164,
+    "WHL200Serv": 40988113,
+    "WHL300Manuf": 38281302,
+    "WHL400sunAgr": 324153521,
+    "WHL400sunConstr": 82843492,
+    "TotalSunAgCon": 486266429,
+    "TotalSunWHLpp": 145
+  },
+  {
+    "Year": 2022,
+    "EmplPop15+": 3433362412,
+    "WHL200Serv": 45874083,
+    "WHL300Manuf": 42397212,
+    "WHL400sunAgr": 339628048,
+    "WHL400sunConstr": 95071412,
+    "TotalSunAgCon": 522970755,
+    "TotalSunWHLpp": 152
+  },
+  {
+    "Year": 2023,
+    "EmplPop15+": 3503922751,
+    "WHL200Serv": 50432661,
+    "WHL300Manuf": 45150950,
+    "WHL400sunAgr": 360298525,
+    "WHL400sunConstr": 94626137,
+    "TotalSunAgCon": 550508273,
+    "TotalSunWHLpp": 157
+  },
+  {
+    "Year": 2024,
+    "EmplPop15+": 3593534549,
+    "WHL200Serv": 63819892,
+    "WHL300Manuf": 56046376,
+    "WHL400sunAgr": 406471717,
+    "WHL400sunConstr": 113517020,
+    "TotalSunAgCon": 639855006,
+    "TotalSunWHLpp": 178
+  }
+]

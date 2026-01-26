@@ -12,9 +12,14 @@ let italyTemperatureData = null;
 let italyElecResizeTimeout = null;
 
 function initializeItalyElectricityViz() {
+    console.log('[Italy Electricity] Initializing...');
     const container = d3.select('#viz-italy-electricity');
     
-    if (container.empty()) return;
+    if (container.empty()) {
+        console.error('[Italy Electricity] Container not found!');
+        return;
+    }
+    console.log('[Italy Electricity] Container found');
     
     // Clear any existing content
     container.selectAll('*').remove();
@@ -41,20 +46,49 @@ function initializeItalyElectricityViz() {
         .style('font-size', '16px')
         .style('margin', '0');
     
+    // Function to check if container has valid dimensions
+    const hasValidDimensions = () => {
+        const rect = container.node().getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+    };
+    
+    // Wait for valid container dimensions before loading data
+    const waitForValidDimensions = (callback, maxAttempts = 20) => {
+        if (hasValidDimensions()) {
+            callback();
+        } else if (maxAttempts > 0) {
+            requestAnimationFrame(() => waitForValidDimensions(callback, maxAttempts - 1));
+        } else {
+            console.warn('[Italy Electricity] Container dimensions not available after waiting');
+            callback(); // Try anyway
+        }
+    };
+    
+    // Start loading data only after container dimensions are valid
+    waitForValidDimensions(() => {
+        loadDataAndRender(container, loadingMsg);
+    });
+}
+
+function loadDataAndRender(container, loadingMsg) {
+    console.log('[Italy Electricity] Starting data load...');
     // Load both datasets in parallel
     Promise.all([
         fetch('data/electricity_consumption_italy/electricity_italy_monthly_consumption_mwh_2021_2025.json')
             .then(response => {
+                console.log('[Italy Electricity] Electricity response:', response.status, response.ok);
                 if (!response.ok) throw new Error(`HTTP ${response.status}: Failed to load electricity data`);
                 return response.json();
             }),
         fetch('data/average_monthly_temperature_ERA5/italy_monthly_avg_temperature_c_2021_2025.json')
             .then(response => {
+                console.log('[Italy Electricity] Temperature response:', response.status, response.ok);
                 if (!response.ok) throw new Error(`HTTP ${response.status}: Failed to load temperature data`);
                 return response.json();
             })
     ])
         .then(([electricityData, temperatureData]) => {
+            console.log('[Italy Electricity] Data loaded - Electricity:', electricityData.length, 'Temperature:', temperatureData.length);
             if (!electricityData || electricityData.length === 0) {
                 throw new Error('No electricity data available');
             }
@@ -66,6 +100,7 @@ function initializeItalyElectricityViz() {
             italyElectricityData = electricityData;
             italyTemperatureData = temperatureData;
             
+            console.log('[Italy Electricity] Creating chart...');
             createSmallMultiplesChart(electricityData, temperatureData, container, loadingMsg);
             
             // Add resize listener
@@ -92,14 +127,36 @@ function handleItalyElecResize() {
         if (italyElectricityData && italyTemperatureData) {
             const container = d3.select('#viz-italy-electricity');
             if (!container.empty()) {
-                container.selectAll('*').remove();
-                createSmallMultiplesChart(italyElectricityData, italyTemperatureData, container, null);
+                const rect = container.node().getBoundingClientRect();
+                // Only redraw if container has valid dimensions
+                if (rect.width > 0 && rect.height > 0) {
+                    container.selectAll('*').remove();
+                    createSmallMultiplesChart(italyElectricityData, italyTemperatureData, container, null);
+                }
             }
         }
     }, 250);
 }
 
 function createSmallMultiplesChart(electricityData, temperatureData, container, loadingMsg) {
+    console.log('[Italy Electricity] createSmallMultiplesChart called');
+    // Guard against zero-dimension containers
+    const containerNode = container.node();
+    const containerRect = containerNode.getBoundingClientRect();
+    
+    console.log('[Italy Electricity] Container dimensions:', containerRect.width, 'x', containerRect.height);
+    
+    if (containerRect.width === 0 || containerRect.height === 0) {
+        console.warn('[Italy Electricity] Container has zero dimensions, deferring render');
+        // Retry after layout settles
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                createSmallMultiplesChart(electricityData, temperatureData, container, loadingMsg);
+            });
+        });
+        return;
+    }
+    
     // Create maps for easy lookup
     const tempMap = new Map();
     temperatureData.forEach(d => {
@@ -127,8 +184,8 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
     
     // Set up dimensions - increased margins to prevent overlap
     const margin = { top: 20, right: 100, bottom: 80, left: 100 };
-    const containerWidth = container.node().getBoundingClientRect().width;
-    const width = Math.max(1000, containerWidth) - margin.left - margin.right;
+    const containerWidth = containerRect.width; // Use already-fetched dimensions
+    const width = Math.max(300, containerWidth - margin.left - margin.right);
     const panelGap = 20;
     const panelHeight = 250;
     const totalHeight = (panelHeight * 2) + panelGap + margin.top + margin.bottom;
@@ -138,16 +195,6 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
         .attr('width', width + margin.left + margin.right)
         .attr('height', totalHeight)
         .style('overflow', 'visible');
-    
-    // Add descriptive subtitle with data context
-    svg.append('text')
-        .attr('x', (width + margin.left + margin.right) / 2)
-        .attr('y', 15)
-        .attr('text-anchor', 'middle')
-        .style('font-size', '13px')
-        .style('fill', '#6b7280')
-        .style('font-weight', '400')
-        .text('Monthly electricity consumption (TWh) and average temperature (°C) in Italy, 2021–2025 | Data: Terna & ERA5-Copernicus');
     
     const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
@@ -213,7 +260,13 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
             .transition()
             .duration(2000)
             .ease(d3.easeLinear)
-            .attr('stroke-dashoffset', 0);
+            .attr('stroke-dashoffset', 0)
+            .on('end', function() {
+                // Remove stroke-dasharray and stroke-dashoffset after animation completes
+                // This ensures the line stays visible permanently
+                elecPath.attr('stroke-dasharray', null)
+                        .attr('stroke-dashoffset', null);
+            });
     }
     
     // Store animation function on the viz container element
@@ -280,6 +333,11 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
     if (peakPoint) {
         const peakX = xScale(peakPoint.date);
         const peakY = yElecScale(peakPoint.consumption);
+
+        // Keep callout inside chart bounds
+        const calloutDx = (peakX > width - 220) ? -70 : 70;
+        const textDx = calloutDx + (calloutDx > 0 ? 6 : -6);
+        const textAnchor = calloutDx > 0 ? 'start' : 'end';
         
         const annotation = panelAG.append('g')
             .attr('class', 'annotation peak-annotation')
@@ -294,33 +352,34 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
             .attr('stroke', '#e85d04')
             .attr('stroke-width', 2);
         
-        // Annotation line
+        // Annotation line (pointing upward, away from the curve)
         annotation.append('line')
             .attr('x1', peakX)
-            .attr('x2', peakX + 60)
+            .attr('x2', peakX + calloutDx)
             .attr('y1', peakY)
-            .attr('y2', peakY - 40)
+            .attr('y2', peakY - 70)
             .attr('stroke', '#e85d04')
             .attr('stroke-width', 1.5);
-        
-        // Annotation text
+
+        // Annotation text (positioned above to avoid overlap)
         annotation.append('text')
-            .attr('x', peakX + 65)
-            .attr('y', peakY - 42)
-            .attr('text-anchor', 'start')
+            .attr('x', peakX + textDx)
+            .attr('y', peakY - 75)
+            .attr('text-anchor', textAnchor)
             .style('fill', '#e85d04')
             .style('font-size', '12px')
             .style('font-weight', '700')
-            .text('Peak electricity demand');
-        
+            .text('Peak temperature');
+
         annotation.append('text')
-            .attr('x', peakX + 65)
-            .attr('y', peakY - 28)
-            .attr('text-anchor', 'start')
+            .attr('x', peakX + textDx)
+            .attr('y', peakY - 60)
+            .attr('text-anchor', textAnchor)
             .style('fill', '#718096')
             .style('font-size', '10px')
             .style('font-weight', '500')
-            .text('Driven by summer AC use');
+            .text('Summer heat waves');
+
         
         annotation.transition()
             .delay(2000)
@@ -384,7 +443,13 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
             .transition()
             .duration(2000)
             .ease(d3.easeLinear)
-            .attr('stroke-dashoffset', 0);
+            .attr('stroke-dashoffset', 0)
+            .on('end', function() {
+                // Remove stroke-dasharray and stroke-dashoffset after animation completes
+                // This ensures the line stays visible permanently
+                tempPath.attr('stroke-dasharray', null)
+                        .attr('stroke-dashoffset', null);
+            });
     }
     
     // Store animation function on the viz container element
@@ -450,6 +515,11 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
     if (peakTempPoint) {
         const peakX = xScale(peakTempPoint.date);
         const peakY = yTempScale(peakTempPoint.temperature);
+
+        // Keep callout inside chart bounds
+        const calloutDx = (peakX > width - 220) ? -70 : 70;
+        const textDx = calloutDx + (calloutDx > 0 ? 6 : -6);
+        const textAnchor = calloutDx > 0 ? 'start' : 'end';
         
         const annotation = panelBG.append('g')
             .attr('class', 'annotation peak-annotation')
@@ -464,33 +534,34 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
             .attr('stroke', '#e85d04')
             .attr('stroke-width', 2);
         
-        // Annotation line
+        // Annotation line (pointing upward, away from the curve)
         annotation.append('line')
             .attr('x1', peakX)
-            .attr('x2', peakX + 60)
+            .attr('x2', peakX + calloutDx)
             .attr('y1', peakY)
-            .attr('y2', peakY + 40)
+            .attr('y2', peakY - 70)
             .attr('stroke', '#e85d04')
             .attr('stroke-width', 1.5);
-        
-        // Annotation text
+
+        // Annotation text (positioned above to avoid overlap)
         annotation.append('text')
-            .attr('x', peakX + 65)
-            .attr('y', peakY + 44)
-            .attr('text-anchor', 'start')
+            .attr('x', peakX + textDx)
+            .attr('y', peakY - 75)
+            .attr('text-anchor', textAnchor)
             .style('fill', '#e85d04')
             .style('font-size', '12px')
             .style('font-weight', '700')
             .text('Peak temperature');
-        
+
         annotation.append('text')
-            .attr('x', peakX + 65)
-            .attr('y', peakY + 58)
-            .attr('text-anchor', 'start')
+            .attr('x', peakX + textDx)
+            .attr('y', peakY - 60)
+            .attr('text-anchor', textAnchor)
             .style('fill', '#718096')
             .style('font-size', '10px')
             .style('font-weight', '500')
             .text('Summer heat waves');
+
         
         annotation.transition()
             .delay(2000)
@@ -550,15 +621,33 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
             .attr('class', 'annotation august-annotation')
             .style('opacity', 0);
         
-        // Simple text label with arrow pointing down
+        // Line pointing upward and to the left to avoid data line
+        augustAnnotation.append('line')
+            .attr('x1', augustX)
+            .attr('y1', augustY)
+            .attr('x2', augustX - 50)
+            .attr('y2', augustY - 30)
+            .attr('stroke', '#4b5563')
+            .attr('stroke-width', 1.5);
+        
+        // Text label to the left and above the point
         augustAnnotation.append('text')
-            .attr('x', augustX)
-            .attr('y', augustY - 25)
-            .attr('text-anchor', 'middle')
+            .attr('x', augustX - 55)
+            .attr('y', augustY - 32)
+            .attr('text-anchor', 'end')
             .style('fill', '#4b5563')
             .style('font-size', '11px')
             .style('font-weight', '700')
-            .text('↓ Summer shutdowns');
+            .text('Summer shutdowns');
+        
+        augustAnnotation.append('text')
+            .attr('x', augustX - 55)
+            .attr('y', augustY - 19)
+            .attr('text-anchor', 'end')
+            .style('fill', '#718096')
+            .style('font-size', '9px')
+            .style('font-weight', '500')
+            .text('Industrial closures in August');
         
         // Small circle marker on the point
         augustAnnotation.append('circle')

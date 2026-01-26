@@ -629,7 +629,7 @@ function initializeGenoaUhiScrolly() {
                 .style('border-radius', '8px')
                 .style('border', '2px solid ' + (index === 0 ? 'var(--primary-color)' : 'var(--border-light)'))
                 .style('transition', 'all 0.3s ease')
-                .style('background', index === 0 ? 'var(--primary-color)' : 'white')
+                .style('background', index === 0 ? 'var(--primary-color)' : 'var(--bg-card)')
                 .style('box-shadow', index === 0 ? '0 4px 12px rgba(232, 93, 4, 0.3)' : '0 2px 4px rgba(0,0,0,0.05)')
                 .style('min-width', '140px')
                 .style('text-align', 'center')
@@ -649,7 +649,7 @@ function initializeGenoaUhiScrolly() {
                     const isChecked = d3.select(this).select('input').property('checked');
                     if (!isChecked) {
                         d3.select(this)
-                            .style('background', 'white')
+                            .style('background', 'var(--bg-card)')
                             .style('border-color', 'var(--border-light)')
                             .style('color', 'var(--text-secondary)')
                             .style('transform', 'translateY(0)')
@@ -666,7 +666,7 @@ function initializeGenoaUhiScrolly() {
                 .on('change', function() {
                     // Update all label styles
                     layerControlsContainer.selectAll('label')
-                        .style('background', 'white')
+                        .style('background', 'var(--bg-card)')
                         .style('border-color', 'var(--border-light)')
                         .style('color', 'var(--text-secondary)')
                         .style('box-shadow', '0 2px 4px rgba(0,0,0,0.05)');

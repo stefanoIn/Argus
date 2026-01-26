@@ -18,7 +18,7 @@ function initializeHDDCDDViz() {
     
     // Set container positioning
     container.style('position', 'relative')
-        .style('min-height', '800px')
+        .style('min-height', '620px')
         .style('width', '100%')
         .style('display', 'block');
     
@@ -27,7 +27,7 @@ function initializeHDDCDDViz() {
         .style('text-align', 'center')
         .style('padding', '60px 20px')
         .style('color', '#4a5568')
-        .style('min-height', '800px')
+        .style('min-height', '620px')
         .style('display', 'flex')
         .style('flex-direction', 'column')
         .style('align-items', 'center')
@@ -105,11 +105,113 @@ function createHDDCDDChart(hddData, cddData, hddMonthlyData, cddMonthlyData, con
         cdd: cddMap.get(year) || 0
     }));
     
+    // --------------------------------------------
+    // Header: make the message immediately clear
+    // --------------------------------------------
+    const firstYears = mergedData.slice(0, Math.min(5, mergedData.length));
+    const lastYears = mergedData.slice(Math.max(0, mergedData.length - 5));
+    
+    const mean = (arr, key) => {
+        const vals = arr.map(d => d[key]).filter(v => Number.isFinite(v));
+        return vals.length ? d3.mean(vals) : 0;
+    };
+    
+    const pctChange = (from, to) => {
+        if (!Number.isFinite(from) || from === 0) return null;
+        return ((to - from) / from) * 100;
+    };
+    
+    const hddEarly = mean(firstYears, 'hdd');
+    const hddLate = mean(lastYears, 'hdd');
+    const cddEarly = mean(firstYears, 'cdd');
+    const cddLate = mean(lastYears, 'cdd');
+    
+    const hddPct = pctChange(hddEarly, hddLate);
+    const cddPct = pctChange(cddEarly, cddLate);
+    
+    const header = container.append('div')
+        .style('display', 'flex')
+        .style('flex-wrap', 'wrap')
+        .style('justify-content', 'space-between')
+        .style('align-items', 'flex-end')
+        .style('gap', '12px')
+        .style('margin', '0 0 10px 0');
+    
+    const headerText = header.append('div')
+        .style('flex', '1 1 280px')
+        .style('min-width', '200px');
+    
+    headerText.append('div')
+        .style('font-size', '16px')
+        .style('font-weight', '700')
+        .style('color', 'var(--text-primary)')
+        .text('Italy is shifting from heating to cooling');
+    
+    headerText.append('div')
+        .style('font-size', '13px')
+        .style('color', 'var(--text-secondary)')
+        .style('line-height', '1.4')
+        .text('HDD (heating need) is declining with milder winters, while CDD (cooling need) is rising with hotter summers.');
+    
+    const callouts = header.append('div')
+        .style('display', 'flex')
+        .style('gap', '10px')
+        .style('flex', '0 0 auto')
+        .style('flex-wrap', 'wrap');
+    
+    const fmt = d3.format(',.0f');
+    const fmtPct = (p) => (p === null ? '—' : `${p > 0 ? '+' : ''}${p.toFixed(0)}%`);
+    
+    const addCallout = (label, valueText, borderColor) => {
+        const c = callouts.append('div')
+            .style('background', 'var(--bg-card)')
+            .style('border', `1px solid ${borderColor}`)
+            .style('border-radius', '8px')
+            .style('padding', '10px 12px')
+            .style('min-width', '180px')
+            .style('flex', '1 1 180px');
+        
+        c.append('div')
+            .style('font-size', '11px')
+            .style('color', 'var(--text-secondary)')
+            .style('font-weight', '600')
+            .text(label);
+        
+        c.append('div')
+            .style('font-size', '14px')
+            .style('color', 'var(--text-primary)')
+            .style('font-weight', '700')
+            .text(valueText);
+    };
+    
+    addCallout(
+        'Heating demand (HDD)',
+        `${fmt(hddLate)} vs ${fmt(hddEarly)} (${fmtPct(hddPct)})`,
+        'rgba(232, 93, 4, 0.35)'
+    );
+    
+    addCallout(
+        'Cooling demand (CDD)',
+        `${fmt(cddLate)} vs ${fmt(cddEarly)} (${fmtPct(cddPct)})`,
+        'rgba(49, 130, 206, 0.35)'
+    );
+    
+    const periodLabel = `${firstYears[0]?.year ?? ''}–${firstYears[firstYears.length - 1]?.year ?? ''} vs ${lastYears[0]?.year ?? ''}–${lastYears[lastYears.length - 1]?.year ?? ''}`;
+    
+    header.append('div')
+        .style('width', '100%')
+        .style('font-size', '11px')
+        .style('color', 'var(--text-tertiary)')
+        .style('margin-top', '-4px')
+        .text(`5-year averages: ${periodLabel}`);
+    
+    // ----------------------------
     // Set up dimensions
-    const margin = { top: 20, right: 80, bottom: 60, left: 80 };
+    // ----------------------------
+    const margin = { top: 10, right: 40, bottom: 50, left: 70 };
     const containerWidth = container.node().getBoundingClientRect().width;
-    const width = Math.max(800, containerWidth) - margin.left - margin.right;
-    const height = 450 - margin.top - margin.bottom;
+    const width = Math.max(300, containerWidth - margin.left - margin.right);
+    const height = 340 - margin.top - margin.bottom;
     
     // Create SVG
     const svg = container.append('svg')
@@ -125,46 +227,78 @@ function createHDDCDDChart(hddData, cddData, hddMonthlyData, cddMonthlyData, con
         .domain(d3.extent(mergedData, d => d.year))
         .range([0, width]);
     
-    const maxHDD = d3.max(mergedData, d => d.hdd);
-    const maxCDD = d3.max(mergedData, d => d.cdd);
-    const maxValue = Math.max(maxHDD, maxCDD);
+    const maxHDD = d3.max(mergedData, d => d.hdd) || 0;
+    const maxCDD = d3.max(mergedData, d => d.cdd) || 0;
+    const maxAbs = Math.max(maxHDD, maxCDD) * 1.15;
     
+    // Diverging scale around 0:
+    // HDD plotted above 0 (positive), CDD plotted below 0 (negative)
     const yScale = d3.scaleLinear()
-        .domain([0, maxValue * 1.1])
-        .nice()
-        .range([height, 0]);
+        .domain([maxAbs, -maxAbs])
+        .range([0, height]);
     
-    // Colors
-    const hddColor = '#3182ce'; // Blue for heating
-    const cddColor = '#e53e3e'; // Red for cooling
+    // Colors (semantic: warm = heating, cool = cooling)
+    const hddColor = '#e85d04'; // warm/orange for heating demand
+    const cddColor = '#3182ce'; // blue for cooling demand
     
-    // Area generators
+    const yZero = yScale(0);
+    
+    // Area generators (diverging around 0)
     const hddArea = d3.area()
         .x(d => xScale(d.year))
-        .y0(height)
+        .y0(yZero)
         .y1(d => yScale(d.hdd))
         .curve(d3.curveMonotoneX);
     
     const cddArea = d3.area()
         .x(d => xScale(d.year))
-        .y0(height)
-        .y1(d => yScale(d.cdd))
+        .y0(yZero)
+        .y1(d => yScale(-d.cdd))
         .curve(d3.curveMonotoneX);
     
-    // Add HDD area
+    // 0 baseline
+    g.append('line')
+        .attr('x1', 0)
+        .attr('x2', width)
+        .attr('y1', yZero)
+        .attr('y2', yZero)
+        .attr('stroke', 'var(--border-medium)')
+        .attr('stroke-width', 1.5)
+        .attr('opacity', 0.9);
+
+    // Region labels
+    g.append('text')
+        .attr('x', 0)
+        .attr('y', 14)
+        .attr('text-anchor', 'start')
+        .style('fill', hddColor)
+        .style('font-size', '11px')
+        .style('font-weight', '700')
+        .text('Heating need (HDD)');
+
+    g.append('text')
+        .attr('x', 0)
+        .attr('y', height - 8)
+        .attr('text-anchor', 'start')
+        .style('fill', cddColor)
+        .style('font-size', '11px')
+        .style('font-weight', '700')
+        .text('Cooling need (CDD)');
+    
+    // Add HDD area (above 0)
     g.append('path')
         .datum(mergedData)
         .attr('fill', hddColor)
-        .attr('fill-opacity', 0.6)
+        .attr('fill-opacity', 0.28)
         .attr('stroke', hddColor)
         .attr('stroke-width', 2)
         .attr('d', hddArea);
     
-    // Add CDD area
+    // Add CDD area (below 0)
     g.append('path')
         .datum(mergedData)
         .attr('fill', cddColor)
-        .attr('fill-opacity', 0.6)
+        .attr('fill-opacity', 0.22)
         .attr('stroke', cddColor)
         .attr('stroke-width', 2)
         .attr('d', cddArea);
@@ -185,7 +319,7 @@ function createHDDCDDChart(hddData, cddData, hddMonthlyData, cddMonthlyData, con
     // Add CDD line on top
     const cddLine = d3.line()
         .x(d => xScale(d.year))
-        .y(d => yScale(d.cdd))
+        .y(d => yScale(-d.cdd))
         .curve(d3.curveMonotoneX);
     
     g.append('path')
@@ -203,9 +337,9 @@ function createHDDCDDChart(hddData, cddData, hddMonthlyData, cddMonthlyData, con
         .attr('class', 'hdd-dot')
         .attr('cx', d => xScale(d.year))
         .attr('cy', d => yScale(d.hdd))
-        .attr('r', 3)
+        .attr('r', 2.3)
         .attr('fill', hddColor)
-        .attr('opacity', 0.8)
+        .attr('opacity', 0.7)
         .on('mouseenter', function(event, d) {
             showTooltip(event, d, 'hdd');
         })
@@ -218,10 +352,10 @@ function createHDDCDDChart(hddData, cddData, hddMonthlyData, cddMonthlyData, con
         .append('circle')
         .attr('class', 'cdd-dot')
         .attr('cx', d => xScale(d.year))
-        .attr('cy', d => yScale(d.cdd))
-        .attr('r', 3)
+        .attr('cy', d => yScale(-d.cdd))
+        .attr('r', 2.3)
         .attr('fill', cddColor)
-        .attr('opacity', 0.8)
+        .attr('opacity', 0.7)
         .on('mouseenter', function(event, d) {
             showTooltip(event, d, 'cdd');
         })
@@ -249,10 +383,13 @@ function createHDDCDDChart(hddData, cddData, hddMonthlyData, cddMonthlyData, con
         .style('font-weight', '500')
         .text('Year');
     
-    // Y axis
+    // Y axis (absolute labels: HDD above, CDD below)
     const yAxis = d3.axisLeft(yScale)
-        .ticks(8)
-        .tickFormat(d => d.toLocaleString());
+        .ticks(7)
+        .tickFormat(d => {
+            if (d === 0) return '0';
+            return d3.format(',.0f')(Math.abs(d));
+        });
     
     g.append('g')
         .call(yAxis)
@@ -269,26 +406,28 @@ function createHDDCDDChart(hddData, cddData, hddMonthlyData, cddMonthlyData, con
         .style('fill', 'var(--text-primary)')
         .style('font-size', '13px')
         .style('font-weight', '600')
-        .text('Degree Days');
+        .text('Degree days (HDD above 0, CDD below 0)');
     
     // Grid lines
     g.append('g')
         .attr('class', 'grid')
         .call(d3.axisLeft(yScale)
-            .ticks(8)
+            .ticks(7)
             .tickSize(-width)
             .tickFormat(''))
         .style('stroke', 'var(--border-light)')
         .style('stroke-dasharray', '2,2')
         .style('opacity', 0.3);
     
-    // Legend
+    // Legend - responsive positioning (right-aligned, but ensure it fits)
+    const legendWidth = 170;
+    const legendX = width < 400 ? width - legendWidth - 10 : width - legendWidth;
     const legend = g.append('g')
-        .attr('transform', `translate(${width - 180}, 20)`);
+        .attr('transform', `translate(${legendX}, 14)`);
     
     const legendItems = [
-        { label: 'HDD (Heating Degree Days)', color: hddColor },
-        { label: 'CDD (Cooling Degree Days)', color: cddColor }
+        { label: 'HDD (heating)', color: hddColor },
+        { label: 'CDD (cooling)', color: cddColor }
     ];
     
     legendItems.forEach((item, i) => {
@@ -301,7 +440,7 @@ function createHDDCDDChart(hddData, cddData, hddMonthlyData, cddMonthlyData, con
             .attr('width', 20)
             .attr('height', 12)
             .attr('fill', item.color)
-            .attr('fill-opacity', 0.6)
+            .attr('fill-opacity', 0.35)
             .attr('stroke', item.color)
             .attr('stroke-width', 1.5);
         
@@ -337,14 +476,14 @@ function createHDDCDDChart(hddData, cddData, hddMonthlyData, cddMonthlyData, con
         
         tooltip
             .html(`
-                <div style="font-weight: 600; margin-bottom: 6px; font-size: 12px;">${d.year}</div>
+                <div style="font-weight: 700; margin-bottom: 6px; font-size: 12px;">${d.year}</div>
                 <div style="margin-bottom: 4px;">
                     <span style="color: ${hddColor}; font-weight: 600;">HDD:</span> 
-                    <span>${d.hdd.toFixed(2)}</span>
+                    <span>${d.hdd.toFixed(0)}</span>
                 </div>
                 <div>
                     <span style="color: ${cddColor}; font-weight: 600;">CDD:</span> 
-                    <span>${d.cdd.toFixed(2)}</span>
+                    <span>${d.cdd.toFixed(0)}</span>
                 </div>
             `)
             .style('left', (x + 15) + 'px')
@@ -389,20 +528,28 @@ function handleHDDCDDResize() {
 }
 
 function createMonthlyHeatmaps(hddMonthlyData, cddMonthlyData, container, mainWidth, mainMargin) {
-    // Add question text above heatmaps
-    const questionText = container.append('div')
+    // Seasonality strips (average month)
+    container.append('div')
         .style('text-align', 'center')
-        .style('margin-top', '40px')
-        .style('margin-bottom', '20px')
-        .style('font-size', '16px')
-        .style('font-weight', '600')
+        .style('margin-top', '26px')
+        .style('margin-bottom', '14px')
+        .style('font-size', '14px')
+        .style('font-weight', '700')
         .style('color', 'var(--text-primary)')
-        .text('When do we use heating and cooling?');
+        .text('Seasonality (average month)');
+    
+    container.append('div')
+        .style('text-align', 'center')
+        .style('margin-top', '-6px')
+        .style('margin-bottom', '18px')
+        .style('font-size', '12px')
+        .style('color', 'var(--text-secondary)')
+        .text('Heating concentrates in winter months; cooling concentrates in summer months.');
     
     // Create container for heatmaps
     const heatmapsContainer = container.append('div')
         .style('display', 'flex')
-        .style('gap', '30px')
+        .style('gap', '18px')
         .style('justify-content', 'center')
         .style('flex-wrap', 'wrap');
     
@@ -417,18 +564,53 @@ function createMonthlyHeatmaps(hddMonthlyData, cddMonthlyData, container, mainWi
     const maxHDD = d3.max(sortedHDD, d => d.consumption);
     const maxCDD = d3.max(sortedCDD, d => d.consumption);
     
-    // Create color scales
-    const hddColorScale = d3.scaleSequential(d3.interpolateBlues)
+    // Create color scales (semantic: heating = warm, cooling = cool)
+    const hddColorScale = d3.scaleSequential(d3.interpolateOranges)
         .domain([0, maxHDD]);
     
-    const cddColorScale = d3.scaleSequential(d3.interpolateReds)
+    const cddColorScale = d3.scaleSequential(d3.interpolateBlues)
         .domain([0, maxCDD]);
+
+    // Contrast-aware label color (works in dark + light themes)
+    function labelColorFor(bg) {
+        const c = d3.color(bg);
+        if (!c) return 'var(--text-primary)';
+        // Relative luminance (approx) using sRGB
+        const toLin = (v) => {
+            const s = v / 255;
+            return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+        };
+        const r = toLin(c.r);
+        const g = toLin(c.g);
+        const b = toLin(c.b);
+        const L = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        // If background is light, use dark text; else use white text
+        return L > 0.55 ? '#0f1419' : '#ffffff';
+    }
+
+    // Subtle halo to keep labels readable on mid-tones
+    function labelHaloFor(bg) {
+        const c = d3.color(bg);
+        if (!c) return 'rgba(0,0,0,0.35)';
+        const toLin = (v) => {
+            const s = v / 255;
+            return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+        };
+        const r = toLin(c.r);
+        const g = toLin(c.g);
+        const b = toLin(c.b);
+        const L = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        // Light tile → dark text → light halo; Dark tile → white text → dark halo
+        return L > 0.55 ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.45)';
+    }
     
-    // Heatmap dimensions
-    const heatmapWidth = Math.min(400, (mainWidth + mainMargin.left + mainMargin.right) / 2 - 40);
-    const heatmapHeight = 300;
+    // Strip dimensions - responsive to container width
+    const containerWidth = container.node().getBoundingClientRect().width;
+    const availableWidth = containerWidth - 40; // Account for padding
+    const heatmapWidth = Math.min(520, Math.max(300, availableWidth));
+    const heatmapHeight = 120;
     const cellWidth = heatmapWidth / 12;
-    const cellHeight = 50;
+    const cellHeight = 44;
     
     // Tooltip for heatmaps (create once)
     const heatmapTooltip = container.append('div')
@@ -453,9 +635,9 @@ function createMonthlyHeatmaps(hddMonthlyData, cddMonthlyData, container, mainWi
         
         heatmapTooltip
             .html(`
-                <div style="font-weight: 600; margin-bottom: 6px; font-size: 12px;">${monthName}</div>
+                <div style="font-weight: 700; margin-bottom: 6px; font-size: 12px;">${monthName}</div>
                 <div style="color: ${color}; font-weight: 600; font-size: 16px;">
-                    ${type}: ${d.consumption.toFixed(2)}
+                    ${type}: ${d.consumption.toFixed(0)}
                 </div>
                 <div style="margin-top: 4px; font-size: 11px; color: var(--text-secondary);">
                     Average across all years
@@ -504,7 +686,7 @@ function createMonthlyHeatmaps(hddMonthlyData, cddMonthlyData, container, mainWi
             .style('cursor', 'pointer')
             .on('mouseenter', function(event) {
                 d3.select(this)
-                    .attr('stroke', '#3182ce')
+                    .attr('stroke', '#e85d04')
                     .attr('stroke-width', 2);
                 showHeatmapTooltip(event, d, monthNames[d.month - 1], 'HDD', hddColorScale(d.consumption));
             })
@@ -521,19 +703,15 @@ function createMonthlyHeatmaps(hddMonthlyData, cddMonthlyData, container, mainWi
             .attr('y', (heatmapHeight - cellHeight) / 2 + cellHeight / 2)
             .attr('text-anchor', 'middle')
             .attr('dy', '0.35em')
-            .style('fill', d.consumption > maxHDD / 2 ? 'white' : 'var(--text-primary)')
+            .style('fill', labelColorFor(hddColorScale(d.consumption)))
+            .style('stroke', labelHaloFor(hddColorScale(d.consumption)))
+            .style('stroke-width', 2.5)
+            .style('stroke-linejoin', 'round')
+            .style('paint-order', 'stroke')
             .style('font-size', '11px')
             .style('font-weight', '600')
             .text(monthNames[d.month - 1]);
         
-        // Add value label below
-        hddG.append('text')
-            .attr('x', i * cellWidth + cellWidth / 2)
-            .attr('y', (heatmapHeight - cellHeight) / 2 + cellHeight + 15)
-            .attr('text-anchor', 'middle')
-            .style('fill', 'var(--text-secondary)')
-            .style('font-size', '10px')
-            .text(d.consumption.toFixed(1));
     });
     
     // Create CDD heatmap
@@ -570,7 +748,7 @@ function createMonthlyHeatmaps(hddMonthlyData, cddMonthlyData, container, mainWi
             .style('cursor', 'pointer')
             .on('mouseenter', function(event) {
                 d3.select(this)
-                    .attr('stroke', '#e53e3e')
+                    .attr('stroke', '#3182ce')
                     .attr('stroke-width', 2);
                 showHeatmapTooltip(event, d, monthNames[d.month - 1], 'CDD', cddColorScale(d.consumption));
             })
@@ -587,18 +765,14 @@ function createMonthlyHeatmaps(hddMonthlyData, cddMonthlyData, container, mainWi
             .attr('y', (heatmapHeight - cellHeight) / 2 + cellHeight / 2)
             .attr('text-anchor', 'middle')
             .attr('dy', '0.35em')
-            .style('fill', d.consumption > maxCDD / 2 ? 'white' : 'var(--text-primary)')
+            .style('fill', labelColorFor(cddColorScale(d.consumption)))
+            .style('stroke', labelHaloFor(cddColorScale(d.consumption)))
+            .style('stroke-width', 2.5)
+            .style('stroke-linejoin', 'round')
+            .style('paint-order', 'stroke')
             .style('font-size', '11px')
             .style('font-weight', '600')
             .text(monthNames[d.month - 1]);
         
-        // Add value label below
-        cddG.append('text')
-            .attr('x', i * cellWidth + cellWidth / 2)
-            .attr('y', (heatmapHeight - cellHeight) / 2 + cellHeight + 15)
-            .attr('text-anchor', 'middle')
-            .style('fill', 'var(--text-secondary)')
-            .style('font-size', '10px')
-            .text(d.consumption.toFixed(1));
     });
 }

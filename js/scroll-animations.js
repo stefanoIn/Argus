@@ -18,6 +18,29 @@
     function setup() {
         console.log('[ScrollAnim] Initializing animations (independent of TIFF loading)');
         
+        // Track scroll direction (only animate when scrolling down)
+        let lastScrollY = window.scrollY || window.pageYOffset;
+        let scrollDirection = true; // true = down, false = up
+        let hasScrolled = false; // Track if user has scrolled at all
+        
+        // Update scroll direction on scroll events
+        window.addEventListener('scroll', function() {
+            hasScrolled = true;
+            const currentScrollY = window.scrollY || window.pageYOffset;
+            scrollDirection = currentScrollY > lastScrollY;
+            lastScrollY = currentScrollY;
+        }, { passive: true });
+        
+        // Function to check if we should animate (scrolling down OR initial load)
+        function shouldAnimate(entry) {
+            // If user hasn't scrolled yet, allow animation (initial page load)
+            if (!hasScrolled) {
+                return true;
+            }
+            // Otherwise, only animate when scrolling down
+            return scrollDirection;
+        }
+        
         // Configuration
         const observerOptions = {
             root: null,
@@ -28,30 +51,23 @@
         // Create observer for text animations
         const textObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    // Add visible class to trigger animation
+                const shouldAnimateNow = shouldAnimate(entry);
+                if (entry.isIntersecting && shouldAnimateNow) {
+                    // Add visible class to trigger animation (only when scrolling down or initial load)
                     entry.target.classList.add('visible');
-                    // Optionally unobserve after animating (remove if you want to re-animate on scroll back)
-                    textObserver.unobserve(entry.target);
+                    // Mark as animated to prevent re-animation but keep observing
+                    if (!entry.target.dataset.animated) {
+                        entry.target.dataset.animated = 'true';
+                    }
+                    // Don't unobserve - keep the element visible when scrolling back
+                } else if (entry.isIntersecting && !shouldAnimateNow) {
+                    // If scrolling up and element is already animated, keep it visible
+                    if (entry.target.dataset.animated) {
+                        entry.target.classList.add('visible');
+                    }
                 }
             });
         }, observerOptions);
-        
-        // Create observer for visualization containers
-        const vizObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    // For visualizations, we might want to trigger their internal animations
-                    triggerVizAnimation(entry.target);
-                    vizObserver.unobserve(entry.target);
-                }
-            });
-        }, {
-            root: null,
-            rootMargin: '0px 0px -50px 0px',
-            threshold: 0.15
-        });
         
         // Observe all elements with fade-in animations
         const fadeElements = document.querySelectorAll('.story-fade-in');
@@ -61,73 +77,62 @@
         const highlightElements = document.querySelectorAll('.highlight-text');
         highlightElements.forEach(el => textObserver.observe(el));
         
-        // Observe narrative elements
+        // Observe narrative elements with dedicated observer
         const narrativeElements = document.querySelectorAll(
             '.narrative-bridge, .human-scale-callout, .pull-quote, .story-transition, .story-pause'
         );
-        narrativeElements.forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(20px)';
-            el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
-            textObserver.observe(el);
-        });
         
-        // Add visible class handler for narrative elements
+        // Create dedicated observer for narrative elements
         const narrativeObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
+                const shouldAnimateNow = shouldAnimate(entry);
+                if (entry.isIntersecting && shouldAnimateNow && !entry.target.dataset.narrativeAnimated) {
+                    // Only animate when scrolling down or initial load
                     entry.target.style.opacity = '1';
                     entry.target.style.transform = 'translateY(0)';
-                    narrativeObserver.unobserve(entry.target);
+                    entry.target.dataset.narrativeAnimated = 'true';
+                    // Don't unobserve - keep elements visible when scrolling back
+                } else if (entry.isIntersecting && !shouldAnimateNow && entry.target.dataset.narrativeAnimated) {
+                    // If scrolling up and already animated, keep visible
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
                 }
             });
         }, observerOptions);
         
-        narrativeElements.forEach(el => narrativeObserver.observe(el));
-        
-        // Observe visualization containers
-        const vizContainers = document.querySelectorAll('.story-viz, .story-viz-container');
-        vizContainers.forEach(el => {
+        // Set initial state and observe narrative elements
+        narrativeElements.forEach(el => {
             el.style.opacity = '0';
-            el.style.transform = 'translateY(30px)';
-            el.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
-            vizObserver.observe(el);
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+            narrativeObserver.observe(el);
         });
         
-        // Specifically observe the Italy electricity visualization container
-        const italyElecContainer = document.querySelector('#viz-italy-electricity');
-        if (italyElecContainer) {
-            const italyVizObserver = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting && !entry.target.dataset.animated) {
-                        entry.target.dataset.animated = 'true';
-                        // Trigger the animation after a short delay
-                        setTimeout(() => {
-                            const parentContainer = entry.target.closest('.story-viz-container');
-                            if (parentContainer) {
-                                triggerVizAnimation(parentContainer);
-                            }
-                        }, 300);
-                        italyVizObserver.unobserve(entry.target);
-                    }
-                });
-            }, {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.2
-            });
-            
-            italyVizObserver.observe(italyElecContainer);
-        }
+        // Observe visualization containers - CONSOLIDATED to prevent conflicts
+        const vizContainers = document.querySelectorAll('.story-viz, .story-viz-container');
         
-        // Add visible class handler for viz containers
-        const vizVisibilityObserver = new IntersectionObserver((entries) => {
+        // Single unified observer for all viz containers
+        const unifiedVizObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
+                const shouldAnimateNow = shouldAnimate(entry);
+                if (entry.isIntersecting && shouldAnimateNow && !entry.target.dataset.vizAnimated) {
+                    // Only animate when scrolling down or initial load
+                    // Mark as animated to prevent re-triggering
+                    entry.target.dataset.vizAnimated = 'true';
+                    
+                    // Set visible state (these styles persist even after leaving viewport)
                     entry.target.style.opacity = '1';
                     entry.target.style.transform = 'translateY(0)';
-                    // Unobserve after first animation to prevent re-triggering
-                    vizVisibilityObserver.unobserve(entry.target);
+                    
+                    // Trigger visualization-specific animations
+                    triggerVizAnimation(entry.target);
+                    
+                    // Unobserve to prevent re-triggering when scrolling back
+                    unifiedVizObserver.unobserve(entry.target);
+                } else if (entry.isIntersecting && !shouldAnimateNow && entry.target.dataset.vizAnimated) {
+                    // If scrolling up and already animated, keep visible
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
                 }
             });
         }, {
@@ -136,7 +141,44 @@
             threshold: 0.1
         });
         
-        vizContainers.forEach(el => vizVisibilityObserver.observe(el));
+        // Set initial state and observe all viz containers
+        vizContainers.forEach(el => {
+            // Set initial hidden state
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+            
+            // Observe with unified observer
+            unifiedVizObserver.observe(el);
+            
+            // Check if element is already in viewport at page load
+            // This handles the case where user refreshes with viz already visible
+            const rect = el.getBoundingClientRect();
+            const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+            
+            if (isInViewport && !el.dataset.vizAnimated) {
+                // Use a longer delay and check for SVG existence before animating
+                const attemptAnimation = (retries = 0) => {
+                    if (el.dataset.vizAnimated) return;
+                    
+                    // Check if viz has been created (has SVG element)
+                    const hasSVG = el.querySelector('svg') !== null;
+                    
+                    if (hasSVG || retries > 10) {
+                        el.dataset.vizAnimated = 'true';
+                        el.style.opacity = '1';
+                        el.style.transform = 'translateY(0)';
+                        triggerVizAnimation(el);
+                        unifiedVizObserver.unobserve(el);
+                    } else {
+                        // Retry after a short delay
+                        setTimeout(() => attemptAnimation(retries + 1), 200);
+                    }
+                };
+                
+                setTimeout(() => attemptAnimation(), 500);
+            }
+        });
         
         /**
          * Trigger visualization-specific animations
@@ -149,7 +191,15 @@
                 italyVizContainer = container.id === 'viz-italy-electricity' ? container : null;
             }
             
-            if (italyVizContainer) {
+            // If container is a parent, search deeper
+            if (!italyVizContainer && container.classList.contains('story-viz-container')) {
+                italyVizContainer = container.querySelector('#viz-italy-electricity');
+            }
+            
+            if (italyVizContainer && !italyVizContainer.dataset.vizAnimationTriggered) {
+                // Mark as triggered to prevent duplicate animations
+                italyVizContainer.dataset.vizAnimationTriggered = 'true';
+                
                 // Trigger line animations if functions are available
                 setTimeout(() => {
                     if (italyVizContainer._animateElecLine) {

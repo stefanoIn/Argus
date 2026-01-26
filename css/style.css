@@ -723,7 +723,7 @@ code {
     background: linear-gradient(135deg, rgba(232, 93, 4, 0.08) 0%, rgba(232, 93, 4, 0.03) 100%);
     border-left: 4px solid var(--primary-color);
     border-radius: var(--radius-lg);
-    padding: var(--spacing-xl) var(--spacing-2xl);
+    padding: var(--spacing-xl) var(--spacing-2xl) var(--spacing-xl) var(--spacing-lg);
     margin: var(--spacing-2xl) 0;
 }
 
@@ -867,8 +867,8 @@ code {
 }
 
 .story-fade-in.visible {
-    opacity: 1;
-    transform: translateY(0);
+    opacity: 1 !important;
+    transform: translateY(0) !important;
 }
 
 .highlight-text {

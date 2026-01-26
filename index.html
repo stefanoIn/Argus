@@ -175,9 +175,10 @@
                             <p class="placeholder-text">Loading Genoa UHI data from satellite imagery...</p>
                         </div>
                         <p class="viz-caption">
-                            <strong>Figure 1:</strong> Land Surface Temperature (LST) map of Genoa from satellite thermal data. 
+                            <strong>Figure 1:</strong> Downscaled Land Surface Temperature (LST) map of Genoa from satellite thermal data. 
                             Uses Inferno color scale (colorblind-friendly). Warmer areas (yellow/orange) are urban centers; 
-                            cooler areas (purple/black) are rural/vegetated. Temperature range uses 1-99 percentiles.
+                            cooler areas (purple/black) are rural/vegetated. Temperature range uses 1-99 percentiles. For methodology, check the 
+                            <a href="#methodology" style="color: var(--primary-color); text-decoration: underline;">Methodology</a> section.
                         </p>
                     </div>
                 </div>
@@ -434,14 +435,14 @@
                     </p>
                 </div>
 
-                <!-- Urban Population Growth Visualization -->
+                <!-- Proportional Squares Visualization -->
                 <div class="story-viz-container">
-                    <div id="viz-urban-population" class="visualization story-viz"></div>
+                    <div id="viz-proportional-squares" class="visualization story-viz"></div>
                     <p class="viz-caption">
-                        <strong>Figure 3:</strong> Global urban population has grown 4.5 times since 1960, from 1.03 billion to 4.69 billion people in 2024, 
-                        with projections reaching 4.82 billion by 2026. This rapid urbanization means that Urban Heat Islands now affect more than half of humanity. 
-                        As cities continue to grow, the need to understand and mitigate heat island effects becomes increasingly urgent. 
-                        Data: World Bank World Development Indicators (historical); UN projections (2025-2026).
+                        <strong>Figure 3:</strong> Proportional square comparison of global urban population in 1960 vs 2025. 
+                        The area of each square is directly proportional to the population size, making the dramatic 4.5× growth visually immediate. 
+                        What housed just over a billion urban dwellers in 1960 must now accommodate nearly 5 billion people. 
+                        Data: World Bank World Development Indicators.
                     </p>
                 </div>
 
@@ -497,6 +498,11 @@
                 </div>
 
                 <div class="story-text">
+                    <p class="story-paragraph story-fade-in" style="animation-delay: 0.55s;">
+                        At a city scale, Urban Heat Islands amplify two major side effects. First, they push up <strong>energy consumption</strong> as households
+                        and businesses rely more on cooling during hot periods. Second, they increase <strong>health risks</strong> by intensifying heat exposure—especially
+                        for vulnerable populations—raising the likelihood of heat stress and heat-related illness.
+                    </p>
                     <p class="story-paragraph story-fade-in" style="animation-delay: 0.6s;">
                         The numbers tell the story: Higher temperatures drive up air conditioning demand by 20-25%, 
                         creating a vicious cycle. More cooling generates more waste heat, which requires more cooling. 
@@ -540,7 +546,7 @@
                 <!-- HDD and CDD Visualization -->
                 <div class="story-viz">
                     <div class="story-viz-container">
-                        <h3 class="viz-title">Some Like It Hot</h3>
+                        <h3 class="viz-title">Cooling and Heating demand in Italy (1979-2024)</h3>
                         
                         <!-- Explanation of HDD and CDD -->
                         <div class="story-text" style="margin-bottom: 30px; padding: 20px; background: var(--bg-secondary); border-left: 4px solid var(--primary-color); border-radius: 6px;">
@@ -568,8 +574,8 @@
                         </div>
                         <p class="viz-caption">
                             <strong>Figure 4c:</strong> Annual average Heating Degree Days (HDD) and Cooling Degree Days (CDD) in Italy (1979-2024). 
-                            The declining trend in HDD (blue) shows milder winters, while the rising trend in CDD (red) reflects hotter summers and growing cooling needs. 
-                            Data source: Eurostat (nrg_chdd_m).
+                            HDD (warm/orange, above 0) declines over time (milder winters), while CDD (blue, below 0) rises (hotter summers and growing cooling needs). 
+                            The seasonal strips summarize when heating vs cooling is concentrated across the year. Data source: Eurostat (nrg_chdd_m).
                         </p>
                     </div>
                 </div>
@@ -584,69 +590,116 @@
                     </p>
                 </div>
 
-                <!-- Sleep Hours Lost Visualization -->
+                <div class="story-text">
+                    <h3 style="font-size: 22px; font-weight: 700; margin: 10px 0 12px 0; color: var(--text-primary);">
+                        Heat as a global public health stressor
+                    </h3>
+                    <p class="story-paragraph story-fade-in">
+                        Beyond cities and beyond energy demand, rising temperatures act as a widespread stress test for human health.
+                        The indicators below capture a progression of impacts—from early disruption of daily recovery to acute health crises,
+                        economic constraints, and unequal exposure across vulnerable groups.
+                    </p>
+                </div>
+
+                <div class="story-text">
+                    <p class="story-paragraph story-fade-in">
+                        Sleep disruption is often one of the earliest and most widespread impacts of heat exposure, affecting populations
+                        even before severe health outcomes emerge.
+                    </p>
+                </div>
+
+                <!-- Global Sleep Loss Visualization -->
                 <div class="story-viz">
                     <div class="story-viz-container">
-                        <h3 class="viz-title">Sleep Hours Lost Due to Heat in Italy</h3>
-                        <div id="viz-sleep-hours-lost" class="visualization">
-                            <p class="placeholder-text">Loading sleep hours lost data...</p>
+                        <h3 class="viz-title">Global Sleep Loss Due to Heat</h3>
+                        <div id="viz-global-sleep-loss" class="visualization">
+                            <p class="placeholder-text">Loading sleep loss data...</p>
                         </div>
                         <p class="viz-caption">
-                            <strong>Figure 4b:</strong> Population-weighted hours of sleep lost per person per year due to heat exposure in Italy (1990-2024). 
-                            Rising heat exposure directly impacts sleep quality and duration, with significant public health implications. 
-                            Data source: Lancet Countdown Report 2025.
+                            <strong>Figure 4b:</strong> Percentage of sleep lost globally due to heat exposure (2015-2024), obtained by collecting data from 68 different countries. 
+                            Rising heat disrupts sleep patterns worldwide, with a sharp increase in recent years reaching 8.7% sleep loss in 2024. 
+                            Data source: Lancet Countdown 2025.
                         </p>
                     </div>
                 </div>
 
-                <!-- Vulnerable Population Exposure Visualization -->
+                <div class="story-text">
+                    <p class="story-paragraph story-fade-in">
+                        When heat exposure becomes extreme, its effects turn lethal, producing sharp spikes in mortality during major heatwave years
+                        rather than a smooth, gradual trend.
+                    </p>
+                </div>
+
+                <!-- Global Heat Mortality Visualization -->
                 <div class="story-viz">
                     <div class="story-viz-container">
-                        <h3 class="viz-title">Heatwave Exposure of Vulnerable Populations in Italy</h3>
-                        <div id="viz-vulnerable-exposure" class="visualization">
+                        <h3 class="viz-title">Global Heat-Related Mortality</h3>
+                        <div id="viz-global-mortality" class="visualization">
+                            <p class="placeholder-text">Loading mortality data...</p>
+                        </div>
+                        <p class="viz-caption">
+                            <strong>Figure 4c:</strong> Annual heat-related deaths globally (1990-2021). 
+                            Heat mortality shows significant variability with extreme peaks during major heatwave years. 
+                            The 2010 peak (721K deaths) corresponds to severe heatwaves across multiple continents. 
+                            Data source: Lancet Countdown 2025.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="story-text">
+                    <p class="story-paragraph story-fade-in">
+                        Heat also constrains economic activity, particularly outdoor and manual labour, reducing the number of hours people can safely
+                        work each year.
+                    </p>
+                </div>
+
+                <!-- Work Hours Lost Visualization -->
+                <div class="story-viz">
+                    <div class="story-viz-container">
+                        <h3 class="viz-title">Global Potential Work Hours Lost to Heat</h3>
+                        <div id="viz-work-hours-lost" class="visualization">
+                            <p class="placeholder-text">Loading work hours lost data...</p>
+                        </div>
+                        <p class="viz-caption">
+                            <strong>Figure 4d:</strong> Global potential work hours lost per person per year due to heat exposure (1990-2024). 
+                            Rising temperatures increasingly impact outdoor work capacity, with 178 hours lost per person in 2024 - a 34% increase since 1990. 
+                            Data source: Lancet Countdown 2025.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="story-text">
+                    <p class="story-paragraph story-fade-in">
+                        These impacts are not evenly distributed: age, health, and social vulnerability strongly shape who is most exposed to dangerous heat.
+                    </p>
+                </div>
+
+                <!-- Vulnerable Populations Visualization -->
+                <div class="story-viz">
+                    <div class="story-viz-container">
+                        <h3 class="viz-title">Heatwave Exposure of Vulnerable Populations Worldwide</h3>
+                        <div id="viz-vulnerable-populations" class="visualization">
                             <p class="placeholder-text">Loading vulnerable population data...</p>
                         </div>
                         <p class="viz-caption">
-                            <strong>Figure 4c:</strong> Total heatwave exposure events for infants and adults aged 65+ in Italy (1980-2024). 
-                            Vulnerable populations face disproportionate health risks during heatwaves due to reduced thermoregulatory capacity. 
-                            Exposure measured as person-events exceeding heat thresholds.
-                            Data source: Lancet Countdown Report 2025.
+                            <strong>Figure 4e:</strong> Global heatwave exposure events for vulnerable age groups (1980-2024). 
+                            Adults aged 65+ face dramatically higher exposure than infants, with both groups showing increasing vulnerability over time. 
+                            Exposure measured as person-events exceeding heat thresholds, aggregated across all countries. 
+                            Data source: Lancet Countdown 2025.
                         </p>
                     </div>
                 </div>
 
-                <!-- Global Vulnerable Population Choropleth -->
-                <div class="story-viz">
-                    <div class="story-viz-container">
-                        <h3 class="viz-title">Global Heatwave Exposure: Vulnerable Populations in 2024</h3>
-                        <div id="viz-vulnerable-choropleth" class="visualization">
-                            <p class="placeholder-text">Loading global vulnerability data...</p>
-                        </div>
-                        <p class="viz-caption">
-                            <strong>Figure 4d:</strong> Worldwide distribution of heatwave exposure for vulnerable populations (infants and adults 65+) in 2024. 
-                            Darker colors indicate higher cumulative exposure. Countries across the Global South and Mediterranean regions show particularly high vulnerability. 
-                            Data source: Lancet Countdown Report 2025.
-                        </p>
-                    </div>
+                <div class="story-text">
+                    <p class="story-paragraph story-fade-in">
+                        Taken together, these indicators show how rising temperatures translate into layered human impacts. Heat first disrupts daily comfort
+                        and recovery through sleep loss, then escalates into health emergencies and mortality during extreme events. At the same time, it erodes
+                        economic productivity by limiting safe working hours and disproportionately exposes vulnerable populations, particularly older adults.
+                        While energy demand metrics such as HDD and CDD reveal how societies adapt to warming through infrastructure, these global indicators
+                        highlight the limits of adaptation when heat exceeds what technology, physiology, and social systems can absorb.
+                    </p>
                 </div>
 
-                <!-- Human Stories: Making Data Personal -->
-                <div class="human-scale-callout" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.03) 100%); border-left: 4px solid var(--accent-color);">
-                    <div class="callout-content">
-                        <h3 class="callout-title">Behind the numbers: Real people, real consequences</h3>
-                        <p class="callout-text">
-                            <strong>The grandmother</strong> in a top-floor apartment without air conditioning, trying to sleep through 
-                            a 40°C night. <strong>The construction worker</strong> who must choose between earning a wage and risking heat stroke. 
-                            <strong>The homeless person</strong> with no escape from sun-baked concrete. Each spike in these graphs represents 
-                            thousands of people facing impossible choices.
-                        </p>
-                        <p class="callout-text" style="margin-top: 12px; font-style: italic; color: var(--text-secondary);">
-                            The cascade continues: higher temperatures accelerate ground-level ozone formation, degrade air quality, 
-                            drive up healthcare costs, reduce worker productivity. The economic toll is measured in billions. 
-                            But the human cost—measured in lives cut short—cannot be captured by any balance sheet.
-                        </p>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -736,14 +789,22 @@
                         <ul class="data-sources-list">
                             <li>
                                 <strong>Landsat 8-9 TIRS</strong> - Thermal infrared imagery for Land Surface Temperature (LST) mapping. 
-                                Accessed via <a href="https://earthexplorer.usgs.gov/" target="_blank" rel="noopener noreferrer">USGS EarthExplorer</a> 
-                                or <a href="https://earthengine.google.com/" target="_blank" rel="noopener noreferrer">Google Earth Engine</a>.
-                                Resolution: 100m (thermal band), Date: July 9, 2025 (Genoa region).
+                                Downloaded programmatically using custom Python implementation of USGS Machine-to-Machine (M2M) API.
+                                See footer for API documentation links.
+                                Resolution: 100m (thermal band ST_B10), Date: July 9, 2025 (Genoa region).
+                                Used as target variable for XGBoost-based spatial downscaling to 10m resolution.
                             </li>
                             <li>
-                                <strong>Sentinel-2</strong> - Multispectral imagery (10m resolution) for NDVI/vegetation analysis. 
-                                Accessed via <a href="https://scihub.copernicus.eu/" target="_blank" rel="noopener noreferrer">Copernicus Open Access Hub</a>.
-                                Used for calculating Normalized Difference Vegetation Index (NDVI).
+                                <strong>Sentinel-2</strong> - Multispectral imagery (10m resolution) for vegetation, built-up, and water analysis. 
+                                Downloaded using Copernicus Data Space Ecosystem (CDSE) API client (custom implementation).
+                                See footer for CDSE documentation links.
+                                Bands used: B02 (Blue), B03 (Green), B04 (Red), B08 (NIR), B11 (SWIR1), B12 (SWIR2).
+                                Used for calculating spectral indices (NDVI, NDBI, NDWI) and as predictor variables for LST downscaling.
+                            </li>
+                            <li>
+                                <strong>Digital Elevation Model (DEM)</strong> - 10m resolution elevation data for Genoa region.
+                                Used to derive topographic features (slope, aspect) as predictors in LST downscaling model.
+                                Topography influences local temperature patterns through shading, exposure, and cold air drainage.
                             </li>
                             <li>
                                 <strong>ESA WorldCover 2021</strong> - Global land cover classification at 10m resolution. 
@@ -785,18 +846,13 @@
                             </li>
                         </ul>
                         
-                        <p><strong>Health Data:</strong></p>
+                        <p><strong>Heat & Health Data:</strong></p>
                         <ul class="data-sources-list">
                             <li>
-                                <strong>Lancet Countdown on Health and Climate Change (2025)</strong> - Comprehensive global health and climate indicators. 
-                                Includes: Indicator 1.1.1 (Heatwave exposure for vulnerable populations: infants and adults 65+), 
-                                Indicator 1.1.3 (Population-weighted hours lost due to heat - PWHL). 
-                                Country-level data (1980–2024) and global aggregates. 
-                                <a href="https://www.lancetcountdown.org/data-platform/" target="_blank" rel="noopener noreferrer">Lancet Countdown Data Platform</a>.
-                            </li>
-                            <li>
-                                <strong>Data Coverage:</strong> Sleep hours lost (Italy, 1990–2024), Heatwave exposure for infants and adults 65+ (Italy, 1980–2024; Global, 2024). 
-                                Exposure measured as person-events exceeding heat thresholds based on ERA5 temperature data and population statistics.
+                                <strong>Lancet Countdown (2025)</strong> - Heat and health indicators used in this project (global heat-related mortality,
+                                sleep lost due to heat, potential work hours lost, and vulnerable-population exposure metrics).
+                                Source: <a href="https://www.lancetcountdown.org/" target="_blank" rel="noopener noreferrer">Lancet Countdown on Health and Climate Change</a>.
+                                Processed into web-ready JSON in <code>data/heat_and_health/</code> and exported to <code>data/json/</code>.
                             </li>
                         </ul>
                         
@@ -835,13 +891,6 @@
                             <li><strong>Validation:</strong> Compared against Eurostat energy statistics for consistency checks</li>
                         </ul>
                         
-                        <p><strong>Health Data Processing:</strong></p>
-                        <ul>
-                            <li><strong>Data Imputation:</strong> Years prior to 2022 estimated based on Eurostat excess mortality patterns during heat waves (assumption: 30% of excess summer mortality attributed to heat)</li>
-                            <li><strong>Uncertainty:</strong> 2022 data from peer-reviewed research (Nature Medicine) includes confidence intervals; earlier years have higher uncertainty</li>
-                            <li><strong>Validation:</strong> Cross-referenced with published research and Eurostat mortality statistics</li>
-                        </ul>
-                        
                         <p><strong>Eurostat CHDD Processing:</strong></p>
                         <ul>
                             <li><strong>Data Parsing:</strong> Complex Eurostat TSV format parsed and reshaped into structured JSON</li>
@@ -861,141 +910,168 @@
                     <div class="methodology-subsection">
                         <h3 class="subsection-title">Data Processing and Analysis Pipeline</h3>
                         <p>
-                            The complete pipeline transforms raw data from multiple sources into interactive visualizations:
+                            The complete pipeline transforms raw data from multiple sources into interactive visualizations.
+                            Below is a visual overview of the workflow:
+                        </p>
+                        
+                        <!-- Visual Workflow Diagram -->
+                        <div style="background: var(--bg-secondary); border-radius: 8px; padding: 40px 20px; margin: 30px 0; border: 1px solid var(--border-light);">
+                            <svg width="100%" height="360" viewBox="0 0 1100 360" preserveAspectRatio="xMidYMid meet" style="max-width: 100%;">
+                                <defs>
+                                    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+                                        <path d="M0,0 L0,6 L8,3 z" fill="var(--text-tertiary)"/>
+                                    </marker>
+                                    <marker id="arrow-orange" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+                                        <path d="M0,0 L0,6 L8,3 z" fill="var(--primary-color)"/>
+                                    </marker>
+                                    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+                                        <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.1"/>
+                                    </filter>
+                                </defs>
+                                
+                                <!-- Stage 1: Ingestion -->
+                                <g transform="translate(40, 145)">
+                                    <rect width="160" height="70" rx="6" fill="var(--bg-card)" stroke="#3b82f6" stroke-width="2" filter="url(#shadow)"/>
+                                    <text x="80" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="var(--text-primary)">01 | Ingestion</text>
+                                    <text x="80" y="50" text-anchor="middle" font-size="11" fill="var(--text-secondary)">Satellite + API Data</text>
+                                </g>
+                                
+                                <!-- Arrow 1→2 -->
+                                <line x1="200" y1="180" x2="240" y2="180" stroke="var(--text-tertiary)" stroke-width="2" marker-end="url(#arrow)"/>
+                                
+                                <!-- Stage 2: Preprocessing -->
+                                <g transform="translate(240, 145)">
+                                    <rect width="160" height="70" rx="6" fill="var(--bg-card)" stroke="#10b981" stroke-width="2" filter="url(#shadow)"/>
+                                    <text x="80" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="var(--text-primary)">02 | Preprocessing</text>
+                                    <text x="80" y="50" text-anchor="middle" font-size="11" fill="var(--text-secondary)">Clean & Transform</text>
+                                </g>
+                                
+                                <!-- Fork from preprocessing -->
+                                <!-- Upper branch to Features -->
+                                <path d="M 400 180 L 440 180 L 460 75" stroke="var(--text-tertiary)" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+                                
+                                <!-- Lower branch to Aggregation -->
+                                <path d="M 400 180 L 440 180 L 460 285" stroke="var(--text-tertiary)" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+                                
+                                <!-- Stage 3: Features (upper branch) -->
+                                <g transform="translate(460, 40)">
+                                    <rect width="160" height="70" rx="6" fill="var(--bg-card)" stroke="#f59e0b" stroke-width="2" filter="url(#shadow)"/>
+                                    <text x="80" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="var(--text-primary)">03 | Features</text>
+                                    <text x="80" y="50" text-anchor="middle" font-size="11" fill="var(--text-secondary)">LST, NDVI, Metrics</text>
+                                </g>
+                                
+                                <!-- Arrow from Features to Downscaling -->
+                                <line x1="620" y1="75" x2="660" y2="75" stroke="var(--primary-color)" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow-orange)"/>
+                                
+                                <!-- Stage 3.5: LST Downscaling (optional) -->
+                                <g transform="translate(660, 40)">
+                                    <rect width="210" height="70" rx="6" fill="rgba(var(--primary-color-rgb), 0.08)" stroke="var(--primary-color)" stroke-width="2.5" filter="url(#shadow)"/>
+                                    <text x="105" y="23" text-anchor="middle" font-size="12" font-weight="700" fill="var(--primary-color)">3.5 | LST Downscaling</text>
+                                    <text x="105" y="40" text-anchor="middle" font-size="10" fill="var(--text-secondary)">XGBoost ML: 100m → 10m</text>
+                                    <text x="105" y="56" text-anchor="middle" font-size="9" fill="var(--text-secondary)" font-style="italic">(Genoa case study)</text>
+                                </g>
+                                
+                                <!-- Arrow from Downscaling to Visualization -->
+                                <path d="M 870 75 L 900 75 L 900 145" stroke="var(--primary-color)" stroke-width="2" fill="none" marker-end="url(#arrow-orange)"/>
+                                
+                                <!-- Stage 4: Aggregation (lower branch) -->
+                                <g transform="translate(460, 250)">
+                                    <rect width="160" height="70" rx="6" fill="var(--bg-card)" stroke="#8b5cf6" stroke-width="2" filter="url(#shadow)"/>
+                                    <text x="80" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="var(--text-primary)">04 | Aggregation</text>
+                                    <text x="80" y="50" text-anchor="middle" font-size="11" fill="var(--text-secondary)">Export to JSON</text>
+                                </g>
+                                
+                                <!-- Join from Aggregation to Visualization -->
+                                <path d="M 620 285 L 850 285 L 900 215" stroke="var(--text-tertiary)" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+                                
+                                <!-- Stage 5: Visualization (convergence point) -->
+                                <g transform="translate(900, 145)">
+                                    <rect width="180" height="70" rx="6" fill="var(--bg-card)" stroke="#ec4899" stroke-width="2" filter="url(#shadow)"/>
+                                    <text x="90" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="var(--text-primary)">05 | Visualization</text>
+                                    <text x="90" y="50" text-anchor="middle" font-size="11" fill="var(--text-secondary)">Interactive Charts</text>
+                                </g>
+                                
+                            </svg>
+                        </div>
+                        
+                        <p style="font-size: 12px; color: var(--text-secondary); text-align: center; margin: -15px 0 20px 0; font-style: italic;">
+                            Parallel workflow: satellite imagery flows through feature extraction with optional ML downscaling (orange path), while tabular data flows through aggregation. Both converge at visualization.
                         </p>
                         
                         <p><strong>Stage 1: Data Ingestion</strong></p>
                         <ul>
-                            <li><strong>Satellite Imagery:</strong> Load GeoTIFF files using Python libraries (<code>rasterio</code>, <code>xarray</code>, <code>geopandas</code>)</li>
-                            <li><strong>API Data:</strong> Fetch JSON/CSV from Eurostat REST API, Copernicus CDS, or download manually</li>
-                            <li><strong>Tabular Data:</strong> Load Excel/CSV files (Terna electricity, Eurostat TSV) using <code>pandas</code></li>
-                            <li><strong>Research Data:</strong> Extract published statistics from research datasets (Lancet Countdown Data Platform)</li>
+                            <li>Download satellite imagery via custom APIs</li>
+                            <li>Fetch climate and energy data from public sources</li>
                         </ul>
                         
                         <p><strong>Stage 2: Preprocessing</strong></p>
                         <ul>
-                            <li>Apply data cleaning and imputation steps (see "Data Cleaning and Imputation" above)</li>
-                            <li>Transform coordinate systems, handle missing values, remove outliers</li>
-                            <li>Validate data ranges, temporal consistency, and spatial coherence</li>
+                            <li>Cloud masking, coordinate transforms, quality filters</li>
+                            <li>Handle missing values and remove outliers</li>
                         </ul>
                         
                         <p><strong>Stage 3: Feature Extraction</strong></p>
                         <ul>
-                            <li><strong>LST Calculation:</strong> Convert thermal infrared radiance to Land Surface Temperature using emissivity and atmospheric correction</li>
-                            <li><strong>NDVI Calculation:</strong> Compute Normalized Difference Vegetation Index from Sentinel-2 red and NIR bands: NDVI = (NIR - Red) / (NIR + Red)</li>
-                            <li><strong>UHI Intensity:</strong> Calculate temperature difference between urban and rural areas</li>
-                            <li><strong>Spatial Statistics:</strong> Compute mean, median, percentiles by land cover type, region, and time period</li>
-                            <li><strong>HDD/CDD Calculation:</strong> Aggregate degree days from Eurostat monthly data to annual averages</li>
+                            <li>Calculate LST, NDVI, UHI intensity, HDD/CDD</li>
                         </ul>
                         
-                        <p><strong>Stage 4: Data Aggregation and Transformation</strong></p>
+                        <p><strong>Stage 4-5: Aggregation & Visualization</strong></p>
                         <ul>
-                            <li><strong>Temporal Aggregation:</strong> Summarize by month, year, or multi-year periods</li>
-                            <li><strong>Spatial Aggregation:</strong> Aggregate pixels by land cover class, administrative boundaries, or custom regions</li>
-                            <li><strong>Cross-tabulation:</strong> Create land cover × temperature class matrices for Sankey diagram</li>
-                            <li><strong>JSON Export:</strong> Transform processed data into JSON format optimized for web visualization</li>
+                            <li>Group by time/space, export to JSON</li>
+                            <li>Create interactive D3.js charts</li>
                         </ul>
                         
-                        <p><strong>Stage 5: Visualization Encoding</strong></p>
-                        <ul>
-                            <li><strong>Color Scales:</strong> Use D3.js color scales (e.g., <code>d3.scaleSequential</code> with <code>d3.interpolateInferno</code> for temperature, <code>d3.interpolateBlues</code>/<code>d3.interpolateReds</code> for heatmaps)</li>
-                            <li><strong>Spatial Encoding:</strong> Map geographic coordinates to SVG/Canvas pixel positions using appropriate projections</li>
-                            <li><strong>Temporal Encoding:</strong> Map dates to x-axis positions using <code>d3.scaleTime</code></li>
-                            <li><strong>Interactive Elements:</strong> Add tooltips, zoom/pan, filters, and hover interactions using D3.js event handlers</li>
-                            <li><strong>Responsive Design:</strong> Adapt visualizations to screen size using viewport-based scaling</li>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 15px;">
+                            <em>Scripts: <code>data/*.py</code>, <code>data/**/*.ipynb</code> — see repository for details</em>
+                        </p>
+                    </div>
+                    
+                    <div class="methodology-subsection" style="background: linear-gradient(135deg, rgba(232, 93, 4, 0.05) 0%, rgba(232, 93, 4, 0.02) 100%); border-left: 4px solid var(--primary-color); padding: 24px; border-radius: 8px; margin: 30px 0;">
+                        <h3 class="subsection-title" style="color: var(--primary-color); margin-top: 0;">Stage 3.5: LST Downscaling (Genoa)</h3>
+                        <p><strong>Challenge:</strong> Landsat thermal data is 100m resolution. We need 10m to see detailed urban heat patterns.</p>
+                        
+                        <p><strong>Solution:</strong> XGBoost machine learning model trained to predict temperature at 10m using:</p>
+                        <ul style="margin: 15px 0;">
+                            <li><strong>Landsat-9:</strong> Accurate temperature at 100m</li>
+                            <li><strong>Sentinel-2:</strong> Surface details at 10m (vegetation, buildings, water)</li>
+                            <li><strong>DEM:</strong> Topography at 10m (elevation, slope, aspect)</li>
                         </ul>
                         
-                        <p>
-                            <strong>Pipeline Scripts:</strong> Complete pipeline documented in repository:
-                            <code>data/download_and_preprocess_heat_data.py</code> (main preprocessing),
-                            Jupyter notebooks in <code>data/eurostat_chdd/</code>, <code>data/average_monthly_temperature_ERA5/</code>, 
-                            and <code>data/electricity_consumption_italy/</code> for specific datasets.
+                        <p><strong>Process:</strong></p>
+                        <ol style="margin-left: 20px; line-height: 1.8;">
+                            <li>Compute spectral indices (NDVI, NDBI, NDWI) and topographic features</li>
+                            <li>Create training dataset: aggregate 10m features to 100m, pair with Landsat LST</li>
+                            <li>Train XGBoost with hyperparameter tuning (80/20 split, cross-validation)</li>
+                            <li>Predict temperature at every 10m pixel</li>
+                        </ol>
+                        
+                        <p><strong>Result:</strong> 10× higher resolution temperature maps revealing micro-scale UHI effects.</p>
+                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 10px;">
+                            <em>Code: <code>LST_downscaling/01_data_processing.ipynb</code>, <code>03_train_xgboost.ipynb</code></em>
                         </p>
                     </div>
 
                     <div class="methodology-subsection">
-                        <h3 class="subsection-title">Limitations</h3>
-                        <p>
-                            Key constraints and methodological limitations to consider when interpreting results:
-                        </p>
-                        
-                        <p><strong>Satellite Data Limitations:</strong></p>
+                        <h3 class="subsection-title">Limitations & Uncertainty</h3>
+                        <p><strong>Key constraints to consider:</strong></p>
                         <ul>
-                            <li><strong>Coverage Gaps:</strong> Cloud cover and sensor limitations create spatial/temporal gaps in satellite imagery. Some areas may have incomplete coverage.</li>
-                            <li><strong>Resolution Constraints:</strong> Satellite resolution (100m for Landsat thermal, 10m for Sentinel-2) limits detection of fine-scale temperature variations at street or building level.</li>
-                            <li><strong>Temporal Bias:</strong> Data collected at specific times (e.g., Landsat ~10:30 AM local time) may miss peak heat island effects, which often occur at night or during different times of day.</li>
-                            <li><strong>Measurement Uncertainty:</strong> Sensor errors, atmospheric correction algorithms, and emissivity assumptions introduce uncertainty (±2-3°C typical for LST).</li>
-                            <li><strong>Land Cover Classification Accuracy:</strong> WorldCover classifications may not capture all environmental factors (e.g., building materials, local microclimates, water features) that influence temperature.</li>
-                            <li><strong>Scale Dependency:</strong> Results vary with spatial/temporal analysis scale. UHI intensity measured at different resolutions may yield different values.</li>
+                            <li><strong>Spatial Resolution:</strong> Satellite resolution limits street-level detail (100m Landsat, 10m Sentinel-2)</li>
+                            <li><strong>Temporal Coverage:</strong> Single snapshot (July 9, 2025). UHI varies by season and weather</li>
+                            <li><strong>Cloud Gaps:</strong> Incomplete coverage due to cloud cover</li>
+                            <li><strong>Measurement Uncertainty:</strong> LST accuracy ±2-3°C; health data has confidence intervals</li>
+                            <li><strong>Correlation ≠ Causation:</strong> We show patterns, not causal proof</li>
                         </ul>
-                        
-                        <p><strong>Climate and Energy Data Limitations:</strong></p>
-                        <ul>
-                            <li><strong>ERA5 Spatial Aggregation:</strong> Country-level monthly averages mask regional and local variations. Urban vs. rural temperature differences within Italy are not captured.</li>
-                            <li><strong>Temporal Coverage:</strong> Electricity consumption data limited to 2021-2025. Temperature data extends to 2025 but may have processing delays for recent months.</li>
-                            <li><strong>Energy Data Attribution:</strong> Electricity consumption peaks correlate with temperature but are also influenced by economic activity, holidays, and other factors not accounted for in this analysis.</li>
-                            <li><strong>HDD/CDD Assumptions:</strong> Degree days assume fixed base temperatures (typically 18°C for HDD, 18°C or 24°C for CDD). Actual heating/cooling behavior may vary.</li>
-                        </ul>
-                        
-                        <p><strong>Health Data Limitations:</strong></p>
-                        <ul>
-                            <li><strong>Attribution Uncertainty:</strong> Heat-related mortality estimates involve statistical attribution. Not all excess deaths during heat waves can be definitively attributed to heat alone.</li>
-                            <li><strong>Data Imputation:</strong> Years prior to 2022 use estimated values based on excess mortality patterns. These estimates have higher uncertainty than the 2022 peer-reviewed data.</li>
-                            <li><strong>Confidence Intervals:</strong> 2022 data includes 95% confidence intervals (13,793–22,225 deaths), indicating significant uncertainty even in the best-documented year.</li>
-                            <li><strong>Underreporting:</strong> Heat-related deaths may be underreported, especially for indirect effects (e.g., cardiovascular events triggered by heat).</li>
-                        </ul>
-                        
-                        <p><strong>Methodological Constraints:</strong></p>
-                        <ul>
-                            <li><strong>Single Case Study:</strong> Genoa UHI analysis represents one city. Results may not generalize to all urban areas.</li>
-                            <li><strong>Single Time Point:</strong> Satellite imagery from July 9, 2025 represents one snapshot. UHI intensity varies seasonally and with weather conditions.</li>
-                            <li><strong>Correlation vs. Causation:</strong> Visualizations show correlations (e.g., electricity and temperature) but do not establish causal relationships without additional analysis.</li>
-                            <li><strong>Missing Variables:</strong> Analysis does not account for all factors influencing UHI (e.g., wind patterns, humidity, building density, population density at fine scale).</li>
-                        </ul>
-                    </div>
-
-                    <div class="methodology-subsection">
-                        <h3 class="subsection-title">Uncertainty Communication</h3>
-                        <p>
-                            Uncertainty is communicated through:
-                        </p>
-                        <ul>
-                            <li>Missing data indicators (gray shading, "No Data" labels)</li>
-                            <li>Error bars and confidence intervals where applicable</li>
-                            <li>Data quality metadata and coverage information</li>
-                            <li>Documented processing steps and assumptions</li>
-                        </ul>
-                        <p>
-                            <strong>Note:</strong> Relative comparisons (urban vs. rural) are more reliable than absolute temperature values. 
-                            Spatial patterns are more reliable than precise point measurements.
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 10px;">
+                            <strong>Note:</strong> Relative comparisons (urban vs. rural) are more reliable than absolute values. Spatial patterns are more reliable than point measurements.
                         </p>
                     </div>
 
                     <div class="methodology-subsection">
-                        <h3 class="subsection-title">Interaction Design</h3>
-                        <p>
-                            Interactive features enable data exploration:
-                        </p>
-                        <ul>
-                            <li><strong>Tooltips:</strong> Hover to see temperature values, locations, and metadata</li>
-                            <li><strong>Zoom & Pan:</strong> Explore geographic visualizations in detail</li>
-                            <li><strong>Semantic Slider:</strong> Toggle between land cover, vegetation, and urban heat views</li>
-                            <li><strong>Responsive:</strong> Touch-friendly design optimized for mobile devices</li>
-                        </ul>
+                        <h3 class="subsection-title">Technical Details</h3>
+                        <p><strong>Tools & Libraries:</strong> Python (rasterio, xarray, geopandas, pandas, XGBoost), D3.js v7, HTML/CSS/JavaScript</p>
+                        <p><strong>Performance Optimizations:</strong> Lazy loading, Canvas rendering, asynchronous data loading, pre-aggregated JSON</p>
+                        <p><strong>Interactions:</strong> Tooltips, zoom/pan, responsive design, mobile-optimized</p>
                     </div>
-
-                    <div class="methodology-subsection">
-                        <h3 class="subsection-title">Performance</h3>
-                        <p>
-                            Optimizations for fast loading and smooth interactions:
-                        </p>
-                        <ul>
-                            <li>Pre-aggregated data files, downsampling for initial rendering</li>
-                            <li>Asynchronous data loading with chunked processing</li>
-                            <li>Canvas rendering for large datasets, SVG for interactive elements</li>
-                            <li>Lazy loading of visualizations using Intersection Observer API</li>
-                            <li>Mobile-optimized with reduced resolution and touch-friendly interactions</li>
-                        </ul>
                     </div>
                 </div>
             </div>
@@ -1035,10 +1111,10 @@
                 <div class="footer-section">
                     <h3>Repository & Links</h3>
                     <p>
-                        <a href="#" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+                        <a href="https://github.com/stefanoIn/Argus" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
                     </p>
                     <p>
-                        <a href="#" target="_blank" rel="noopener noreferrer">Live Website (GitHub Pages)</a>
+                        <a href="https://stefanoin.github.io/Argus/" target="_blank" rel="noopener noreferrer">Live Website (GitHub Pages)</a>
                     </p>
                     <p>
                         <a href="#methodology">Methodology</a> - Detailed documentation of data sources, processing, and limitations
@@ -1055,7 +1131,7 @@
                         <li>ERA5 Reanalysis (Copernicus Climate Data Store)</li>
                         <li>Terna S.p.A. Electricity Consumption Data</li>
                         <li>Eurostat Energy Statistics</li>
-                        <li>Lancet Countdown on Health and Climate Change 2025</li>
+                        <li><a href="https://www.lancetcountdown.org/">Lancet Countdown 2025</a> (heat &amp; health indicators)</li>
                     </ul>
                     <p>See README.md in the repository for complete data source documentation and links.</p>
                 </div>
@@ -1085,15 +1161,15 @@
     <!-- Individual visualization modules -->
     <script src="js/viz-genoa-uhi.js"></script>
     <script src="js/viz-genoa-uhi-scrolly.js"></script>
-    <script src="js/viz-genoa-ndvi.js"></script>
     <script src="js/viz-sankey-landcover.js"></script>
     <script src="js/viz-energy-temperature.js"></script>
-    <script src="js/viz-sleep-hours-lost.js"></script>
-    <script src="js/viz-vulnerable-exposure.js"></script>
-    <script src="js/viz-vulnerable-choropleth.js"></script>
     <script src="js/viz-hdd-cdd.js"></script>
     <script src="js/viz-italy-electricity.js"></script>
-    <script src="js/viz-urban-population.js"></script>
+    <script src="js/viz-proportional-squares.js"></script>
+    <script src="js/viz-global-sleep-loss.js"></script>
+    <script src="js/viz-global-mortality.js"></script>
+    <script src="js/viz-work-hours-lost.js"></script>
+    <script src="js/viz-vulnerable-populations.js"></script>
     <!-- Scroll-based animations -->
     <script src="js/scroll-animations.js"></script>
     <!-- Main initialization (must be last) -->

@@ -43,12 +43,6 @@ function initializeVisualizations() {
             rootMargin: '2000px',
             threshold: 0.01
         });
-        
-        // NDVI - preload when still far from viewport (2000px away)
-        initializeLazyViz('#viz-genoa-ndvi', initializeGenoaNDVIViz, {
-            rootMargin: '2000px',
-            threshold: 0.01
-        });
     } else {
         // Fallback: initialize immediately if lazy loading not available
         console.warn('[Viz] Lazy loading not available, initializing TIFF visualizations immediately');
@@ -64,13 +58,6 @@ function initializeVisualizations() {
                 console.error('[Viz] Error initializing Land Cover:', error);
             }
         }, 100);
-        setTimeout(() => {
-            try {
-                initializeGenoaNDVIViz();
-            } catch (error) {
-                console.error('[Viz] Error initializing NDVI:', error);
-            }
-        }, 200);
     }
     
     // Initialize non-TIFF visualizations with more stagger to reduce initial load
@@ -85,9 +72,9 @@ function initializeVisualizations() {
     
     setTimeout(() => {
         try {
-            initializeUrbanPopulationViz();
+            initializeProportionalSquaresViz();
         } catch (error) {
-            console.error('[Viz] Error initializing Urban Population:', error);
+            console.error('[Viz] Error initializing Proportional Squares:', error);
         }
     }, 400);
     
@@ -97,7 +84,7 @@ function initializeVisualizations() {
         } catch (error) {
             console.error('[Viz] Error initializing Italy Electricity:', error);
         }
-    }, 600);
+    }, 500);
     
     setTimeout(() => {
         try {
@@ -105,29 +92,38 @@ function initializeVisualizations() {
         } catch (error) {
             console.error('[Viz] Error initializing HDD/CDD:', error);
         }
+    }, 600);
+    
+    // Health visualizations
+    setTimeout(() => {
+        try {
+            initializeGlobalSleepLossViz();
+        } catch (error) {
+            console.error('[Viz] Error initializing Global Sleep Loss:', error);
+        }
     }, 800);
     
     setTimeout(() => {
         try {
-            initializeSleepHoursViz();
+            initializeGlobalMortalityViz();
         } catch (error) {
-            console.error('[Viz] Error initializing Sleep Hours Lost:', error);
+            console.error('[Viz] Error initializing Global Mortality:', error);
         }
     }, 1000);
     
     setTimeout(() => {
         try {
-            initializeVulnerableExposureViz();
+            initializeWorkHoursLostViz();
         } catch (error) {
-            console.error('[Viz] Error initializing Vulnerable Exposure:', error);
+            console.error('[Viz] Error initializing Work Hours Lost:', error);
         }
     }, 1200);
     
     setTimeout(() => {
         try {
-            initializeVulnerableChoroplethViz();
+            initializeVulnerablePopulationsViz();
         } catch (error) {
-            console.error('[Viz] Error initializing Vulnerable Choropleth:', error);
+            console.error('[Viz] Error initializing Vulnerable Populations:', error);
         }
     }, 1400);
 }

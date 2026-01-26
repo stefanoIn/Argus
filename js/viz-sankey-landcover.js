@@ -151,14 +151,20 @@ function renderSankey(container, nodes, links, totalAreaKm2, totalFlowPixels) {
     const containerWidth = container.node().getBoundingClientRect().width || 1200;
     const containerHeight = container.node().getBoundingClientRect().height || 700;
     const maxWidth = 1200;
-    const contentWidth = Math.min(maxWidth, containerWidth);
+    const minWidth = 400; // Minimum width for small screens
+    const contentWidth = Math.max(minWidth, Math.min(maxWidth, containerWidth));
     
     // Calculate optimal height based on container (increased for larger diagram)
     const baseHeight = 500;
     const availableHeight = Math.max(baseHeight, containerHeight - 60); // Reduced space for margins
     
-    // Use smaller margins since legend is removed
-    const margin = { top: 60, right: 40, bottom: 20, left: 40 };
+    // Use smaller margins since legend is removed, adjust for small screens
+    const margin = { 
+        top: 60, 
+        right: Math.max(20, contentWidth * 0.03), 
+        bottom: 20, 
+        left: Math.max(20, contentWidth * 0.03) 
+    };
     const width = contentWidth - margin.left - margin.right;
     const height = availableHeight - margin.top - margin.bottom;
     
@@ -177,9 +183,9 @@ function renderSankey(container, nodes, links, totalAreaKm2, totalFlowPixels) {
     const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
     
-    // Calculate node positions using Sankey layout
-    const nodeWidth = 160;
-    const gap = 15;
+    // Calculate node positions using Sankey layout - responsive node width
+    const nodeWidth = Math.max(100, Math.min(160, width * 0.15));
+    const gap = Math.max(10, Math.min(15, height * 0.02));
     
     // Group nodes by type
     const landCoverNodes = nodes.filter(n => n.type === 'landcover');
@@ -195,8 +201,8 @@ function renderSankey(container, nodes, links, totalAreaKm2, totalFlowPixels) {
     const totalFlow = d3.sum(Array.from(nodeTotals.values()));
     const availableHeightForNodes = height - (gap * (landCoverNodes.length - 1));
     
-    // Calculate final node positions (ensure proper centering)
-    const finalSpacing = Math.max(350, width * 0.4);
+    // Calculate final node positions (ensure proper centering) - responsive spacing
+    const finalSpacing = Math.max(150, Math.min(350, width * 0.35));
     const finalTotalWidth = nodeWidth * 2 + finalSpacing;
     const finalLeftX = Math.max(10, (width - finalTotalWidth) / 2);
     const finalRightX = finalLeftX + nodeWidth + finalSpacing;
@@ -423,8 +429,8 @@ function renderSankey(container, nodes, links, totalAreaKm2, totalFlowPixels) {
             .attr('rx', 4)
             .style('cursor', 'pointer');
         
-        // Node label (prevent text spilling with better wrapping)
-        const maxCharsPerLine = 12;
+        // Node label (prevent text spilling with better wrapping) - responsive font size
+        const maxCharsPerLine = nodeWidth < 120 ? 8 : 12;
         let labelText = node.name;
         
         // For temperature classes, use shorter labels
@@ -446,8 +452,9 @@ function renderSankey(container, nodes, links, totalAreaKm2, totalFlowPixels) {
         
         const labelParts = Array.isArray(labelText) ? labelText : [labelText];
         
-        // Calculate vertical centering for multi-line labels
-        const lineHeight = 14;
+        // Calculate vertical centering for multi-line labels - responsive font size
+        const baseFontSize = nodeWidth < 120 ? 9 : (node.height < 50 ? 11 : 12);
+        const lineHeight = baseFontSize + 2;
         const totalHeight = labelParts.length * lineHeight;
         const startY = (node.height - totalHeight) / 2 + lineHeight / 2;
         
@@ -458,7 +465,7 @@ function renderSankey(container, nodes, links, totalAreaKm2, totalFlowPixels) {
                 .attr('text-anchor', 'middle')
                 .attr('dominant-baseline', 'middle')
                 .style('fill', 'var(--text-primary)')
-                .style('font-size', node.height < 50 ? '11px' : '12px')
+                .style('font-size', `${baseFontSize}px`)
                 .style('font-weight', '600')
                 .style('pointer-events', 'none')
                 .text(part);
