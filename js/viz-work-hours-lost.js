@@ -101,7 +101,7 @@ function createWorkHoursLostChart(data, container) {
         .style('stroke-dasharray', '2,2')
         .style('opacity', 0.35);
     
-    // Stacked areas
+    // Stacked areas with hover effects
     g.selectAll('.layer')
         .data(stacked)
         .enter()
@@ -111,7 +111,18 @@ function createWorkHoursLostChart(data, container) {
         .attr('fill', (d, i) => seriesKeys[i].color)
         .attr('opacity', 0.35)
         .attr('stroke', (d, i) => seriesKeys[i].color)
-        .attr('stroke-width', 1.2);
+        .attr('stroke-width', 1.2)
+        .style('cursor', 'pointer')
+        .on('mouseover', function(event, d, i) {
+            d3.select(this)
+                .attr('opacity', 0.6)
+                .attr('stroke-width', 2);
+        })
+        .on('mouseout', function() {
+            d3.select(this)
+                .attr('opacity', 0.35)
+                .attr('stroke-width', 1.2);
+        });
     
     // Axes
     g.append('g')
@@ -147,11 +158,14 @@ function createWorkHoursLostChart(data, container) {
         .style('fill', 'var(--text-primary)')
         .text('Work hours lost (global, by sector)');
     
-    // Right-side legend
+    // Right-side legend - ordered from top to bottom (matching visual stack order)
     const legend = g.append('g')
         .attr('transform', `translate(${width + 20}, 10)`);
     
-    seriesKeys.forEach((s, i) => {
+    // Reverse the seriesKeys array to show top layer first in legend
+    const legendOrder = [...seriesKeys].reverse();
+    
+    legendOrder.forEach((s, i) => {
         const item = legend.append('g').attr('transform', `translate(0, ${i * 20})`);
         item.append('rect')
             .attr('x', 0).attr('y', -9)
@@ -221,15 +235,19 @@ function createWorkHoursLostChart(data, container) {
             const d = data[Math.min(Math.max(idx, 0), data.length - 1)];
             if (!d) return;
             
-            const parts = seriesKeys.map(s => `${s.label}: ${(Number(d[s.key]) || 0).toLocaleString()}`);
+            // Calculate total and percentages for each sector
+            const total = seriesKeys.reduce((sum, s) => sum + (Number(d[s.key]) || 0), 0);
+            const parts = seriesKeys.map(s => {
+                const value = Number(d[s.key]) || 0;
+                const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                return `<span style="color: ${s.color}; font-weight: 600;">${s.label}:</span> ${value.toLocaleString()} (${pct}%)`;
+            });
+            
             tooltip
                 .style('visibility', 'visible')
-                .html(`<strong>${d.Year}</strong><br/>${parts.join('<br/>')}`);
-        })
-        .on('mousemove', function(event) {
-            tooltip
                 .style('top', (event.pageY - 60) + 'px')
-                .style('left', (event.pageX + 10) + 'px');
+                .style('left', (event.pageX + 10) + 'px')
+                .html(`<strong style="font-size: 14px;">${d.Year}</strong><br/><div style="margin-top: 6px;">${parts.join('<br/>')}</div><div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-light); font-weight: 600;">Total: ${total.toLocaleString()} hours</div>`);
         })
         .on('mouseout', function() {
             tooltip.style('visibility', 'hidden');
