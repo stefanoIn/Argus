@@ -35,20 +35,36 @@ function createWorkHoursLostChart(data, container) {
     
     const containerNode = container.node();
     const containerWidth = containerNode.getBoundingClientRect().width;
-    const margin = { top: 40, right: 220, bottom: 60, left: 90 }; // Increased right margin for callout text
+    const isMobile = containerWidth < 768;
+    
+    // Responsive margins - smaller on mobile
+    const margin = { 
+        top: 40, 
+        right: isMobile ? 40 : 220, 
+        bottom: isMobile ? 120 : 60, // Extra space for legend on mobile
+        left: isMobile ? 50 : 90 
+    };
     const width = Math.max(300, containerWidth - margin.left - margin.right);
     const height = 340;
     
-    const svg = container.append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom);
+    // Calculate total SVG dimensions
+    const svgWidth = width + margin.left + margin.right;
+    const svgHeight = height + margin.top + margin.bottom;
     
-    // Subtitle
+    const svg = container.append('svg')
+        .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .style('width', '100%')
+        .style('height', 'auto')
+        .style('max-width', '100%');
+    
+    // Subtitle - responsive font size
+    const subtitleFontSize = isMobile ? '11px' : '13px';
     svg.append('text')
         .attr('x', (width + margin.left + margin.right) / 2)
         .attr('y', 15)
         .attr('text-anchor', 'middle')
-        .style('font-size', '13px')
+        .style('font-size', subtitleFontSize)
         .style('fill', 'var(--text-secondary)')
         .style('font-weight', '400')
         .text('Global work hours lost to heat by sector, 1990–2024 | Data: Lancet Countdown 2025');
@@ -124,11 +140,16 @@ function createWorkHoursLostChart(data, container) {
                 .attr('stroke-width', 1.2);
         });
     
-    // Axes
+    // Axes - responsive tick count
+    const xTicks = isMobile ? 6 : 8;
+    const axisFontSize = isMobile ? '10px' : '11px';
+    
     g.append('g')
         .attr('transform', `translate(0, ${height})`)
-        .call(d3.axisBottom(xScale).tickFormat(d3.format('d')).ticks(8))
-        .style('color', 'var(--text-secondary)');
+        .call(d3.axisBottom(xScale).tickFormat(d3.format('d')).ticks(xTicks))
+        .style('color', 'var(--text-secondary)')
+        .selectAll('text')
+        .style('font-size', axisFontSize);
     
     g.append('g')
         .call(d3.axisLeft(yScale).tickFormat(d => {
@@ -136,78 +157,143 @@ function createWorkHoursLostChart(data, container) {
             if (d >= 1e6) return (d / 1e6).toFixed(0) + 'M';
             return d3.format(',.0f')(d);
         }))
-        .style('color', 'var(--text-secondary)');
+        .style('color', 'var(--text-secondary)')
+        .selectAll('text')
+        .style('font-size', axisFontSize);
     
-    // Labels
+    // Labels - responsive font sizes
+    const labelFontSize = isMobile ? '12px' : '14px';
     g.append('text')
         .attr('x', width / 2)
         .attr('y', height + 45)
         .attr('text-anchor', 'middle')
-        .style('font-size', '14px')
+        .style('font-size', labelFontSize)
         .style('font-weight', '600')
         .style('fill', 'var(--text-primary)')
         .text('Year');
     
+    // Y-axis label - shorter on mobile
+    const yLabelText = isMobile ? 'Work hours lost' : 'Work hours lost (global, by sector)';
     g.append('text')
         .attr('transform', 'rotate(-90)')
         .attr('x', -height / 2)
-        .attr('y', -65)
+        .attr('y', isMobile ? -40 : -65)
         .attr('text-anchor', 'middle')
-        .style('font-size', '14px')
+        .style('font-size', labelFontSize)
         .style('font-weight', '600')
         .style('fill', 'var(--text-primary)')
-        .text('Work hours lost (global, by sector)');
+        .text(yLabelText);
     
-    // Right-side legend - ordered from top to bottom (matching visual stack order)
-    const legend = g.append('g')
-        .attr('transform', `translate(${width + 20}, 10)`);
+    // Legend - positioned right on desktop, below on mobile
+    const legendFontSize = isMobile ? '10px' : '11px';
+    const legendItemHeight = isMobile ? 18 : 20;
     
-    // Reverse the seriesKeys array to show top layer first in legend
-    const legendOrder = [...seriesKeys].reverse();
-    
-    legendOrder.forEach((s, i) => {
-        const item = legend.append('g').attr('transform', `translate(0, ${i * 20})`);
-        item.append('rect')
-            .attr('x', 0).attr('y', -9)
-            .attr('width', 14).attr('height', 10)
-            .attr('fill', s.color)
-            .attr('opacity', 0.6);
-        item.append('text')
-            .attr('x', 18).attr('y', 0)
-            .style('font-size', '11px')
+    if (isMobile) {
+        // Mobile: legend below chart, centered
+        const legend = g.append('g')
+            .attr('transform', `translate(${width / 2}, ${height + 30})`);
+        
+        // Reverse the seriesKeys array to show top layer first in legend
+        const legendOrder = [...seriesKeys].reverse();
+        
+        // Create two columns for mobile
+        const itemsPerColumn = Math.ceil(legendOrder.length / 2);
+        const columnWidth = width / 2;
+        
+        legendOrder.forEach((s, i) => {
+            const col = Math.floor(i / itemsPerColumn);
+            const row = i % itemsPerColumn;
+            const item = legend.append('g')
+                .attr('transform', `translate(${col * columnWidth - columnWidth / 2}, ${row * legendItemHeight})`);
+            
+            item.append('rect')
+                .attr('x', -60).attr('y', -7)
+                .attr('width', 12).attr('height', 8)
+                .attr('fill', s.color)
+                .attr('opacity', 0.6);
+            item.append('text')
+                .attr('x', -45).attr('y', 0)
+                .style('font-size', legendFontSize)
+                .style('fill', 'var(--text-primary)')
+                .style('text-anchor', 'start')
+                .text(s.label);
+        });
+        
+        // Per-person headline below legend
+        const headlineY = itemsPerColumn * legendItemHeight + 20;
+        legend.append('text')
+            .attr('x', 0)
+            .attr('y', headlineY)
+            .attr('text-anchor', 'middle')
+            .style('font-size', legendFontSize)
+            .style('fill', 'var(--text-secondary)')
+            .text('Per person (latest year):');
+        
+        const headlineText = legend.append('text')
+            .attr('x', 0)
+            .attr('y', headlineY + 18)
+            .attr('text-anchor', 'middle')
+            .style('font-size', isMobile ? '12px' : '14px')
+            .style('font-weight', '700')
+            .style('fill', 'var(--text-primary)');
+        
+        headlineText.append('tspan')
+            .attr('x', 0)
+            .text(`${latest.TotalSunWHLpp} hrs`);
+        
+        headlineText.append('tspan')
+            .attr('x', 0)
+            .attr('dy', '1.2em')
+            .text(`(${increasePct >= 0 ? '+' : ''}${increasePct.toFixed(0)}% since 1990)`);
+    } else {
+        // Desktop: legend on right side
+        const legend = g.append('g')
+            .attr('transform', `translate(${width + 20}, 10)`);
+        
+        // Reverse the seriesKeys array to show top layer first in legend
+        const legendOrder = [...seriesKeys].reverse();
+        
+        legendOrder.forEach((s, i) => {
+            const item = legend.append('g').attr('transform', `translate(0, ${i * legendItemHeight})`);
+            item.append('rect')
+                .attr('x', 0).attr('y', -9)
+                .attr('width', 14).attr('height', 10)
+                .attr('fill', s.color)
+                .attr('opacity', 0.6);
+            item.append('text')
+                .attr('x', 18).attr('y', 0)
+                .style('font-size', legendFontSize)
+                .style('fill', 'var(--text-primary)')
+                .text(s.label);
+        });
+        
+        // Per-person headline
+        legend.append('text')
+            .attr('x', 0)
+            .attr('y', seriesKeys.length * legendItemHeight + 20)
+            .style('font-size', legendFontSize)
+            .style('fill', 'var(--text-secondary)')
+            .text('Per person (latest year):');
+        
+        const headlineText = legend.append('text')
+            .attr('x', 0)
+            .attr('y', seriesKeys.length * legendItemHeight + 38)
+            .style('font-size', '14px')
+            .style('font-weight', '700')
             .style('fill', 'var(--text-primary)')
-            .text(s.label);
-    });
+            .attr('text-anchor', 'start');
+        
+        headlineText.append('tspan')
+            .attr('x', 0)
+            .text(`${latest.TotalSunWHLpp} hrs`);
+        
+        headlineText.append('tspan')
+            .attr('x', 0)
+            .attr('dy', '1.2em')
+            .text(`(${increasePct >= 0 ? '+' : ''}${increasePct.toFixed(0)}% since 1990)`);
+    }
     
-    // Per-person headline (not another line plot)
-    legend.append('text')
-        .attr('x', 0)
-        .attr('y', seriesKeys.length * 20 + 20)
-        .style('font-size', '11px')
-        .style('fill', 'var(--text-secondary)')
-        .text('Per person (latest year):');
-    
-    // Display the full text, breaking into two lines if needed
-    const headlineText = legend.append('text')
-        .attr('x', 0)
-        .attr('y', seriesKeys.length * 20 + 38)
-        .style('font-size', '14px')
-        .style('font-weight', '700')
-        .style('fill', 'var(--text-primary)')
-        .attr('text-anchor', 'start');
-    
-    // First line: hours
-    headlineText.append('tspan')
-        .attr('x', 0)
-        .text(`${latest.TotalSunWHLpp} hrs`);
-    
-    // Second line: percentage change
-    headlineText.append('tspan')
-        .attr('x', 0)
-        .attr('dy', '1.2em')
-        .text(`(${increasePct >= 0 ? '+' : ''}${increasePct.toFixed(0)}% since 1990)`);
-    
-    // Tooltip (reuse to avoid duplicates)
+    // Tooltip (reuse to avoid duplicates) - mobile-friendly
     d3.select('body').selectAll('.viz-tooltip-workhours').remove();
     const tooltip = d3.select('body').append('div')
         .attr('class', 'viz-tooltip viz-tooltip-workhours')
@@ -216,13 +302,46 @@ function createWorkHoursLostChart(data, container) {
         .style('background', 'var(--bg-overlay)')
         .style('border', '1px solid var(--border-medium)')
         .style('border-radius', '8px')
-        .style('padding', '8px 12px')
-        .style('font-size', '13px')
+        .style('padding', isMobile ? '10px 14px' : '8px 12px')
+        .style('font-size', isMobile ? '12px' : '13px')
         .style('box-shadow', '0 2px 8px rgba(0,0,0,0.15)')
         .style('pointer-events', 'none')
-        .style('z-index', '1000');
+        .style('z-index', '1000')
+        .style('touch-action', 'none'); // Prevent scrolling when touching tooltip
     
     const bisect = d3.bisector(d => d.Year).left;
+    
+    // Function to show tooltip
+    const showTooltip = function(event, d) {
+        if (!d) return;
+        
+        // Calculate total and percentages for each sector
+        const total = seriesKeys.reduce((sum, s) => sum + (Number(d[s.key]) || 0), 0);
+        const parts = seriesKeys.map(s => {
+            const value = Number(d[s.key]) || 0;
+            const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+            return `<span style="color: ${s.color}; font-weight: 600;">${s.label}:</span> ${value.toLocaleString()} (${pct}%)`;
+        });
+        
+        const tooltipFontSize = isMobile ? '12px' : '13px';
+        const tooltipTitleSize = isMobile ? '13px' : '14px';
+        
+        // Position tooltip - adjust for mobile
+        const tooltipX = isMobile ? containerWidth / 2 : (event.pageX + 10);
+        const tooltipY = isMobile ? (event.pageY - 100) : (event.pageY - 60);
+        const tooltipLeft = isMobile ? '50%' : (tooltipX + 'px');
+        const tooltipTransform = isMobile ? 'translate(-50%, 0)' : 'none';
+        
+        tooltip
+            .style('visibility', 'visible')
+            .style('top', tooltipY + 'px')
+            .style('left', tooltipLeft)
+            .style('transform', tooltipTransform)
+            .style('max-width', isMobile ? '90%' : 'none')
+            .style('font-size', tooltipFontSize)
+            .html(`<strong style="font-size: ${tooltipTitleSize};">${d.Year}</strong><br/><div style="margin-top: 6px;">${parts.join('<br/>')}</div><div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-light); font-weight: 600;">Total: ${total.toLocaleString()} hours</div>`);
+    };
+    
     g.append('rect')
         .attr('width', width)
         .attr('height', height)
@@ -233,24 +352,25 @@ function createWorkHoursLostChart(data, container) {
             const year = Math.round(xScale.invert(mx));
             const idx = bisect(data, year);
             const d = data[Math.min(Math.max(idx, 0), data.length - 1)];
-            if (!d) return;
-            
-            // Calculate total and percentages for each sector
-            const total = seriesKeys.reduce((sum, s) => sum + (Number(d[s.key]) || 0), 0);
-            const parts = seriesKeys.map(s => {
-                const value = Number(d[s.key]) || 0;
-                const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
-                return `<span style="color: ${s.color}; font-weight: 600;">${s.label}:</span> ${value.toLocaleString()} (${pct}%)`;
-            });
-            
-            tooltip
-                .style('visibility', 'visible')
-                .style('top', (event.pageY - 60) + 'px')
-                .style('left', (event.pageX + 10) + 'px')
-                .html(`<strong style="font-size: 14px;">${d.Year}</strong><br/><div style="margin-top: 6px;">${parts.join('<br/>')}</div><div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border-light); font-weight: 600;">Total: ${total.toLocaleString()} hours</div>`);
+            showTooltip(event, d);
+        })
+        .on('touchmove', function(event) {
+            event.preventDefault();
+            const touch = event.touches[0];
+            const [mx] = d3.pointer(touch, this);
+            const year = Math.round(xScale.invert(mx));
+            const idx = bisect(data, year);
+            const d = data[Math.min(Math.max(idx, 0), data.length - 1)];
+            showTooltip({ pageX: touch.pageX, pageY: touch.pageY }, d);
         })
         .on('mouseout', function() {
             tooltip.style('visibility', 'hidden');
+        })
+        .on('touchend', function() {
+            // Keep tooltip visible on touch end for mobile users to read
+            setTimeout(() => {
+                tooltip.style('visibility', 'hidden');
+            }, 2000);
         });
 }
 

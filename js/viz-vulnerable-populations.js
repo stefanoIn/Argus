@@ -34,6 +34,9 @@ function initializeVulnerablePopulationsViz() {
 function createVulnerablePopulationsChart(data, container) {
     container.selectAll('*').remove();
 
+    const containerWidth = container.node().getBoundingClientRect().width;
+    const isMobile = containerWidth < 768;
+
     // Override generic `.visualization` flex-centering styles for this multi-panel layout
     container
         .style('display', 'block')
@@ -41,7 +44,7 @@ function createVulnerablePopulationsChart(data, container) {
         .style('height', 'auto')
         .style('padding', '0')
         .style('margin', '0 auto')
-        .style('max-width', '1100px')
+        .style('max-width', isMobile ? '100%' : '1100px')
         .style('box-sizing', 'border-box');
     
     // ----------------------------
@@ -125,16 +128,16 @@ function createVulnerablePopulationsChart(data, container) {
         .style('max-width', '820px')
         .html('<strong>What is a person-day/person-event?</strong> It counts cumulative exposure: 1 person exposed for 1 day = 1 person-day. For example, 1,000 people exposed for 10 days = 10,000 person-days. Values here are annual totals.');
     
-    // Chart containers
+    // Chart containers - responsive grid
     const chartWrap = container.append('div')
         .style('display', 'grid')
-        .style('grid-template-columns', '1fr')
-        .style('gap', '16px');
+        .style('grid-template-columns', isMobile ? '1fr' : '1fr 1fr')
+        .style('gap', isMobile ? '24px' : '16px');
     
     const svgTime = chartWrap.append('svg');
     const svgRank = chartWrap.append('svg');
     
-    // Tooltip (reuse to avoid duplicates)
+    // Tooltip (reuse to avoid duplicates) - mobile-friendly
     d3.select('body').selectAll('.viz-tooltip-vulnerable').remove();
     const tooltip = d3.select('body').append('div')
         .attr('class', 'viz-tooltip viz-tooltip-vulnerable')
@@ -143,11 +146,13 @@ function createVulnerablePopulationsChart(data, container) {
         .style('background', 'var(--bg-overlay)')
         .style('border', '1px solid var(--border-medium)')
         .style('border-radius', '8px')
-        .style('padding', '8px 12px')
-        .style('font-size', '13px')
+        .style('padding', isMobile ? '10px 14px' : '8px 12px')
+        .style('font-size', isMobile ? '12px' : '13px')
         .style('box-shadow', '0 2px 8px rgba(0,0,0,0.15)')
         .style('pointer-events', 'none')
-        .style('z-index', '1000');
+        .style('z-index', '1000')
+        .style('touch-action', 'none')
+        .style('max-width', isMobile ? '90%' : 'none');
     
     const fmtBig = (v) => {
         if (v >= 1e9) return (v / 1e9).toFixed(2) + 'B';
@@ -193,7 +198,12 @@ function createVulnerablePopulationsChart(data, container) {
             .style('box-sizing', 'border-box');
         
         // --- Time series chart
-        const margin = { top: 35, right: 20, bottom: 45, left: 90 };
+        const margin = { 
+            top: 35, 
+            right: isMobile ? 20 : 20, 
+            bottom: 45, 
+            left: isMobile ? 50 : 90 
+        };
         const width = Math.max(260, timeCol - margin.left - margin.right);
         const height = 300;
         

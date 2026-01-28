@@ -236,48 +236,11 @@ function addDynamicStyles() {
 addDynamicStyles();
 
 /**
- * Initialize theme toggle functionality
+ * Initialize theme - light theme only
  */
 function initializeTheme() {
-    // Check for saved theme preference or default to light mode
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    // Determine initial theme: saved preference takes priority, otherwise use system preference, default to light
-    let initialTheme = 'light';
-    if (savedTheme === 'dark') {
-        initialTheme = 'dark';
-    } else if (savedTheme === 'light') {
-        initialTheme = 'light';
-    } else if (prefersDark) {
-        // If no saved preference and system prefers dark, use dark
-        initialTheme = 'dark';
-    }
-    
-    applyTheme(initialTheme);
-    
-    // Set up theme toggle button
-    const themeToggle = document.querySelector('.theme-toggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            applyTheme(newTheme);
-            localStorage.setItem('theme', newTheme);
-        });
-    }
-}
-
-/**
- * Apply theme to the document
- */
-function applyTheme(theme) {
-    if (theme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-        document.documentElement.removeAttribute('data-theme');
-    }
+    // Always use light theme
+    document.documentElement.removeAttribute('data-theme');
     
     // Update theme color meta tag for mobile browsers
     let themeColorMeta = document.querySelector('meta[name="theme-color"]');
@@ -286,7 +249,7 @@ function applyTheme(theme) {
         themeColorMeta.setAttribute('name', 'theme-color');
         document.head.appendChild(themeColorMeta);
     }
-    themeColorMeta.setAttribute('content', theme === 'dark' ? '#0f1419' : '#ffffff');
+    themeColorMeta.setAttribute('content', '#ffffff');
 }
 
 /**

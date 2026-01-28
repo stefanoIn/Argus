@@ -69,16 +69,27 @@ function createEnergyTemperatureChart(data, metadata, container, loadingMsg) {
         temperature: d.temperature_c
     }));
     
-    // Set up dimensions
-    const margin = { top: 20, right: 80, bottom: 60, left: 80 };
+    // Set up dimensions - responsive
     const containerWidth = container.node().getBoundingClientRect().width;
-    const width = Math.max(600, containerWidth) - margin.left - margin.right;
+    const isMobile = containerWidth < 768;
+    const margin = { 
+        top: 20, 
+        right: isMobile ? 40 : 80, 
+        bottom: 60, 
+        left: isMobile ? 50 : 80 
+    };
+    const width = Math.max(300, containerWidth - margin.left - margin.right);
     const height = 400 - margin.top - margin.bottom;
     
-    // Create SVG
+    // Create SVG - responsive
+    const svgWidth = width + margin.left + margin.right;
+    const svgHeight = height + margin.top + margin.bottom;
     const svg = container.append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
+        .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .style('width', '100%')
+        .style('height', 'auto')
+        .style('max-width', '100%')
         .style('overflow', 'visible');
     
     const g = svg.append('g')
@@ -128,7 +139,7 @@ function createEnergyTemperatureChart(data, metadata, container, loadingMsg) {
         .attr('stroke-width', 2.5)
         .attr('d', tempLine);
     
-    // Add dots for energy
+    // Add dots for energy - with touch support
     g.selectAll('.energy-dot')
         .data(parsedData)
         .enter()
@@ -136,15 +147,23 @@ function createEnergyTemperatureChart(data, metadata, container, loadingMsg) {
         .attr('class', 'energy-dot')
         .attr('cx', d => xScale(d.date))
         .attr('cy', d => yEnergyScale(d.electricity))
-        .attr('r', 3)
+        .attr('r', isMobile ? 4 : 3)
         .attr('fill', energyColor)
         .attr('opacity', 0.7)
         .on('mouseenter', function(event, d) {
             showTooltip(event, d, 'energy');
         })
-        .on('mouseleave', hideTooltip);
+        .on('touchstart', function(event, d) {
+            event.preventDefault();
+            const touch = event.touches[0];
+            showTooltip({ pageX: touch.pageX, pageY: touch.pageY }, d, 'energy');
+        })
+        .on('mouseleave', hideTooltip)
+        .on('touchend', function() {
+            setTimeout(() => hideTooltip(), 2000);
+        });
     
-    // Add dots for temperature
+    // Add dots for temperature - with touch support
     g.selectAll('.temp-dot')
         .data(parsedData)
         .enter()
@@ -152,18 +171,31 @@ function createEnergyTemperatureChart(data, metadata, container, loadingMsg) {
         .attr('class', 'temp-dot')
         .attr('cx', d => xScale(d.date))
         .attr('cy', d => yTempScale(d.temperature))
-        .attr('r', 3)
+        .attr('r', isMobile ? 4 : 3)
         .attr('fill', tempColor)
         .attr('opacity', 0.7)
         .on('mouseenter', function(event, d) {
             showTooltip(event, d, 'temp');
         })
-        .on('mouseleave', hideTooltip);
+        .on('touchstart', function(event, d) {
+            event.preventDefault();
+            const touch = event.touches[0];
+            showTooltip({ pageX: touch.pageX, pageY: touch.pageY }, d, 'temp');
+        })
+        .on('mouseleave', hideTooltip)
+        .on('touchend', function() {
+            setTimeout(() => hideTooltip(), 2000);
+        });
     
-    // X axis
+    // Responsive font sizes
+    const axisFontSize = isMobile ? '10px' : '11px';
+    const labelFontSize = isMobile ? '12px' : '13px';
+    
+    // X axis - fewer ticks on mobile
+    const xTicks = isMobile ? d3.timeMonth.every(6) : d3.timeMonth.every(3);
     const xAxis = d3.axisBottom(xScale)
-        .ticks(d3.timeMonth.every(3))
-        .tickFormat(d3.timeFormat('%b %Y'));
+        .ticks(xTicks)
+        .tickFormat(d3.timeFormat(isMobile ? '%b %y' : '%b %Y'));
     
     g.append('g')
         .attr('transform', `translate(0,${height})`)
@@ -171,11 +203,12 @@ function createEnergyTemperatureChart(data, metadata, container, loadingMsg) {
         .style('color', 'var(--text-secondary)')
         .selectAll('text')
         .style('fill', 'var(--text-secondary)')
-        .style('font-size', '11px');
+        .style('font-size', axisFontSize);
     
-    // Left Y axis (Energy)
+    // Left Y axis (Energy) - fewer ticks on mobile
+    const yEnergyTicks = isMobile ? 4 : 6;
     const yEnergyAxis = d3.axisLeft(yEnergyScale)
-        .ticks(6)
+        .ticks(yEnergyTicks)
         .tickFormat(d => `${d.toLocaleString()} GWh`);
     
     g.append('g')
@@ -183,22 +216,23 @@ function createEnergyTemperatureChart(data, metadata, container, loadingMsg) {
         .style('color', energyColor)
         .selectAll('text')
         .style('fill', energyColor)
-        .style('font-size', '11px')
+        .style('font-size', axisFontSize)
         .style('font-weight', '500');
     
     g.append('text')
         .attr('transform', 'rotate(-90)')
-        .attr('y', -60)
+        .attr('y', isMobile ? -45 : -60)
         .attr('x', -height / 2)
         .attr('text-anchor', 'middle')
         .style('fill', energyColor)
-        .style('font-size', '13px')
+        .style('font-size', labelFontSize)
         .style('font-weight', '600')
-        .text(`Electricity Consumption (${metadata.unit_energy})`);
+        .text(isMobile ? `Electricity (${metadata.unit_energy})` : `Electricity Consumption (${metadata.unit_energy})`);
     
-    // Right Y axis (Temperature)
+    // Right Y axis (Temperature) - fewer ticks on mobile
+    const yTempTicks = isMobile ? 4 : 6;
     const yTempAxis = d3.axisRight(yTempScale)
-        .ticks(6)
+        .ticks(yTempTicks)
         .tickFormat(d => `${d.toFixed(1)}°C`);
     
     g.append('g')
@@ -207,14 +241,14 @@ function createEnergyTemperatureChart(data, metadata, container, loadingMsg) {
         .style('color', tempColor)
         .selectAll('text')
         .style('fill', tempColor)
-        .style('font-size', '11px')
+        .style('font-size', axisFontSize)
         .style('font-weight', '500');
     
     g.append('text')
-        .attr('transform', `translate(${width + 50}, ${height / 2}) rotate(90)`)
+        .attr('transform', `translate(${width + (isMobile ? 40 : 50)}, ${height / 2}) rotate(90)`)
         .attr('text-anchor', 'middle')
         .style('fill', tempColor)
-        .style('font-size', '13px')
+        .style('font-size', labelFontSize)
         .style('font-weight', '600')
         .text(`Temperature (${metadata.unit_temperature})`);
     
@@ -230,15 +264,17 @@ function createEnergyTemperatureChart(data, metadata, container, loadingMsg) {
         .style('stroke-dasharray', '2,2')
         .style('opacity', 0.3);
     
-    // Legend
+    // Legend - responsive positioning
+    const legendX = isMobile ? width - 150 : width - 200;
     const legend = g.append('g')
-        .attr('transform', `translate(${width - 200}, 20)`);
+        .attr('transform', `translate(${legendX}, 20)`);
     
     const legendItems = [
-        { label: 'Electricity Consumption', color: energyColor },
+        { label: isMobile ? 'Electricity' : 'Electricity Consumption', color: energyColor },
         { label: 'Temperature', color: tempColor }
     ];
     
+    const legendFontSize = isMobile ? '11px' : '12px';
     legendItems.forEach((item, i) => {
         const legendItem = legend.append('g')
             .attr('transform', `translate(0, ${i * 25})`);
@@ -255,34 +291,40 @@ function createEnergyTemperatureChart(data, metadata, container, loadingMsg) {
             .attr('x', 25)
             .attr('y', 4)
             .style('fill', 'var(--text-primary)')
-            .style('font-size', '12px')
+            .style('font-size', legendFontSize)
             .style('font-weight', '500')
             .text(item.label);
     });
     
-    // Tooltip
+    // Tooltip - mobile-friendly
     const tooltip = container.append('div')
         .attr('class', 'energy-temp-tooltip')
         .style('position', 'absolute')
         .style('pointer-events', 'none')
         .style('background', 'var(--bg-overlay)')
         .style('color', 'var(--text-primary)')
-        .style('padding', '10px 14px')
+        .style('padding', isMobile ? '10px 14px' : '10px 14px')
         .style('border-radius', '8px')
-        .style('font-size', '13px')
+        .style('font-size', labelFontSize)
         .style('opacity', 0)
         .style('transition', 'opacity 0.2s')
         .style('z-index', '10')
         .style('box-shadow', 'var(--shadow-lg)')
-        .style('border', '1px solid var(--border-medium)');
+        .style('border', '1px solid var(--border-medium)')
+        .style('max-width', isMobile ? '90%' : 'none');
     
     function showTooltip(event, d, type) {
         const [x, y] = d3.pointer(event, container.node());
-        const dateStr = d3.timeFormat('%B %Y')(d.date);
+        const dateStr = d3.timeFormat(isMobile ? '%b %Y' : '%B %Y')(d.date);
+        
+        const tooltipX = isMobile ? containerWidth / 2 : (x + 15);
+        const tooltipY = isMobile ? (y - 100) : (y - 10);
+        const tooltipLeft = isMobile ? '50%' : (tooltipX + 'px');
+        const tooltipTransform = isMobile ? 'translate(-50%, 0)' : 'none';
         
         tooltip
             .html(`
-                <div style="font-weight: 600; margin-bottom: 6px; font-size: 12px;">${dateStr}</div>
+                <div style="font-weight: 600; margin-bottom: 6px; font-size: ${isMobile ? '11px' : '12px'};">${dateStr}</div>
                 <div style="margin-bottom: 4px;">
                     <span style="color: ${energyColor}; font-weight: 600;">Energy:</span> 
                     <span>${d.electricity.toLocaleString()} ${metadata.unit_energy}</span>
@@ -292,8 +334,9 @@ function createEnergyTemperatureChart(data, metadata, container, loadingMsg) {
                     <span>${d.temperature.toFixed(1)}${metadata.unit_temperature}</span>
                 </div>
             `)
-            .style('left', (x + 15) + 'px')
-            .style('top', (y - 10) + 'px')
+            .style('left', tooltipLeft)
+            .style('top', tooltipY + 'px')
+            .style('transform', tooltipTransform)
             .style('opacity', 1);
     }
     

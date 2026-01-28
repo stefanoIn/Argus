@@ -369,7 +369,7 @@ function createSmallMultiplesChart(electricityData, temperatureData, container, 
             .style('fill', '#e85d04')
             .style('font-size', '12px')
             .style('font-weight', '700')
-            .text('Peak temperature');
+            .text('Peak electricity consumption');
 
         annotation.append('text')
             .attr('x', peakX + textDx)

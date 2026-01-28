@@ -94,42 +94,6 @@
     --radius-xl: 1rem;       /* 16px */
 }
 
-/* Dark Theme */
-[data-theme="dark"] {
-    /* Color Palette - Dark Theme */
-    --bg-primary: #0f1419;
-    --bg-secondary: #1a1f24;
-    --bg-tertiary: #24292e;
-    --bg-card: #1a1f24;
-    --bg-overlay: rgba(15, 20, 25, 0.95);
-    
-    /* Heat Theme Accents - Dark Mode */
-    --primary-color: #ff6b35;       /* Vibrant orange */
-    --primary-color-rgb: 255, 107, 53; /* RGB values for primary color */
-    --primary-hover: #ff8c5f;       /* Lighter orange for hover */
-    
-    /* Text Colors - Dark Theme */
-    --text-primary: #e8eaed;
-    --text-secondary: #b0b8c1;
-    --text-tertiary: #8a95a8;
-    --text-light: #6b7585;
-    --text-inverse: #ffffff;
-    
-    /* Borders & Dividers - Dark Theme */
-    --border-light: rgba(255, 255, 255, 0.1);
-    --border-medium: rgba(255, 255, 255, 0.15);
-    --border-dark: rgba(255, 255, 255, 0.25);
-    --border-accent: rgba(232, 93, 4, 0.3);
-    --border-accent-hover: rgba(232, 93, 4, 0.5);
-    
-    /* Adjust shadows for dark theme */
-    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
-    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.6);
-    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.7);
-}
-
 /* ============================================
    Animations - Subtle & Professional
    ============================================ */
@@ -200,9 +164,6 @@ body {
     transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
-[data-theme="dark"] body {
-    background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-tertiary) 100%);
-}
 
 /* ============================================
    Typography - Refined
@@ -274,8 +235,7 @@ code {
    ============================================ */
 
 .header {
-    background: var(--bg-overlay);
-    backdrop-filter: blur(10px);
+    background: var(--bg-primary);
     border-bottom: 1px solid var(--border-light);
     position: fixed;
     top: 0;
@@ -283,8 +243,7 @@ code {
     right: 0;
     width: 100%;
     z-index: 1000;
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.3s ease, background-color var(--transition-normal), border-color var(--transition-normal);
+    transition: transform 0.3s ease, background var(--transition-normal), border-color var(--transition-normal);
     transform: translateY(0);
     will-change: transform;
 }
@@ -293,7 +252,6 @@ code {
     transform: translateY(-100%) !important;
 }
 
-/* Ensure inline styles override when needed */
 .header[style*="translateY(-100%)"] {
     transform: translateY(-100%) !important;
 }
@@ -301,11 +259,12 @@ code {
 .nav-container {
     max-width: var(--max-width-content);
     margin: 0 auto;
-    padding: var(--spacing-lg) var(--spacing-xl);
+    padding: var(--spacing-md) var(--spacing-xl);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: var(--spacing-md);
+    gap: var(--spacing-xl);
+    min-height: 56px;
 }
 
 .header-controls {
@@ -315,27 +274,15 @@ code {
 }
 
 .logo h1 {
-    font-size: var(--font-size-xl);
+    font-size: 1.125rem;
     margin: 0;
-    font-weight: var(--font-weight-bold);
-    letter-spacing: -0.03em;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 50%, var(--heat-yellow) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--text-primary);
+    font-family: var(--font-primary);
+    text-transform: uppercase;
     position: relative;
     display: inline-block;
-    filter: drop-shadow(0 0 8px rgba(232, 93, 4, 0.3));
-    animation: heatGlow 3s ease-in-out infinite;
-}
-
-@keyframes heatGlow {
-    0%, 100% {
-        filter: drop-shadow(0 0 8px rgba(232, 93, 4, 0.3)) drop-shadow(0 0 12px rgba(232, 93, 4, 0.2));
-    }
-    50% {
-        filter: drop-shadow(0 0 12px rgba(232, 93, 4, 0.5)) drop-shadow(0 0 20px rgba(220, 38, 38, 0.3));
-    }
 }
 
 .logo a {
@@ -345,12 +292,12 @@ code {
 }
 
 .logo a:hover h1 {
-    animation: heatGlow 1.5s ease-in-out infinite;
-    filter: drop-shadow(0 0 15px rgba(232, 93, 4, 0.6)) drop-shadow(0 0 25px rgba(220, 38, 38, 0.4));
+    color: var(--primary-color);
 }
 
 .nav-menu a.active {
-    color: var(--primary-color);
+    color: var(--text-primary);
+    font-weight: 600;
 }
 
 .nav-menu a.active::after {
@@ -360,28 +307,29 @@ code {
 .nav-menu {
     display: flex;
     list-style: none;
-    gap: var(--spacing-xl);
+    gap: var(--spacing-2xl);
     align-items: center;
     margin: 0;
     padding: 0;
 }
 
 .nav-menu a {
-    color: var(--text-secondary);
-    font-weight: var(--font-weight-medium);
-    font-size: var(--font-size-base);
+    color: var(--text-tertiary);
+    font-weight: 500;
+    font-size: var(--font-size-sm);
     padding: var(--spacing-xs) 0;
     position: relative;
     transition: color var(--transition-fast);
+    text-decoration: none;
 }
 
 .nav-menu a::after {
     content: '';
     position: absolute;
-    bottom: 0;
+    bottom: -2px;
     left: 0;
     width: 0;
-    height: 2px;
+    height: 1px;
     background: var(--primary-color);
     transition: width var(--transition-normal);
 }
@@ -393,6 +341,8 @@ code {
 .nav-menu a:hover::after {
     width: 100%;
 }
+
+
 
 /* Methodology Page Header */
 .story-header {
@@ -491,61 +441,7 @@ code {
     width: 100%;
 }
 
-/* Theme Toggle Button - Blended with header */
-.theme-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    background: transparent;
-    border: none;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    padding: 0;
-    position: relative;
-    overflow: hidden;
-    flex-shrink: 0;
-}
 
-.theme-toggle:active {
-    transform: scale(0.95);
-}
-
-.theme-icon {
-    position: absolute;
-    transition: all var(--transition-normal);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-}
-
-.theme-icon svg {
-    width: 22px;
-    height: 22px;
-}
-
-.theme-icon-light {
-    opacity: 1;
-    transform: rotate(0deg) scale(1);
-}
-
-.theme-icon-dark {
-    opacity: 0;
-    transform: rotate(180deg) scale(0);
-}
-
-[data-theme="dark"] .theme-icon-light {
-    opacity: 0;
-    transform: rotate(-180deg) scale(0);
-}
-
-[data-theme="dark"] .theme-icon-dark {
-    opacity: 1;
-    transform: rotate(0deg) scale(1);
-}
 
 /* Mobile Menu Toggle Button */
 .mobile-menu-toggle {
@@ -592,35 +488,14 @@ code {
    ============================================ */
 
 .story-hero {
-    background: 
-        radial-gradient(ellipse at top, rgba(232, 93, 4, 0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at bottom right, rgba(220, 38, 38, 0.06) 0%, transparent 50%),
-        linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-    padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
-    text-align: center;
-    transition: background var(--transition-normal);
-    position: relative;
-    overflow: hidden;
+    background: transparent;
+    padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    text-align: left;
 }
 
 .story-hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-        repeating-linear-gradient(
-            45deg,
-            transparent,
-            transparent 2px,
-            rgba(232, 93, 4, 0.02) 2px,
-            rgba(232, 93, 4, 0.02) 4px
-        );
-    pointer-events: none;
-    opacity: 0.5;
+    display: none;
 }
 
 .story-hero .story-container {
@@ -628,23 +503,6 @@ code {
     z-index: 1;
 }
 
-[data-theme="dark"] .story-hero {
-    background: 
-        radial-gradient(ellipse at top, rgba(255, 107, 53, 0.12) 0%, transparent 50%),
-        radial-gradient(ellipse at bottom right, rgba(239, 68, 68, 0.1) 0%, transparent 50%),
-        linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-}
-
-[data-theme="dark"] .story-hero::before {
-    background: 
-        repeating-linear-gradient(
-            45deg,
-            transparent,
-            transparent 2px,
-            rgba(255, 107, 53, 0.04) 2px,
-            rgba(255, 107, 53, 0.04) 4px
-        );
-}
 
 .story-container {
     max-width: var(--max-width-content);
@@ -655,20 +513,23 @@ code {
 
 .story-title {
     font-size: var(--font-size-hero);
-    font-weight: 800;
-    margin-bottom: var(--spacing-md);
+    font-weight: 900;
+    margin-bottom: var(--spacing-sm);
     color: var(--text-primary);
     line-height: 1.1;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    font-family: var(--font-primary);
 }
 
 .story-lead {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-lg);
     line-height: var(--line-height-relaxed);
     color: var(--text-secondary);
     font-weight: var(--font-weight-normal);
-    max-width: 800px;
-    margin: 0 auto var(--spacing-lg);
+    max-width: none;
+    margin: var(--spacing-sm) 0 var(--spacing-md) 0;
+    text-align: left;
 }
 
 .story-content {
@@ -678,13 +539,12 @@ code {
 }
 
 .story-chapter {
-    padding: var(--spacing-xl) 0;
+    padding: var(--spacing-lg) 0;
     margin-bottom: 0;
 }
 
 .story-chapter-alt {
-    background: var(--bg-secondary);
-    transition: background var(--transition-normal);
+    /* Removed alternating background for consistency */
 }
 
 /* ============================================
@@ -775,8 +635,8 @@ code {
     display: flex;
     align-items: center;
     gap: var(--spacing-lg);
-    margin: var(--spacing-3xl) 0;
-    padding: var(--spacing-xl) 0;
+    margin: var(--spacing-xl) 0;
+    padding: var(--spacing-md) 0;
 }
 
 .transition-line {
@@ -815,9 +675,9 @@ code {
 }
 
 .chapter-header {
-    margin-bottom: var(--spacing-xl);
-    padding-bottom: var(--spacing-md);
-    border-bottom: 2px solid var(--border-light);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--border-light);
 }
 
 .chapter-number {
@@ -845,18 +705,18 @@ code {
 }
 
 .story-text {
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
 }
 
 .story-text + .story-viz {
-    margin-top: var(--spacing-lg);
+    margin-top: var(--spacing-md);
 }
 
 .story-paragraph {
     font-size: var(--font-size-lg);
     line-height: var(--line-height-relaxed);
     color: var(--text-secondary);
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
     max-width: 100%;
 }
 
@@ -1003,62 +863,6 @@ code {
     transition: background var(--transition-normal);
 }
 
-[data-theme="dark"] .tile-map {
-    background: var(--bg-tertiary);
-}
-
-/* Dark mode for visualization containers */
-[data-theme="dark"] .visualization {
-    background: var(--bg-card);
-    border-color: var(--border-medium);
-}
-
-/* Dark mode for legends and tooltips */
-[data-theme="dark"] .tile-legend,
-[data-theme="dark"] .tile-legend-title,
-[data-theme="dark"] .tile-legend-labels {
-    color: var(--text-primary);
-}
-
-[data-theme="dark"] .semantic-tooltip,
-[data-theme="dark"] .uhi-tooltip,
-[data-theme="dark"] .genoa-tooltip {
-    background: var(--bg-overlay) !important;
-    color: var(--text-primary) !important;
-    border: 1px solid var(--border-medium);
-}
-
-[data-theme="dark"] .zoom-toggle-button {
-    background: var(--bg-overlay) !important;
-    border-color: var(--border-medium) !important;
-    color: var(--text-primary) !important;
-}
-
-/* SVG text elements in dark mode */
-[data-theme="dark"] .visualization svg text {
-    fill: var(--text-primary);
-}
-
-[data-theme="dark"] .visualization svg .axis text,
-[data-theme="dark"] .visualization svg .axis-label {
-    fill: var(--text-primary);
-}
-
-[data-theme="dark"] .visualization svg .tick text {
-    fill: var(--text-secondary);
-}
-
-/* SVG text elements using CSS variables need to be handled via JavaScript, but we can style by class */
-[data-theme="dark"] .visualization svg .legend-label,
-[data-theme="dark"] .visualization svg .legend-title,
-[data-theme="dark"] .visualization svg .legend-subtitle {
-    fill: var(--text-primary) !important;
-}
-
-/* Ensure SVG stroke colors adapt to dark mode */
-[data-theme="dark"] .visualization svg .legend-rect {
-    stroke: var(--border-medium) !important;
-}
 
 .tile-layer {
     position: absolute;
@@ -2417,16 +2221,6 @@ code {
         gap: var(--spacing-sm);
     }
     
-    .theme-toggle {
-        width: 36px;
-        height: 36px;
-    }
-    
-    .theme-icon svg {
-        width: 20px;
-        height: 20px;
-    }
-    
     .mobile-menu-toggle {
         display: flex;
         z-index: 1001;
@@ -2518,9 +2312,6 @@ code {
         transition: opacity var(--transition-normal);
     }
     
-    [data-theme="dark"] .nav-overlay {
-        background: rgba(0, 0, 0, 0.6);
-    }
     
     /* Hide sidebar and toggle button on mobile */
     .sidebar-nav,

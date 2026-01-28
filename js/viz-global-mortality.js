@@ -35,20 +35,35 @@ function createGlobalMortalityChart(data, container) {
     
     const containerNode = container.node();
     const containerWidth = containerNode.getBoundingClientRect().width;
-    const margin = { top: 40, right: 40, bottom: 60, left: 100 };
+    const isMobile = containerWidth < 768;
+    
+    // Responsive margins
+    const margin = { 
+        top: 40, 
+        right: isMobile ? 30 : 40, 
+        bottom: 60, 
+        left: isMobile ? 60 : 100 
+    };
     const width = Math.max(300, containerWidth - margin.left - margin.right);
     const height = 340;
     
-    const svg = container.append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom);
+    const svgWidth = width + margin.left + margin.right;
+    const svgHeight = height + margin.top + margin.bottom;
     
-    // Subtitle
+    const svg = container.append('svg')
+        .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .style('width', '100%')
+        .style('height', 'auto')
+        .style('max-width', '100%');
+    
+    // Subtitle - responsive font size
+    const subtitleFontSize = isMobile ? '11px' : '13px';
     svg.append('text')
-        .attr('x', (width + margin.left + margin.right) / 2)
+        .attr('x', svgWidth / 2)
         .attr('y', 15)
         .attr('text-anchor', 'middle')
-        .style('font-size', '13px')
+        .style('font-size', subtitleFontSize)
         .style('fill', 'var(--text-secondary)')
         .style('font-weight', '400')
         .text('Annual heat-related deaths globally, 1990–2021 | Data: Lancet Countdown 2025');
@@ -117,13 +132,19 @@ function createGlobalMortalityChart(data, container) {
         .attr('stroke-dasharray', '4,3')
         .attr('opacity', 0.9);
     
-    // Axes
+    // Axes - responsive font sizes and tick counts
+    const axisFontSize = isMobile ? '10px' : '11px';
+    const labelFontSize = isMobile ? '12px' : '14px';
+    const xTickInterval = isMobile ? 8 : 4; // Show fewer ticks on mobile
+    
     g.append('g')
         .attr('transform', `translate(0, ${height})`)
         .call(d3.axisBottom(xScale)
-            .tickValues(years.filter((y, i) => i % 4 === 0))
+            .tickValues(years.filter((y, i) => i % xTickInterval === 0))
             .tickFormat(d3.format('d')))
-        .style('color', 'var(--text-secondary)');
+        .style('color', 'var(--text-secondary)')
+        .selectAll('text')
+        .style('font-size', axisFontSize);
     
     g.append('g')
         .call(d3.axisLeft(yScale).tickFormat(d => {
@@ -131,14 +152,16 @@ function createGlobalMortalityChart(data, container) {
             if (d >= 1e3) return (d / 1e3).toFixed(0) + 'K';
             return d;
         }))
-        .style('color', 'var(--text-secondary)');
+        .style('color', 'var(--text-secondary)')
+        .selectAll('text')
+        .style('font-size', axisFontSize);
     
     // Labels
     g.append('text')
         .attr('x', width / 2)
         .attr('y', height + 45)
         .attr('text-anchor', 'middle')
-        .style('font-size', '14px')
+        .style('font-size', labelFontSize)
         .style('font-weight', '600')
         .style('fill', 'var(--text-primary)')
         .text('Year');
@@ -146,12 +169,12 @@ function createGlobalMortalityChart(data, container) {
     g.append('text')
         .attr('transform', 'rotate(-90)')
         .attr('x', -height / 2)
-        .attr('y', -70)
+        .attr('y', isMobile ? -50 : -70)
         .attr('text-anchor', 'middle')
-        .style('font-size', '14px')
+        .style('font-size', labelFontSize)
         .style('font-weight', '600')
         .style('fill', 'var(--text-primary)')
-        .text('Annual heat-related deaths');
+        .text(isMobile ? 'Deaths' : 'Annual heat-related deaths');
     
     // Annotation (2010)
     const peak2010 = data.find(d => d.Year === highlightYear);
@@ -169,7 +192,7 @@ function createGlobalMortalityChart(data, container) {
             .text(`2010 spike: ${(peak2010.AN / 1000).toFixed(0)}K`);
     }
     
-    // Tooltip (reuse to avoid duplicates)
+    // Tooltip (reuse to avoid duplicates) - mobile-friendly
     d3.select('body').selectAll('.viz-tooltip-mortality').remove();
     const tooltip = d3.select('body').append('div')
         .attr('class', 'viz-tooltip viz-tooltip-mortality')
@@ -178,31 +201,55 @@ function createGlobalMortalityChart(data, container) {
         .style('background', 'var(--bg-overlay)')
         .style('border', '1px solid var(--border-medium)')
         .style('border-radius', '8px')
-        .style('padding', '8px 12px')
-        .style('font-size', '13px')
+        .style('padding', isMobile ? '10px 14px' : '8px 12px')
+        .style('font-size', isMobile ? '12px' : '13px')
         .style('box-shadow', '0 2px 8px rgba(0,0,0,0.15)')
         .style('pointer-events', 'none')
-        .style('z-index', '1000');
+        .style('z-index', '1000')
+        .style('touch-action', 'none');
+    
+    const showTooltip = function(event, d) {
+        d3.select(this).attr('opacity', 0.95);
+        const tooltipX = isMobile ? containerWidth / 2 : (event.pageX + 10);
+        const tooltipY = isMobile ? (event.pageY - 100) : (event.pageY - 60);
+        const tooltipLeft = isMobile ? '50%' : (tooltipX + 'px');
+        const tooltipTransform = isMobile ? 'translate(-50%, 0)' : 'none';
+        
+        tooltip
+            .style('visibility', 'visible')
+            .style('top', tooltipY + 'px')
+            .style('left', tooltipLeft)
+            .style('transform', tooltipTransform)
+            .style('max-width', isMobile ? '90%' : 'none')
+            .html(
+                `<strong>${d.Year}</strong>` +
+                `<br/>Deaths: ${d.AN.toLocaleString()}` +
+                `<br/>Attributable fraction: ${(d.AF * 100).toFixed(0)}%`
+            );
+    };
     
     g.selectAll('.bar')
-        .on('mouseenter', function(event, d) {
-            d3.select(this).attr('opacity', 0.95);
-            tooltip
-                .style('visibility', 'visible')
-                .html(
-                    `<strong>${d.Year}</strong>` +
-                    `<br/>Deaths: ${d.AN.toLocaleString()}` +
-                    `<br/>Attributable fraction: ${(d.AF * 100).toFixed(0)}%`
-                );
+        .on('mouseenter', showTooltip)
+        .on('touchstart', function(event, d) {
+            event.preventDefault();
+            const touch = event.touches[0];
+            showTooltip.call(this, { pageX: touch.pageX, pageY: touch.pageY }, d);
         })
         .on('mousemove', function(event) {
-            tooltip
-                .style('top', (event.pageY - 60) + 'px')
-                .style('left', (event.pageX + 10) + 'px');
+            if (!isMobile) {
+                tooltip
+                    .style('top', (event.pageY - 60) + 'px')
+                    .style('left', (event.pageX + 10) + 'px');
+            }
         })
         .on('mouseleave', function(event, d) {
             d3.select(this).attr('opacity', d.Year === highlightYear ? 0.95 : 0.45);
             tooltip.style('visibility', 'hidden');
+        })
+        .on('touchend', function() {
+            setTimeout(() => {
+                tooltip.style('visibility', 'hidden');
+            }, 2000);
         });
 }
 

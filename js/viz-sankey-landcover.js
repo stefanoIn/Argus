@@ -314,21 +314,47 @@ function renderSankey(container, nodes, links, totalAreaKm2, totalFlowPixels) {
         .domain([minLinkValue, maxLinkValue])
         .range([2, 25]);
     
-    // Draw links
+    // Draw links with staggered "draw in" animation (one connection at a time)
     const linkGroup = g.append('g').attr('class', 'links');
+    const linkDrawDuration = 450;
+    const linkStaggerDelay = 130;
     
     links.forEach((link, i) => {
         const source = nodes[link.source];
         const target = nodes[link.target];
         const linkWidth = linkWidthScale(link.value);
+        const pathD = createLinkPath(link);
         
         const path = linkGroup.append('path')
-            .attr('d', createLinkPath(link))
+            .attr('d', pathD)
             .attr('stroke', `url(#gradient-${i})`)
             .attr('stroke-width', linkWidth)
             .attr('fill', 'none')
-            .attr('opacity', 0.6)
+            .attr('opacity', 0)
+            .attr('stroke-linecap', 'round')
+            .attr('stroke-linejoin', 'round')
             .style('cursor', 'pointer');
+        
+        // Animate path drawing in: stroke-dasharray/offset trick
+        const pathNode = path.node();
+        if (pathNode && pathNode.getTotalLength) {
+            const len = pathNode.getTotalLength();
+            path
+                .attr('stroke-dasharray', len)
+                .attr('stroke-dashoffset', len)
+                .transition()
+                .delay(400 + i * linkStaggerDelay) // nodes appear first, then links one by one
+                .duration(linkDrawDuration)
+                .ease(d3.easeCubicOut)
+                .attr('stroke-dashoffset', 0)
+                .attr('opacity', 0.6);
+        } else {
+            path
+                .transition()
+                .delay(400 + i * linkStaggerDelay)
+                .duration(linkDrawDuration)
+                .attr('opacity', 0.6);
+        }
         
         // Calculate link statistics
         const sourceTotal = nodeTotals.get(link.source);
@@ -407,12 +433,13 @@ function renderSankey(container, nodes, links, totalAreaKm2, totalFlowPixels) {
             });
     });
     
-    // Draw nodes
+    // Draw nodes with quick staggered fade-in (before links animate)
     const nodeGroup = g.append('g').attr('class', 'nodes');
     
-    nodes.forEach(node => {
+    nodes.forEach((node, i) => {
         const nodeG = nodeGroup.append('g')
-            .attr('transform', `translate(${node.x},${node.y})`);
+            .attr('transform', `translate(${node.x},${node.y})`)
+            .style('opacity', 0);
         
         // Node rectangle
         const color = node.type === 'landcover' 
@@ -428,6 +455,13 @@ function renderSankey(container, nodes, links, totalAreaKm2, totalFlowPixels) {
             .attr('stroke-width', 2)
             .attr('rx', 4)
             .style('cursor', 'pointer');
+        
+        // Fade in whole node (rect + label) one after the other
+        nodeG.transition()
+            .delay(i * 70)
+            .duration(300)
+            .ease(d3.easeCubicOut)
+            .style('opacity', 1);
         
         // Node label (prevent text spilling with better wrapping) - responsive font size
         const maxCharsPerLine = nodeWidth < 120 ? 8 : 12;

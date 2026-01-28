@@ -35,20 +35,35 @@ function createGlobalSleepLossChart(data, container) {
     
     const containerNode = container.node();
     const containerWidth = containerNode.getBoundingClientRect().width;
-    const margin = { top: 40, right: 80, bottom: 60, left: 80 };
+    const isMobile = containerWidth < 768;
+    
+    // Responsive margins
+    const margin = { 
+        top: 40, 
+        right: isMobile ? 30 : 80, 
+        bottom: 60, 
+        left: isMobile ? 50 : 80 
+    };
     const width = Math.max(300, containerWidth - margin.left - margin.right);
     const height = 340;
     
-    const svg = container.append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom);
+    const svgWidth = width + margin.left + margin.right;
+    const svgHeight = height + margin.top + margin.bottom;
     
-    // Add subtitle
+    const svg = container.append('svg')
+        .attr('viewBox', `0 0 ${svgWidth} ${svgHeight}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .style('width', '100%')
+        .style('height', 'auto')
+        .style('max-width', '100%');
+    
+    // Add subtitle - responsive font size
+    const subtitleFontSize = isMobile ? '11px' : '13px';
     svg.append('text')
-        .attr('x', (width + margin.left + margin.right) / 2)
+        .attr('x', svgWidth / 2)
         .attr('y', 15)
         .attr('text-anchor', 'middle')
-        .style('font-size', '13px')
+        .style('font-size', subtitleFontSize)
         .style('fill', 'var(--text-secondary)')
         .style('font-weight', '400')
         .text('Percentage of sleep lost due to heat exposure globally, 2015–2024 | Data: Lancet Countdown 2025');
@@ -85,22 +100,29 @@ function createGlobalSleepLossChart(data, container) {
         .attr('fill', color)
         .attr('opacity', d => d.Year === lastYear ? 0.95 : 0.55);
     
-    // Axes
+    // Axes - responsive font sizes
+    const axisFontSize = isMobile ? '10px' : '11px';
+    const labelFontSize = isMobile ? '12px' : '14px';
+    
     g.append('g')
         .attr('transform', `translate(0, ${height})`)
         .call(d3.axisBottom(xScale).tickValues(years.filter((y, i) => i % 2 === 0)))
-        .style('color', 'var(--text-secondary)');
+        .style('color', 'var(--text-secondary)')
+        .selectAll('text')
+        .style('font-size', axisFontSize);
     
     g.append('g')
         .call(d3.axisLeft(yScale).tickFormat(d => d + '%'))
-        .style('color', 'var(--text-secondary)');
+        .style('color', 'var(--text-secondary)')
+        .selectAll('text')
+        .style('font-size', axisFontSize);
     
     // Labels
     g.append('text')
         .attr('x', width / 2)
         .attr('y', height + 45)
         .attr('text-anchor', 'middle')
-        .style('font-size', '14px')
+        .style('font-size', labelFontSize)
         .style('font-weight', '600')
         .style('fill', 'var(--text-primary)')
         .text('Year');
@@ -108,9 +130,9 @@ function createGlobalSleepLossChart(data, container) {
     g.append('text')
         .attr('transform', 'rotate(-90)')
         .attr('x', -height / 2)
-        .attr('y', -55)
+        .attr('y', isMobile ? -40 : -55)
         .attr('text-anchor', 'middle')
-        .style('font-size', '14px')
+        .style('font-size', labelFontSize)
         .style('font-weight', '600')
         .style('fill', 'var(--text-primary)')
         .text('Sleep Loss (%)');
@@ -139,7 +161,7 @@ function createGlobalSleepLossChart(data, container) {
         .style('fill', '#8b5cf6')
         .text(`2024: ${peak2024.Sleep_loss_percentage.toFixed(1)}%`);
     
-    // Tooltip (reuse to avoid duplicates)
+    // Tooltip (reuse to avoid duplicates) - mobile-friendly
     d3.select('body').selectAll('.viz-tooltip-sleep-loss').remove();
     const tooltip = d3.select('body').append('div')
         .attr('class', 'viz-tooltip viz-tooltip-sleep-loss')
@@ -148,27 +170,51 @@ function createGlobalSleepLossChart(data, container) {
         .style('background', 'var(--bg-overlay)')
         .style('border', '1px solid var(--border-medium)')
         .style('border-radius', '8px')
-        .style('padding', '8px 12px')
-        .style('font-size', '13px')
+        .style('padding', isMobile ? '10px 14px' : '8px 12px')
+        .style('font-size', isMobile ? '12px' : '13px')
         .style('box-shadow', '0 2px 8px rgba(0,0,0,0.15)')
         .style('pointer-events', 'none')
-        .style('z-index', '1000');
+        .style('z-index', '1000')
+        .style('touch-action', 'none');
+    
+    const showTooltip = function(event, d) {
+        d3.select(this).attr('opacity', 0.95);
+        const tooltipX = isMobile ? containerWidth / 2 : (event.pageX + 10);
+        const tooltipY = isMobile ? (event.pageY - 100) : (event.pageY - 40);
+        const tooltipLeft = isMobile ? '50%' : (tooltipX + 'px');
+        const tooltipTransform = isMobile ? 'translate(-50%, 0)' : 'none';
+        
+        tooltip
+            .style('visibility', 'visible')
+            .style('top', tooltipY + 'px')
+            .style('left', tooltipLeft)
+            .style('transform', tooltipTransform)
+            .style('max-width', isMobile ? '90%' : 'none')
+            .html(`<strong>${d.Year}</strong><br/>Sleep loss: ${d.Sleep_loss_percentage.toFixed(1)}%`);
+    };
     
     g.selectAll('.bar')
-        .on('mouseenter', function(event, d) {
-            d3.select(this).attr('opacity', 0.95);
-            tooltip
-                .style('visibility', 'visible')
-                .html(`<strong>${d.Year}</strong><br/>Sleep loss: ${d.Sleep_loss_percentage.toFixed(1)}%`);
+        .on('mouseenter', showTooltip)
+        .on('touchstart', function(event, d) {
+            event.preventDefault();
+            const touch = event.touches[0];
+            showTooltip.call(this, { pageX: touch.pageX, pageY: touch.pageY }, d);
         })
         .on('mousemove', function(event) {
-            tooltip
-                .style('top', (event.pageY - 40) + 'px')
-                .style('left', (event.pageX + 10) + 'px');
+            if (!isMobile) {
+                tooltip
+                    .style('top', (event.pageY - 40) + 'px')
+                    .style('left', (event.pageX + 10) + 'px');
+            }
         })
         .on('mouseleave', function(event, d) {
             d3.select(this).attr('opacity', d.Year === d3.max(data, dd => dd.Year) ? 0.95 : 0.55);
             tooltip.style('visibility', 'hidden');
+        })
+        .on('touchend', function() {
+            setTimeout(() => {
+                tooltip.style('visibility', 'hidden');
+            }, 2000);
         });
 }
 
